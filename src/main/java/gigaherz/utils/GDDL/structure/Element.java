@@ -1,7 +1,8 @@
 package gigaherz.utils.GDDL.structure;
 
-import gigaherz.utils.GDDL.exceptions.DataValueException;
+import gigaherz.utils.GDDL.FileContext;
 import gigaherz.utils.GDDL.config.StringGenerationContext;
+import gigaherz.utils.GDDL.exceptions.ParserException;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -109,10 +110,10 @@ public abstract class Element
         return new Value(Double.parseDouble(text));
     }
 
-    public static Value stringValue(String text) throws DataValueException
+    public static Value stringValue(FileContext ctx, String text) throws ParserException
     {
         if (text.charAt(0) == '"' || text.charAt(0) == '\'')
-            return new Value(Value.UnescapeString(text));
+            return new Value(Value.unescapeString(ctx, text));
 
         return new Value(text);
     }

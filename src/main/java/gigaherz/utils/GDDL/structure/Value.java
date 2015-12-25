@@ -1,7 +1,8 @@
 package gigaherz.utils.GDDL.structure;
 
-import gigaherz.utils.GDDL.exceptions.DataValueException;
+import gigaherz.utils.GDDL.FileContext;
 import gigaherz.utils.GDDL.config.StringGenerationContext;
+import gigaherz.utils.GDDL.exceptions.ParserException;
 
 import java.util.Locale;
 
@@ -17,7 +18,7 @@ public class Value extends Element
     public boolean getBoolean() {return (boolean)data; }
     public void setBoolean(boolean value) {data = value;}
 
-    public boolean IsNull() {return data == null;}
+    public boolean isNull() {return data == null;}
 
     Value() { data = null; }
 
@@ -29,7 +30,7 @@ public class Value extends Element
 
     Value(double valueData) { data = valueData; }
 
-    static String UnescapeString(String p) throws DataValueException
+    static String unescapeString(FileContext context, String p) throws ParserException
     {
         StringBuilder sb = new StringBuilder();
 
@@ -143,10 +144,10 @@ public class Value extends Element
             }
         }
 
-        throw new DataValueException();
+        throw new ParserException(context, "Invalid string literal");
     }
 
-    static String EscapeString(String p)
+    static String escapeString(String p)
     {
         StringBuilder sb = new StringBuilder();
 
@@ -205,7 +206,7 @@ public class Value extends Element
         }
         if (data instanceof String)
         {
-            return EscapeString(getString());
+            return escapeString(getString());
         }
         return String.format(Locale.ROOT, "%s", data.toString());
     }

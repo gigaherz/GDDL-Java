@@ -8,7 +8,7 @@ import gigaherz.utils.GDDL.structure.Set;
 
 import java.io.IOException;
 
-public class Parser
+public class Parser implements FileContext
 {
     public static Parser fromFile(String filename) throws IOException, ParserException
     {
@@ -133,7 +133,7 @@ public class Parser
         if (lex.Peek() == Tokens.HEXINT) return Element.intValue(pop_expected(Tokens.HEXINT).Text, 16);
         if (lex.Peek() == Tokens.INTEGER) return Element.intValue(pop_expected(Tokens.INTEGER).Text);
         if (lex.Peek() == Tokens.DOUBLE) return Element.floatValue(pop_expected(Tokens.DOUBLE).Text);
-        if (lex.Peek() == Tokens.STRING) return Element.stringValue(pop_expected(Tokens.STRING).Text);
+        if (lex.Peek() == Tokens.STRING) return Element.stringValue(lex, pop_expected(Tokens.STRING).Text);
         if (prefix_set()) return set();
         if (prefix_typedSet()) return typedSet();
         if (prefix_backreference()) return backreference();
@@ -241,7 +241,7 @@ public class Parser
             finished_with_rbrace = false;
 
             if (!prefix_element())
-                throw new ParserException(this, String.format("Expected element after LBRACE, found {0} instead", lex.Peek()));
+                throw new ParserException(this, String.format("Expected element after LBRACE, found %s instead", lex.Peek()));
 
             S.add(element());
 
@@ -308,5 +308,11 @@ public class Parser
         if (lex.Peek() == Tokens.IDENT) return pop_expected(Tokens.IDENT).Text;
 
         throw new ParserException(this, "Internal error");
+    }
+
+    @Override
+    public ParseContext getFileContext()
+    {
+        return lex.getFileContext();
     }
 }

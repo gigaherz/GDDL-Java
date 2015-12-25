@@ -2,7 +2,6 @@ package gigaherz.utils.GDDL;
 
 public class Token
 {
-
     public Tokens Name;
     public String Text;
     public ParseContext Context;

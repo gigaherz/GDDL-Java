@@ -4,8 +4,6 @@ import gigaherz.utils.GDDL.deque.IndexedDeque;
 import gigaherz.utils.GDDL.exceptions.LexerException;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.Stack;
 
 public class Lexer implements FileContext

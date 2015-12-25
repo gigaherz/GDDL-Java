@@ -6,8 +6,6 @@ import gigaherz.utils.GDDL.exceptions.ReaderException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Deque;
 
 public class Reader implements FileContext
 {
