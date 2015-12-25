@@ -1,6 +1,8 @@
 package gigaherz.utils.GDDL.structure;
 
-import gigaherz.utils.GDDL.StringGenerationContext;
+import gigaherz.utils.GDDL.Utility;
+import gigaherz.utils.GDDL.config.StringGenerationContext;
+import gigaherz.utils.GDDL.config.StringGenerationOptions;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -241,20 +243,6 @@ public class Set extends Element implements List<Element>
         return b.toString();
     }
 
-    // TODO: improve this?
-    private <T> String joinStream(CharSequence separator, Stream<T> stream)
-    {
-        StringBuilder b = new StringBuilder();
-        boolean first = true;
-        for(Object e : stream.toArray())
-        {
-            if(!first) b.append(separator);
-            b.append(e.toString());
-            first = false;
-        }
-        return b.toString();
-    }
-
     protected String toStringInternal(StringGenerationContext ctx)
     {
         boolean addBraces = ctx.IndentLevel > 0;
@@ -268,13 +256,13 @@ public class Set extends Element implements List<Element>
 
         final String tabs2 = addBraces ? "  " + tabs1 : tabs1;
 
-        boolean nice = (ctx.Options == StringGenerationContext.StringGenerationOptions.Nice) && (!isSimple() || contents.size() > 10);
+        boolean nice = (ctx.Options == StringGenerationOptions.Nice) && (!isSimple() || contents.size() > 10);
 
         ctx.IndentLevel++;
 
         String result = nice
-                ? joinStream(",\n", contents.stream().map(a -> tabs2 + a.toString(ctx)))
-                : joinStream(", ", contents.stream().map(a -> a.toString(ctx)));
+                ? Utility.joinStream(",\n", contents.stream().map(a -> tabs2 + a.toString(ctx)))
+                : Utility.joinStream(", ", contents.stream().map(a -> a.toString(ctx)));
 
         if (addBraces)
         {

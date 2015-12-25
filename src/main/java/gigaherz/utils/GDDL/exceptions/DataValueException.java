@@ -1,8 +1,10 @@
-package gigaherz.utils.GDDL;
+package gigaherz.utils.GDDL.exceptions;
+
+import gigaherz.utils.GDDL.exceptions.ParserException;
 
 public class DataValueException extends ParserException
 {
-    protected DataValueException()
+    public DataValueException()
     {
         super();
     }

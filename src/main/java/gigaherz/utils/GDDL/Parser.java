@@ -1,5 +1,7 @@
 package gigaherz.utils.GDDL;
 
+import gigaherz.utils.GDDL.exceptions.LexerException;
+import gigaherz.utils.GDDL.exceptions.ParserException;
 import gigaherz.utils.GDDL.structure.Backreference;
 import gigaherz.utils.GDDL.structure.Element;
 import gigaherz.utils.GDDL.structure.Set;
@@ -22,7 +24,7 @@ public class Parser
 
     boolean finished_with_rbrace = false;
 
-    Lexer getLexer() { return lex; }
+    public Lexer getLexer() { return lex; }
 
     public Element Parse() throws IOException, ParserException
     {
@@ -266,7 +268,7 @@ public class Parser
         lex.EndPrefixScan();
         return r;
     }
-    Set typedSet()
+    Set typedSet() throws IOException, ParserException
     /*#if DEBUG_RULES
     {
         Debug.WriteLine("Entering rule_typedSet()");

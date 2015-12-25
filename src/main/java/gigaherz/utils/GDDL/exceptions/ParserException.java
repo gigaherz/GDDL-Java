@@ -1,4 +1,7 @@
-package gigaherz.utils.GDDL;
+package gigaherz.utils.GDDL.exceptions;
+
+import gigaherz.utils.GDDL.FileContext;
+import gigaherz.utils.GDDL.Parser;
 
 public class ParserException extends Exception
 {

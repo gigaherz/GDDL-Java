@@ -1,6 +1,6 @@
 package gigaherz.utils.GDDL.structure;
 
-import gigaherz.utils.GDDL.StringGenerationContext;
+import gigaherz.utils.GDDL.config.StringGenerationContext;
 
 import java.util.ArrayList;
 import java.util.List;

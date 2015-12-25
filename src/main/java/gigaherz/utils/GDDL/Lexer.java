@@ -1,5 +1,8 @@
 package gigaherz.utils.GDDL;
 
+import gigaherz.utils.GDDL.deque.IndexedDeque;
+import gigaherz.utils.GDDL.exceptions.LexerException;
+
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -7,7 +10,7 @@ import java.util.Stack;
 
 public class Lexer implements FileContext
 {
-    final Deque<Token> lookAhead = new ArrayDeque<>();
+    final IndexedDeque<Token> lookAhead = new IndexedDeque<>();
     final Stack<Integer> prefixStack = new Stack<>();
 
     final Reader reader;
@@ -33,7 +36,7 @@ public class Lexer implements FileContext
     {
         Require(prefixPos + 1);
 
-        prefix = lookAhead[prefixPos++];
+        prefix = lookAhead.get(prefixPos++);
     }
 
     public void EndPrefixScan()
@@ -42,7 +45,7 @@ public class Lexer implements FileContext
 
         if (prefixPos > 0)
         {
-            prefix = lookAhead[prefixPos - 1];
+            prefix = lookAhead.get(prefixPos - 1);
         }
         else
         {
@@ -63,7 +66,7 @@ public class Lexer implements FileContext
     {
         Require(1);
 
-        return lookAhead[0].Name;
+        return lookAhead.get(0).Name;
     }
 
     public Token Pop() throws LexerException, IOException
@@ -352,13 +355,13 @@ public class Lexer implements FileContext
 
     public String toString()
     {
-        return String.format("{Lexer ahead=%s, reader=%s}", String.join(", ", lookAhead), reader);
+        return String.format("{Lexer ahead=%s, reader=%s}", Utility.joinCollection(", ", lookAhead), reader);
     }
 
     public ParseContext getFileContext()
     {
         if(lookAhead.size() > 0)
-            return lookAhead[0].Context;
+            return lookAhead.get(0).Context;
         return reader.getFileContext();
     }
 }

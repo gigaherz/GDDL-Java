@@ -1,7 +1,7 @@
 package gigaherz.utils.GDDL.structure;
 
-import gigaherz.utils.GDDL.DataValueException;
-import gigaherz.utils.GDDL.StringGenerationContext;
+import gigaherz.utils.GDDL.exceptions.DataValueException;
+import gigaherz.utils.GDDL.config.StringGenerationContext;
 
 import java.util.Locale;
 

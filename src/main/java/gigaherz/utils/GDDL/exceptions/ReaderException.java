@@ -1,6 +1,6 @@
-package gigaherz.utils.GDDL;
+package gigaherz.utils.GDDL.exceptions;
 
-import java.io.IOException;
+import gigaherz.utils.GDDL.FileContext;
 
 public class ReaderException extends LexerException
 {

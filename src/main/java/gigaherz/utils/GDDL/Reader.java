@@ -1,5 +1,8 @@
 package gigaherz.utils.GDDL;
 
+import gigaherz.utils.GDDL.deque.IndexedDeque;
+import gigaherz.utils.GDDL.exceptions.ReaderException;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -9,7 +12,7 @@ import java.util.Deque;
 public class Reader implements FileContext
 {
     boolean endQueued = false;
-    final Deque<Integer> unreadBuffer = new ArrayDeque<>();
+    final IndexedDeque<Integer> unreadBuffer = new IndexedDeque<>();
 
     FileReader dataSource;
     String sourceName;
@@ -58,7 +61,7 @@ public class Reader implements FileContext
     {
         Require(index + 1);
 
-        return unreadBuffer[index];
+        return unreadBuffer.get(index);
     }
 
     public int Pop() throws ReaderException

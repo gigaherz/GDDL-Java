@@ -1,12 +1,7 @@
-package gigaherz.utils.GDDL;
+package gigaherz.utils.GDDL.config;
 
 public class StringGenerationContext
 {
-    public enum StringGenerationOptions
-    {
-        Compact, // Default
-        Nice
-    }
 
     public StringGenerationOptions Options;
 
