@@ -15,14 +15,20 @@ public class Backreference extends Element
     private boolean resolved;
     private Element resolvedValue;
 
-    public Element resolvedValue() { return resolvedValue; }
-
-    public boolean isResolved() { return resolved; }
-
     Backreference(boolean rooted, String I)
     {
         Rooted = rooted;
         NamePart.add(I);
+    }
+
+    public Element resolvedValue()
+    {
+        return resolvedValue;
+    }
+
+    public boolean isResolved()
+    {
+        return resolved;
     }
 
     public void append(String I)
@@ -73,7 +79,7 @@ public class Backreference extends Element
             if (!(elm instanceof Set))
                 continue;
 
-            Set s = (Set)elm;
+            Set s = (Set) elm;
 
             Element ne = s.find(it);
             if (ne != null)
@@ -91,7 +97,7 @@ public class Backreference extends Element
         resolved = true;
 
         if (!elm.isResolved())
-        elm.resolve(root);
+            elm.resolve(root);
 
         resolvedValue = elm.resolvedValue();
     }

@@ -1,12 +1,12 @@
 package gigaherz.utils.GDDL;
 
-public class ParseContext
+public class ParsingContext
 {
     public String Filename;
     public int Line;
     public int Column;
 
-    public ParseContext(String f, int l, int c)
+    public ParsingContext(String f, int l, int c)
     {
         Filename = f;
         Line = l;

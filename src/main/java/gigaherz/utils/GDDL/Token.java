@@ -4,9 +4,9 @@ public class Token
 {
     public Tokens Name;
     public String Text;
-    public ParseContext Context;
+    public ParsingContext Context;
 
-    public Token(Tokens name, ParseContext context, String text)
+    public Token(Tokens name, ParsingContext context, String text)
     {
         Name = name;
         Text = text;

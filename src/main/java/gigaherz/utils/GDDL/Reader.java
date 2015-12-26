@@ -7,11 +7,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class Reader implements FileContext
+public class Reader implements ContextProvider
 {
-    boolean endQueued = false;
     final IndexedDeque<Integer> unreadBuffer = new IndexedDeque<>();
-
+    boolean endQueued = false;
     FileReader dataSource;
     String sourceName;
     int line = 1;
@@ -25,16 +24,16 @@ public class Reader implements FileContext
         dataSource = new FileReader(source);
     }
 
-    void Require(int number) throws ReaderException, IOException
+    void require(int number) throws ReaderException, IOException
     {
         int needed = number - unreadBuffer.size();
         if (needed > 0)
         {
-            NeedChars(needed);
+            needChars(needed);
         }
     }
 
-    private void NeedChars(int needed) throws ReaderException, IOException
+    private void needChars(int needed) throws ReaderException, IOException
     {
         while (needed-- > 0)
         {
@@ -50,19 +49,19 @@ public class Reader implements FileContext
         }
     }
 
-    public int Peek() throws ReaderException, IOException
+    public int peek() throws ReaderException, IOException
     {
-        return Peek(0);
+        return peek(0);
     }
 
-    public int Peek(int index) throws ReaderException, IOException
+    public int peek(int index) throws ReaderException, IOException
     {
-        Require(index + 1);
+        require(index + 1);
 
         return unreadBuffer.get(index);
     }
 
-    public int Pop() throws ReaderException
+    public int next() throws ReaderException
     {
         int ch = unreadBuffer.removeFirst();
 
@@ -90,25 +89,25 @@ public class Reader implements FileContext
         return ch;
     }
 
-    public String Read(int count) throws ReaderException, IOException
+    public String read(int count) throws ReaderException, IOException
     {
-        Require(count);
+        require(count);
         StringBuilder b = new StringBuilder();
         while (count-- > 0)
         {
-            int ch = Pop();
+            int ch = next();
             if (ch < 0)
                 throw new ReaderException(this, "Tried to read beyond the end of the file.");
-            b.append((char)ch);
+            b.append((char) ch);
         }
         return b.toString();
     }
 
-    public void Drop(int count) throws ReaderException, IOException
+    public void skip(int count) throws ReaderException, IOException
     {
-        Require(count);
+        require(count);
         while (count-- > 0)
-            Pop();
+            next();
     }
 
     public String toString()
@@ -116,13 +115,13 @@ public class Reader implements FileContext
         StringBuilder b = new StringBuilder();
         for (int ch : unreadBuffer)
         {
-            b.append((char)ch);
+            b.append((char) ch);
         }
         return String.format("{Reader ahead=%s}", b.toString());
     }
 
-    public ParseContext getFileContext()
+    public ParsingContext getParsingContext()
     {
-        return new ParseContext(sourceName, line, column);
+        return new ParsingContext(sourceName, line, column);
     }
 }

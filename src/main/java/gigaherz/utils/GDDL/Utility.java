@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 public class Utility
 {
-    public static int ClosestPowerOfTwoGreaterThan(int x)
+    public static int closestPowerOfTwoGreaterThan(int x)
     {
         x--;
         x |= (x >> 1);
@@ -14,7 +14,7 @@ public class Utility
         x |= (x >> 4);
         x |= (x >> 8);
         x |= (x >> 16);
-        return (x+1);
+        return (x + 1);
     }
 
     // TODO: improve this?
@@ -27,16 +27,16 @@ public class Utility
     {
         StringBuilder b = new StringBuilder();
         boolean first = true;
-        for(Object e : iterable)
+        for (Object e : iterable)
         {
-            if(!first) b.append(separator);
+            if (!first) b.append(separator);
             b.append(e.toString());
             first = false;
         }
         return b.toString();
     }
 
-    public static <TSource> int Count(Iterable<TSource> source)
+    public static <TSource> int count(Iterable<TSource> source)
     {
         if (source == null)
         {
@@ -46,7 +46,7 @@ public class Utility
         // Optimization for Collection<T>
         if (source instanceof Collection)
         {
-            return ((Collection<TSource>)source).size();
+            return ((Collection<TSource>) source).size();
         }
 
         int count = 0;

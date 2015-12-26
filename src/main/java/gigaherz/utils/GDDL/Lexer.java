@@ -6,7 +6,7 @@ import gigaherz.utils.GDDL.exceptions.LexerException;
 import java.io.IOException;
 import java.util.Stack;
 
-public class Lexer implements FileContext
+public class Lexer implements ContextProvider
 {
     final IndexedDeque<Token> lookAhead = new IndexedDeque<>();
     final Stack<Integer> prefixStack = new Stack<>();
@@ -18,26 +18,29 @@ public class Lexer implements FileContext
     int prefixPos = 0;
     Token prefix;
 
-    public Tokens prefix() { return prefix.Name; }
-
     public Lexer(Reader r)
     {
         reader = r;
     }
 
-    public void BeginPrefixScan()
+    public Tokens prefix()
+    {
+        return prefix.Name;
+    }
+
+    public void beginPrefixScan()
     {
         prefixStack.push(prefixPos);
     }
 
-    public void NextPrefix() throws LexerException, IOException
+    public void nextPrefix() throws LexerException, IOException
     {
-        Require(prefixPos + 1);
+        require(prefixPos + 1);
 
         prefix = lookAhead.get(prefixPos++);
     }
 
-    public void EndPrefixScan()
+    public void endPrefixScan()
     {
         prefixPos = prefixStack.pop();
 
@@ -51,46 +54,47 @@ public class Lexer implements FileContext
         }
     }
 
-    private void Require(int count) throws LexerException, IOException
+    private void require(int count) throws LexerException, IOException
     {
         int needed = count - lookAhead.size();
         if (needed > 0)
         {
-            ReadAhead(needed);
+            readAhead(needed);
         }
     }
 
-    public Tokens Peek() throws LexerException, IOException
+    public Tokens peek() throws LexerException, IOException
     {
-        Require(1);
+        require(1);
 
         return lookAhead.get(0).Name;
     }
 
-    public Token Pop() throws LexerException, IOException
+    public Token pop() throws LexerException, IOException
     {
-        Require(2);
+        require(2);
 
         return lookAhead.removeFirst();
     }
 
-    private void ReadAhead(int needed) throws LexerException, IOException
+    private void readAhead(int needed) throws LexerException, IOException
     {
         while (needed-- > 0)
         {
-            lookAhead.addLast(ParseOne());
+            lookAhead.addLast(parseOne());
         }
     }
 
-    private Token ParseOne() throws LexerException, IOException
+    private Token parseOne() throws LexerException, IOException
     {
         if (seenEnd)
-            return new Token(Tokens.END, reader.getFileContext(), "");
+            return new Token(Tokens.END, reader.getParsingContext(), "");
 
-        int ich = reader.Peek();
-        blah: while (true)
+        int ich = reader.peek();
+        blah:
+        while (true)
         {
-            if (ich < 0) return new Token(Tokens.END, reader.getFileContext(), "");
+            if (ich < 0) return new Token(Tokens.END, reader.getParsingContext(), "");
 
             switch (ich)
             {
@@ -98,17 +102,17 @@ public class Lexer implements FileContext
                 case '\t':
                 case '\r':
                 case '\n':
-                    reader.Drop(1);
+                    reader.skip(1);
 
-                    ich = reader.Peek();
+                    ich = reader.peek();
                     break;
                 case '#':
                     // comment, skip until \r or \n
                     do
                     {
-                        reader.Drop(1);
+                        reader.skip(1);
 
-                        ich = reader.Peek();
+                        ich = reader.peek();
                     }
                     while (ich > 0 && ich != '\n' && ich != '\r');
                     break;
@@ -119,23 +123,28 @@ public class Lexer implements FileContext
 
         switch (ich)
         {
-            case '{': return new Token(Tokens.LBRACE, reader.getFileContext(), reader.Read(1));
-            case '}': return new Token(Tokens.RBRACE, reader.getFileContext(), reader.Read(1));
-            case ',': return new Token(Tokens.COMMA, reader.getFileContext(), reader.Read(1));
-            case ':': return new Token(Tokens.COLON, reader.getFileContext(), reader.Read(1));
-            case '=': return new Token(Tokens.EQUALS, reader.getFileContext(), reader.Read(1));
+            case '{':
+                return new Token(Tokens.LBRACE, reader.getParsingContext(), reader.read(1));
+            case '}':
+                return new Token(Tokens.RBRACE, reader.getParsingContext(), reader.read(1));
+            case ',':
+                return new Token(Tokens.COMMA, reader.getParsingContext(), reader.read(1));
+            case ':':
+                return new Token(Tokens.COLON, reader.getParsingContext(), reader.read(1));
+            case '=':
+                return new Token(Tokens.EQUALS, reader.getParsingContext(), reader.read(1));
         }
 
-        if (Character.isLetter((char)ich) || ich == '_')
+        if (Character.isLetter((char) ich) || ich == '_')
         {
             int number = 1;
             while (true)
             {
-                ich = reader.Peek(number);
+                ich = reader.peek(number);
                 if (ich < 0)
                     break;
 
-                if (Character.isLetter((char)ich) || Character.isDigit((char)ich) || ich == '_')
+                if (Character.isLetter((char) ich) || Character.isDigit((char) ich) || ich == '_')
                 {
                     number++;
                 }
@@ -145,7 +154,7 @@ public class Lexer implements FileContext
                 }
             }
 
-            Token id = new Token(Tokens.IDENT, reader.getFileContext(), reader.Read(number));
+            Token id = new Token(Tokens.IDENT, reader.getParsingContext(), reader.read(number));
 
             if (id.Text.compareToIgnoreCase("nil") == 0) return new Token(Tokens.NIL, id.Context, id.Text);
             if (id.Text.compareToIgnoreCase("null") == 0) return new Token(Tokens.NULL, id.Context, id.Text);
@@ -160,65 +169,65 @@ public class Lexer implements FileContext
             int startedWith = ich;
             int number = 1;
 
-            ich = reader.Peek(number);
+            ich = reader.peek(number);
             while (ich != startedWith && ich >= 0)
             {
                 if (ich == '\\')
                 {
-                    number = count_escape_seq(number);
+                    number = countEscapeSeq(number);
                 }
                 else
                 {
                     if (ich == '\r')
                     {
-                        throw new LexerException(this, String.format("Expected '\\r', found %s", DebugChar(ich)));
+                        throw new LexerException(this, String.format("Expected '\\r', found %s", debugChar(ich)));
                     }
                     number++;
                 }
 
-                ich = reader.Peek(number);
+                ich = reader.peek(number);
             }
 
             if (ich != startedWith)
             {
-                throw new LexerException(this, String.format("Expected '%c', found %s", startedWith, DebugChar(ich)));
+                throw new LexerException(this, String.format("Expected '%c', found %s", startedWith, debugChar(ich)));
             }
 
             number++;
 
-            return new Token(Tokens.STRING, reader.getFileContext(), reader.Read(number));
+            return new Token(Tokens.STRING, reader.getParsingContext(), reader.read(number));
         }
 
-        if (Character.isDigit((char)ich) || ich == '.')
+        if (Character.isDigit((char) ich) || ich == '.')
         {
             // numbers
             int number = 0;
             boolean fractional = false;
 
-            if (Character.isDigit((char)ich))
+            if (Character.isDigit((char) ich))
             {
-                if (reader.Peek(0) == '0' && reader.Peek(1) == 'x')
+                if (reader.peek(0) == '0' && reader.peek(1) == 'x')
                 {
                     number = 2;
 
-                    ich = reader.Peek(number);
-                    while (Character.isDigit((char)ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
+                    ich = reader.peek(number);
+                    while (Character.isDigit((char) ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
                     {
                         number++;
 
-                        ich = reader.Peek(number);
+                        ich = reader.peek(number);
                     }
 
-                    return new Token(Tokens.HEXINT, reader.getFileContext(), reader.Read(number));
+                    return new Token(Tokens.HEXINT, reader.getParsingContext(), reader.read(number));
                 }
 
                 number = 1;
-                ich = reader.Peek(number);
-                while (Character.isDigit((char)ich))
+                ich = reader.peek(number);
+                while (Character.isDigit((char) ich))
                 {
                     number++;
 
-                    ich = reader.Peek(number);
+                    ich = reader.peek(number);
                 }
             }
 
@@ -229,15 +238,15 @@ public class Lexer implements FileContext
                 // skip the '.'
                 number++;
 
-                ich = reader.Peek(number);
-                if (!Character.isDigit((char)ich))
-                    throw new LexerException(this, String.format("Expected DIGIT, found %c", (char)ich));
+                ich = reader.peek(number);
+                if (!Character.isDigit((char) ich))
+                    throw new LexerException(this, String.format("Expected DIGIT, found %c", (char) ich));
 
-                while (Character.isDigit((char)ich))
+                while (Character.isDigit((char) ich))
                 {
                     number++;
 
-                    ich = reader.Peek(number);
+                    ich = reader.peek(number);
                 }
             }
 
@@ -248,62 +257,67 @@ public class Lexer implements FileContext
                 // letter
                 number++;
 
-                ich = reader.Peek(number);
+                ich = reader.peek(number);
                 if (ich == '+' || ich == '-')
                 {
                     number++;
 
-                    ich = reader.Peek(number);
+                    ich = reader.peek(number);
                 }
 
-                if (!Character.isDigit((char)ich))
+                if (!Character.isDigit((char) ich))
                     throw new LexerException(this, String.format("Expected DIGIT, found %c", ich));
 
-                while (Character.isDigit((char)ich))
+                while (Character.isDigit((char) ich))
                 {
                     number++;
 
-                    ich = reader.Peek(number);
+                    ich = reader.peek(number);
                 }
             }
 
             if (fractional)
-                return new Token(Tokens.DOUBLE, reader.getFileContext(), reader.Read(number));
+                return new Token(Tokens.DOUBLE, reader.getParsingContext(), reader.read(number));
 
-            return new Token(Tokens.INTEGER, reader.getFileContext(), reader.Read(number));
+            return new Token(Tokens.INTEGER, reader.getParsingContext(), reader.read(number));
         }
 
-        throw new LexerException(this, String.format("Unexpected character: %c", reader.Peek()));
+        throw new LexerException(this, String.format("Unexpected character: %c", reader.peek()));
     }
 
-    private String DebugChar(int ich)
+    private String debugChar(int ich)
     {
         if (ich < 0)
             return "EOF";
 
         switch (ich)
         {
-            case 0: return "'\\0'";
-            case 8: return "'\\b'";
-            case 9: return "'\\t'";
-            case 10: return "'\\n'";
-            case 13: return "'\\r'";
+            case 0:
+                return "'\\0'";
+            case 8:
+                return "'\\b'";
+            case 9:
+                return "'\\t'";
+            case 10:
+                return "'\\n'";
+            case 13:
+                return "'\\r'";
             default:
-                if(Character.isISOControl(ich))
+                if (Character.isISOControl(ich))
                     return String.format("'\\u%04x'", ich);
                 return String.format("'%c'", ich);
         }
     }
 
-    private int count_escape_seq(int number) throws LexerException, IOException
+    private int countEscapeSeq(int number) throws LexerException, IOException
     {
-        int ich = reader.Peek(number);
+        int ich = reader.peek(number);
         if (ich != '\\')
             throw new LexerException(this, "Internal Error");
 
         number++;
 
-        ich = reader.Peek(number);
+        ich = reader.peek(number);
         switch (ich)
         {
             case '0':
@@ -322,23 +336,23 @@ public class Lexer implements FileContext
         {
             number++;
 
-            ich = reader.Peek(number);
-            if (Character.isDigit((char)ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
+            ich = reader.peek(number);
+            if (Character.isDigit((char) ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
             {
                 number++;
 
-                ich = reader.Peek(number);
-                if (Character.isDigit((char)ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
+                ich = reader.peek(number);
+                if (Character.isDigit((char) ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
                 {
                     number++;
 
-                    ich = reader.Peek(number);
-                    if (Character.isDigit((char)ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
+                    ich = reader.peek(number);
+                    if (Character.isDigit((char) ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
                     {
                         number++;
 
-                        ich = reader.Peek(number);
-                        if (Character.isDigit((char)ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
+                        ich = reader.peek(number);
+                        if (Character.isDigit((char) ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
                         {
                             number++;
                         }
@@ -356,10 +370,10 @@ public class Lexer implements FileContext
         return String.format("{Lexer ahead=%s, reader=%s}", Utility.joinCollection(", ", lookAhead), reader);
     }
 
-    public ParseContext getFileContext()
+    public ParsingContext getParsingContext()
     {
-        if(lookAhead.size() > 0)
+        if (lookAhead.size() > 0)
             return lookAhead.get(0).Context;
-        return reader.getFileContext();
+        return reader.getParsingContext();
     }
 }

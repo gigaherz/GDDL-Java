@@ -7,20 +7,13 @@ import gigaherz.utils.GDDL.config.StringGenerationOptions;
 import java.util.*;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unused")
 public class Set extends Element implements List<Element>
 {
     private final List<Element> contents = new ArrayList<>();
     private final Map<String, Element> names = new HashMap<>();
 
     private String typeName; // TODO: getter/setter
-
-    public boolean hasTypeName()
-    {
-        return typeName != null;
-    }
-
-    public String getTypeName() {return typeName; }
-    public void setTypeName(String value) { typeName = value; }
 
     public Set()
     {
@@ -29,6 +22,21 @@ public class Set extends Element implements List<Element>
     public Set(Collection<Element> init)
     {
         contents.addAll(init);
+    }
+
+    public boolean hasTypeName()
+    {
+        return typeName != null;
+    }
+
+    public String getTypeName()
+    {
+        return typeName;
+    }
+
+    public void setTypeName(String value)
+    {
+        typeName = value;
     }
 
     @Override
@@ -104,7 +112,7 @@ public class Set extends Element implements List<Element>
     public boolean removeAll(Collection<?> c)
     {
         boolean changed = false;
-        for(Object e : c)
+        for (Object e : c)
             changed = changed || remove(e);
         return changed;
     }
@@ -113,10 +121,10 @@ public class Set extends Element implements List<Element>
     public boolean retainAll(Collection<?> c)
     {
         boolean changed = false;
-        for(Iterator<Element> it = contents.iterator(); it.hasNext(); )
+        for (Iterator<Element> it = contents.iterator(); it.hasNext(); )
         {
             Element e = it.next();
-            if(!c.contains(e))
+            if (!c.contains(e))
             {
                 it.remove();
                 if (e.hasName())
@@ -231,15 +239,15 @@ public class Set extends Element implements List<Element>
     protected String toStringInternal(boolean addBraces)
     {
         StringBuilder b = new StringBuilder();
-        if(addBraces) b.append("{");
+        if (addBraces) b.append("{");
         boolean first = true;
-        for(Element e : contents)
+        for (Element e : contents)
         {
-            if(!first) b.append(", ");
+            if (!first) b.append(", ");
             b.append(e.toString());
             first = false;
         }
-        if(addBraces) b.append("}");
+        if (addBraces) b.append("}");
         return b.toString();
     }
 

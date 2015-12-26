@@ -1,17 +1,30 @@
 package gigaherz.utils.GDDL.deque;
 
 import gigaherz.utils.GDDL.Utility;
+import sun.plugin.dom.exception.InvalidStateException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicLong;
 
-public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
+@SuppressWarnings("unchecked,unused")
+public class IndexedDeque<T> implements Collection<T>
 {
     private static final int defaultCapacity = 16;
 
-    private int startOffset;
+    private final AtomicLong changeNumber = new AtomicLong(0);
+
+    private int capacityClosestPowerOfTwoMinusOne;
+    private int start;
+    private int count;
     private Object[] buffer;
 
-    public IndexedDeque() { this(defaultCapacity); }
+    public IndexedDeque()
+    {
+        this(defaultCapacity);
+    }
 
     public IndexedDeque(int capacity)
     {
@@ -23,29 +36,28 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
         this.setCapacity(capacity);
     }
 
-    public IndexedDeque(Collection<T> collection) 
+    public IndexedDeque(Collection<T> collection)
     {
-        this(Utility.Count(collection));
+        this(Utility.count(collection));
         insertAll(0, collection);
     }
-
-    private int capacityClosestPowerOfTwoMinusOne;
 
     public int capacity()
     {
         return buffer.length;
     }
-    public void setCapacity(int value)
+
+    private void setCapacity(int value)
     {
         if (value < 0)
         {
             throw new IndexOutOfBoundsException(
-                "Capacity is less than 0.");
+                    "Capacity is less than 0.");
         }
         else if (value < this.size())
         {
             throw new IndexOutOfBoundsException(
-                "Capacity cannot be set to a value less than Count");
+                    "Capacity cannot be set to a value less than Count");
         }
         else if (null != buffer && value == buffer.length)
         {
@@ -53,7 +65,7 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
         }
 
         // Create a new array and copy the old values.
-        int powOfTwo = Utility.ClosestPowerOfTwoGreaterThan(value);
+        int powOfTwo = Utility.closestPowerOfTwoGreaterThan(value);
 
         value = powOfTwo;
 
@@ -62,15 +74,18 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
 
         // Set up to use the new buffer.
         buffer = newBuffer;
-        startOffset = 0;
+        start = 0;
         this.capacityClosestPowerOfTwoMinusOne = powOfTwo - 1;
+
+        changeNumber.getAndIncrement();
     }
 
-    private <A> A[] toArray(A[] newBuffer)
+    @Override
+    public <A> A[] toArray(A[] newBuffer)
     {
-        for(int i=0; i<Math.min(newBuffer.length, size()); i++)
+        for (int i = 0; i < Math.min(newBuffer.length, size()); i++)
         {
-            newBuffer[i] = (A)get(i);
+            newBuffer[i] = (A) get(i);
         }
         return newBuffer;
     }
@@ -80,6 +95,7 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
         return this.size() == this.capacity();
     }
 
+    @Override
     public boolean isEmpty()
     {
         return 0 == this.size();
@@ -97,8 +113,8 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
     {
         int bufferIndex;
 
-        bufferIndex = (index + this.startOffset)
-            & this.capacityClosestPowerOfTwoMinusOne;
+        bufferIndex = (index + this.start)
+                & this.capacityClosestPowerOfTwoMinusOne;
 
         return bufferIndex;
     }
@@ -108,45 +124,20 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
         if (index >= this.size())
         {
             throw new IndexOutOfBoundsException(
-                "The supplied index is greater than the Count");
-        }
-    }
-
-    private static void checkArgumentsOutOfRange(
-        int length,
-        int offset,
-        int count)
-    {
-        if (offset < 0)
-        {
-            throw new IndexOutOfBoundsException( "Invalid offset " + offset);
-        }
-
-        if (count < 0)
-        {
-            throw new IndexOutOfBoundsException( "Invalid count " + count);
-        }
-
-        if (length - offset < count)
-        {
-            throw new IndexOutOfBoundsException(
-                String.format(
-                "Invalid offset ({0}) or count + ({1}) "
-                + "for source length {2}",
-                offset, count, length));
+                    "The supplied index is greater than the Count");
         }
     }
 
     private int shiftStartOffset(int value)
     {
-        this.startOffset = toBufferIndex(value);
+        this.start = toBufferIndex(value);
 
-        return this.startOffset;
+        return this.start;
     }
 
     private int preShiftStartOffset(int value)
     {
-        int offset = this.startOffset;
+        int offset = this.start;
         this.shiftStartOffset(value);
         return offset;
     }
@@ -155,9 +146,12 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
     {
         return shiftStartOffset(value);
     }
-    
-    int count;
-    public int size() { return count; }
+
+    @Override
+    public int size()
+    {
+        return count;
+    }
 
     private void incrementCount(int value)
     {
@@ -169,45 +163,86 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
         this.count = Math.max(this.size() - value, 0);
     }
 
+    @Override
     public boolean add(T item)
     {
         addLast(item);
         return true;
     }
 
-    private void ClearBuffer(int logicalIndex, int length)
+    @Override
+    public boolean containsAll(Collection<?> c)
+    {
+        for (Object e : c)
+        {
+            if (contains(e))
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends T> c)
+    {
+        boolean any = false;
+        for (Object e : c)
+            any = any || add((T) e);
+        return any;
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c)
+    {
+        boolean any = false;
+        for (Object e : c)
+            any = any || remove(e);
+        return any;
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c)
+    {
+        throw new InvalidStateException("Operation not implemented");
+    }
+
+    private void wipeBuffer(int logicalIndex, int length)
     {
         int offset = toBufferIndex(logicalIndex);
         if (offset + length > this.capacity())
         {
             int len = this.capacity() - offset;
-            Arrays.fill(this.buffer, offset, offset+len, null);
+            Arrays.fill(this.buffer, offset, offset + len, null);
 
             len = toBufferIndex(logicalIndex + length);
             Arrays.fill(this.buffer, 0, len, null);
         }
         else
         {
-            Arrays.fill(this.buffer, offset, offset+length, null);
+            Arrays.fill(this.buffer, offset, offset + length, null);
         }
     }
 
+    @Override
     public void clear()
     {
+        if (size() > 0)
+            changeNumber.getAndIncrement();
         if (this.size() > 0)
         {
-            ClearBuffer(0, this.size());
+            wipeBuffer(0, this.size());
         }
         this.count = 0;
-        this.startOffset = 0;
+        this.start = 0;
     }
 
+    @Override
     public boolean contains(Object item)
     {
-        return this.indexOf((T)item) != -1;
+        return this.indexOf(item) != -1;
     }
 
-    public boolean remove(T item)
+    @Override
+    public boolean remove(Object item)
     {
         boolean result = true;
         int index = indexOf(item);
@@ -224,25 +259,7 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
         return result;
     }
 
-    public void add(int index, T item)
-    {
-        ensureCapacityFor(1);
-
-        if (index == 0)
-        {
-            addFirst(item);
-            return;
-        }
-        else if (index == size())
-        {
-            addLast(item);
-            return;
-        }
-
-        insertAll(index, Collections.singletonList(item));
-    }
-
-    public int indexOf(T item)
+    public int indexOf(Object item)
     {
         int index = 0;
         for (T myItem : this)
@@ -280,6 +297,8 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
 
     public void addFirst(T item)
     {
+        changeNumber.getAndIncrement();
+
         ensureCapacityFor(1);
         buffer[postShiftStartOffset(-1)] = item;
         incrementCount(1);
@@ -287,6 +306,8 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
 
     public void addLast(T item)
     {
+        changeNumber.getAndIncrement();
+
         ensureCapacityFor(1);
         buffer[toBufferIndex(this.size())] = item;
         incrementCount(1);
@@ -299,9 +320,10 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
             throw new IllegalStateException("The Deque is empty");
         }
 
-        T result = (T)buffer[this.startOffset];
+        T result = (T) buffer[this.start];
         buffer[preShiftStartOffset(1)] = null;
         decrementCount(1);
+        changeNumber.getAndIncrement();
         return result;
     }
 
@@ -314,9 +336,10 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
 
         decrementCount(1);
         int endIndex = toBufferIndex(this.size());
-        T result = (T)buffer[endIndex];
+        T result = (T) buffer[endIndex];
         buffer[endIndex] = null;
-        
+        changeNumber.getAndIncrement();
+
         return result;
     }
 
@@ -327,48 +350,45 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
 
     public void addFrontAll(Iterable<T> collection)
     {
-        addFrontAll(collection, 0, Utility.Count(collection));
+        addFrontAll(collection, 0, Utility.count(collection));
     }
 
-    public void addFrontAll(
-        Iterable<T> collection,
-        int fromIndex,
-        int count)
+    public void addFrontAll(Iterable<T> collection, int fromIndex, int count)
     {
         insertAll(0, collection, fromIndex, count);
     }
 
     public void addLastAll(Iterable<T> collection)
     {
-        addLastAll(collection, 0, Utility.Count(collection));
+        addLastAll(collection, 0, Utility.count(collection));
     }
 
     public void addLastAll(
-        Iterable<T> collection,
-        int fromIndex,
-        int count)
+            Iterable<T> collection,
+            int fromIndex,
+            int count)
     {
         insertAll(this.size(), collection, fromIndex, count);
     }
 
     public void insertAll(int index, Iterable<T> collection)
     {
-        int count = Utility.Count(collection);
+        int count = Utility.count(collection);
         this.insertAll(index, collection, 0, count);
     }
 
     public void insertAll(
-        int index,
-        Iterable<T> collection,
-        int fromIndex,
-        int count)
+            int index,
+            Iterable<T> collection,
+            int fromIndex,
+            int count)
     {
         checkIndexOutOfRange(index - 1);
 
         if (0 == count)
-        {
             return;
-        }
+
+        changeNumber.getAndIncrement();
 
         // Make room
         ensureCapacityFor(count);
@@ -380,13 +400,13 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
             if (index > 0)
             {
                 // Move items down:
-                //  [0, index) -> 
+                //  [0, index) ->
                 //  [Capacity - count, Capacity - count + index)
                 int shiftIndex = this.capacity() - count;
                 for (int j = 0; j < index; j++)
                 {
-                    buffer[toBufferIndex(shiftIndex + j)] = 
-                        buffer[toBufferIndex(j)];
+                    buffer[toBufferIndex(shiftIndex + j)] =
+                            buffer[toBufferIndex(j)];
                 }
             }
 
@@ -406,8 +426,8 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
                 int shiftIndex = index + count;
                 for (int j = 0; j < copyCount; j++)
                 {
-                    buffer[toBufferIndex(shiftIndex + j)] = 
-                        buffer[toBufferIndex(index + j)];
+                    buffer[toBufferIndex(shiftIndex + j)] =
+                            buffer[toBufferIndex(index + j)];
                 }
             }
         }
@@ -429,6 +449,8 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
         if (count == 0)
             return;
 
+        changeNumber.getAndIncrement();
+
         if (this.isEmpty())
         {
             throw new IllegalStateException("The Deque is empty");
@@ -436,11 +458,11 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
         if (index > size() - count)
         {
             throw new IndexOutOfBoundsException(
-                "The supplied index is greater than the Count");
+                    "The supplied index is greater than the Count");
         }
 
         // Clear out the underlying array
-        ClearBuffer(index, count);
+        wipeBuffer(index, count);
 
         if (index == 0)
         {
@@ -465,7 +487,7 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
             for (int j = 0; j < index; j++)
             {
                 buffer[toBufferIndex(count + j)]
-                    = buffer[toBufferIndex(j)];
+                        = buffer[toBufferIndex(j)];
             }
 
             // Rotate to new view
@@ -483,7 +505,7 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
             for (int j = 0; j < copyCount; ++j)
             {
                 buffer[toBufferIndex(index + j)] =
-                    buffer[toBufferIndex(readIndex + j)];
+                        buffer[toBufferIndex(readIndex + j)];
             }
         }
 
@@ -494,30 +516,28 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
     public T get(int index)
     {
         checkIndexOutOfRange(index);
-        return (T)buffer[toBufferIndex(index)];
+        return (T) buffer[toBufferIndex(index)];
     }
 
     public void set(int index, T item)
     {
         checkIndexOutOfRange(index);
         buffer[toBufferIndex(index)] = item;
-        changeNumber++;
+        changeNumber.getAndIncrement();
     }
-
-    long changeNumber = 0;
 
     @Override
     public Iterator<T> iterator()
     {
         return new Iterator<T>()
         {
-            long changeNumber = IndexedDeque.this.changeNumber;
+            long localChange = changeNumber.get();
             int current = 0;
 
             @Override
             public boolean hasNext()
             {
-                if(changeNumber != IndexedDeque.this.changeNumber)
+                if (localChange != changeNumber.get())
                     throw new ConcurrentModificationException();
                 return current < size();
             }
@@ -525,10 +545,16 @@ public class IndexedDeque<T> implements Iterable<T> //implements Deque<T>
             @Override
             public T next()
             {
-                if(changeNumber != IndexedDeque.this.changeNumber)
+                if (localChange != changeNumber.get())
                     throw new ConcurrentModificationException();
                 return get(current++);
             }
         };
+    }
+
+    @Override
+    public Object[] toArray()
+    {
+        return toArray(new Object[size()]);
     }
 }

@@ -1,40 +1,46 @@
 package gigaherz.utils.GDDL.structure;
 
-import gigaherz.utils.GDDL.FileContext;
+import gigaherz.utils.GDDL.ContextProvider;
 import gigaherz.utils.GDDL.config.StringGenerationContext;
 import gigaherz.utils.GDDL.exceptions.ParserException;
 
 import java.util.Locale;
 
+@SuppressWarnings("unused")
 public class Value extends Element
 {
     Object data;
-    
-    public Object getData() {return data;}
 
-    public String getString() {return (String)data; }
-    public void setString(String value) {data = value;}
+    Value()
+    {
+        data = null;
+    }
 
-    public boolean getBoolean() {return (boolean)data; }
-    public void setBoolean(boolean value) {data = value;}
+    Value(boolean valueData)
+    {
+        data = valueData;
+    }
 
-    public boolean isNull() {return data == null;}
+    Value(String valueData)
+    {
+        data = valueData;
+    }
 
-    Value() { data = null; }
+    Value(long valueData)
+    {
+        data = valueData;
+    }
 
-    Value(boolean valueData) { data = valueData; }
+    Value(double valueData)
+    {
+        data = valueData;
+    }
 
-    Value(String valueData) { data = valueData; }
-
-    Value(long valueData) { data = valueData; }
-
-    Value(double valueData) { data = valueData; }
-
-    static String unescapeString(FileContext context, String p) throws ParserException
+    public static String unescapeString(ContextProvider context, String p) throws ParserException
     {
         StringBuilder sb = new StringBuilder();
 
-        char q = (char)0;
+        char q = (char) 0;
         boolean b = false;
         boolean u = false;
 
@@ -49,7 +55,7 @@ public class Value extends Element
                 {
                     if (u2 == 4)
                     {
-                        sb.append((char)u1);
+                        sb.append((char) u1);
                         u = false;
                     }
                     else if (Character.isDigit(c))
@@ -66,7 +72,7 @@ public class Value extends Element
                     }
                     else
                     {
-                        sb.append((char)u1);
+                        sb.append((char) u1);
                         u = false;
                     }
                     u2++;
@@ -114,7 +120,7 @@ public class Value extends Element
                 }
                 else
                 {
-                    if(c == q)
+                    if (c == q)
                         return sb.toString();
                     switch (c)
                     {
@@ -152,7 +158,7 @@ public class Value extends Element
         StringBuilder sb = new StringBuilder();
 
         sb.append('"');
-        for(char c : p.toCharArray())
+        for (char c : p.toCharArray())
         {
             if (!Character.isISOControl(c) && c != '"' && c != '\\')
             {
@@ -185,13 +191,43 @@ public class Value extends Element
                     sb.append('\\');
                     break;
                 default:
-                    sb.append(String.format("u%04x", (int)c));
+                    sb.append(String.format("u%04x", (int) c));
                     break;
             }
         }
         sb.append('"');
 
         return sb.toString();
+    }
+
+    public Object getData()
+    {
+        return data;
+    }
+
+    public String getString()
+    {
+        return (String) data;
+    }
+
+    public void setString(String value)
+    {
+        data = value;
+    }
+
+    public boolean getBoolean()
+    {
+        return (boolean) data;
+    }
+
+    public void setBoolean(boolean value)
+    {
+        data = value;
+    }
+
+    public boolean isNull()
+    {
+        return data == null;
     }
 
     protected String toStringInternal()
