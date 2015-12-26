@@ -39,25 +39,4 @@ public class Utility
         }
         return b.toString();
     }
-
-    public static <TSource> int count(Iterable<TSource> source)
-    {
-        if (source == null)
-        {
-            throw new NullPointerException("source");
-        }
-
-        // Optimization for Collection<T>
-        if (source instanceof Collection)
-        {
-            return ((Collection<TSource>) source).size();
-        }
-
-        int count = 0;
-        for (TSource ignored : source)
-        {
-            count++;
-        }
-        return count;
-    }
 }

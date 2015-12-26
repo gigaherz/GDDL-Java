@@ -1,6 +1,6 @@
 package gigaherz.utils.GDDL;
 
-import gigaherz.utils.GDDL.deque.IndexedDeque;
+import gigaherz.utils.GDDL.util.QueueList;
 import gigaherz.utils.GDDL.exceptions.LexerException;
 
 import java.io.IOException;
@@ -8,7 +8,7 @@ import java.util.Stack;
 
 public class Lexer implements ContextProvider
 {
-    final IndexedDeque<Token> lookAhead = new IndexedDeque<>();
+    final QueueList<Token> lookAhead = new QueueList<>();
     final Stack<Integer> prefixStack = new Stack<>();
 
     final Reader reader;
@@ -74,14 +74,14 @@ public class Lexer implements ContextProvider
     {
         require(2);
 
-        return lookAhead.removeFirst();
+        return lookAhead.remove();
     }
 
     private void readAhead(int needed) throws LexerException, IOException
     {
         while (needed-- > 0)
         {
-            lookAhead.addLast(parseOne());
+            lookAhead.add(parseOne());
         }
     }
 

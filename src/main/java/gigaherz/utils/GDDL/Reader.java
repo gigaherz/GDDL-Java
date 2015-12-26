@@ -1,6 +1,6 @@
 package gigaherz.utils.GDDL;
 
-import gigaherz.utils.GDDL.deque.IndexedDeque;
+import gigaherz.utils.GDDL.util.QueueList;
 import gigaherz.utils.GDDL.exceptions.ReaderException;
 
 import java.io.FileNotFoundException;
@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class Reader implements ContextProvider
 {
-    final IndexedDeque<Integer> unreadBuffer = new IndexedDeque<>();
+    final QueueList<Integer> unreadBuffer = new QueueList<>();
     boolean endQueued = false;
     FileReader dataSource;
     String sourceName;
@@ -43,7 +43,7 @@ public class Reader implements ContextProvider
             }
 
             int ch = dataSource.read();
-            unreadBuffer.addLast(ch);
+            unreadBuffer.add(ch);
             if (ch < 0)
                 endQueued = true;
         }
@@ -63,7 +63,7 @@ public class Reader implements ContextProvider
 
     public int next() throws ReaderException
     {
-        int ch = unreadBuffer.removeFirst();
+        int ch = unreadBuffer.remove();
 
         column++;
         if (ch == '\n')
