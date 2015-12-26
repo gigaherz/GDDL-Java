@@ -3,20 +3,17 @@ package gigaherz.utils.GDDL.deque;
 import gigaherz.utils.GDDL.Utility;
 import sun.plugin.dom.exception.InvalidStateException;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.ConcurrentModificationException;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 @SuppressWarnings("unchecked,unused")
-public class IndexedDeque<T> implements Collection<T>
+public class IndexedDeque<T> implements List<T>
 {
     private static final int defaultCapacity = 16;
 
     private final AtomicLong changeNumber = new AtomicLong(0);
 
-    private int capacityClosestPowerOfTwoMinusOne;
+    private int capacityMask;
     private int start;
     private int count;
     private Object[] buffer;
@@ -33,7 +30,7 @@ public class IndexedDeque<T> implements Collection<T>
             throw new IndexOutOfBoundsException("capacity is less than 0.");
         }
 
-        this.setCapacity(capacity);
+        setCapacity(capacity);
     }
 
     public IndexedDeque(Collection<T> collection)
@@ -49,35 +46,25 @@ public class IndexedDeque<T> implements Collection<T>
 
     private void setCapacity(int value)
     {
+
         if (value < 0)
-        {
             throw new IndexOutOfBoundsException(
                     "Capacity is less than 0.");
-        }
-        else if (value < this.size())
-        {
-            throw new IndexOutOfBoundsException(
-                    "Capacity cannot be set to a value less than Count");
-        }
-        else if (null != buffer && value == buffer.length)
-        {
+
+        if (value < size())
+            throw new IllegalStateException(
+                    "Capacity cannot be set to a value less than the number of elements");
+
+        value = Utility.upperPower(value);
+        if (null != buffer && value == buffer.length)
             return;
-        }
-
-        // Create a new array and copy the old values.
-        int powOfTwo = Utility.closestPowerOfTwoGreaterThan(value);
-
-        value = powOfTwo;
-
-        Object[] newBuffer = new Object[value];
-        buffer = this.toArray(newBuffer);
-
-        // Set up to use the new buffer.
-        buffer = newBuffer;
-        start = 0;
-        this.capacityClosestPowerOfTwoMinusOne = powOfTwo - 1;
 
         changeNumber.getAndIncrement();
+
+        Object[] newBuffer = new Object[value];
+        buffer = toArray(newBuffer);
+        start = 0;
+        capacityMask = value - 1;
     }
 
     @Override
@@ -92,59 +79,39 @@ public class IndexedDeque<T> implements Collection<T>
 
     public boolean isFull()
     {
-        return this.size() == this.capacity();
+        return size() == capacity();
     }
 
     @Override
     public boolean isEmpty()
     {
-        return 0 == this.size();
+        return 0 == size();
     }
 
     private void ensureCapacityFor(int numElements)
     {
-        if (this.size() + numElements > this.capacity())
+        if (size() + numElements > capacity())
         {
-            this.setCapacity(this.size() + numElements);
+            setCapacity(size() + numElements);
         }
     }
 
     private int toBufferIndex(int index)
     {
-        int bufferIndex;
-
-        bufferIndex = (index + this.start)
-                & this.capacityClosestPowerOfTwoMinusOne;
-
-        return bufferIndex;
+        return (index + start) & capacityMask;
     }
 
-    private void checkIndexOutOfRange(int index)
+    private int shiftStartPost(int value)
     {
-        if (index >= this.size())
-        {
-            throw new IndexOutOfBoundsException(
-                    "The supplied index is greater than the Count");
-        }
-    }
-
-    private int shiftStartOffset(int value)
-    {
-        this.start = toBufferIndex(value);
-
-        return this.start;
-    }
-
-    private int preShiftStartOffset(int value)
-    {
-        int offset = this.start;
-        this.shiftStartOffset(value);
+        int offset = start;
+        start = toBufferIndex(value);
         return offset;
     }
 
-    private int postShiftStartOffset(int value)
+    private int shiftStartPre(int value)
     {
-        return shiftStartOffset(value);
+        start = toBufferIndex(value);
+        return start;
     }
 
     @Override
@@ -155,12 +122,12 @@ public class IndexedDeque<T> implements Collection<T>
 
     private void incrementCount(int value)
     {
-        this.count += value;
+        count += value;
     }
 
     private void decrementCount(int value)
     {
-        this.count = Math.max(this.size() - value, 0);
+        count = Math.max(size() - value, 0);
     }
 
     @Override
@@ -191,6 +158,12 @@ public class IndexedDeque<T> implements Collection<T>
     }
 
     @Override
+    public boolean addAll(int index, Collection<? extends T> c)
+    {
+        return false;
+    }
+
+    @Override
     public boolean removeAll(Collection<?> c)
     {
         boolean any = false;
@@ -205,20 +178,20 @@ public class IndexedDeque<T> implements Collection<T>
         throw new InvalidStateException("Operation not implemented");
     }
 
-    private void wipeBuffer(int logicalIndex, int length)
+    private void wipeBuffer(int start, int length)
     {
-        int offset = toBufferIndex(logicalIndex);
-        if (offset + length > this.capacity())
+        int offset = toBufferIndex(start);
+        if (offset + length > capacity())
         {
-            int len = this.capacity() - offset;
-            Arrays.fill(this.buffer, offset, offset + len, null);
+            int len = capacity() - offset;
+            Arrays.fill(buffer, offset, offset + len, null);
 
-            len = toBufferIndex(logicalIndex + length);
-            Arrays.fill(this.buffer, 0, len, null);
+            len = toBufferIndex(start + length);
+            Arrays.fill(buffer, 0, len, null);
         }
         else
         {
-            Arrays.fill(this.buffer, offset, offset + length, null);
+            Arrays.fill(buffer, offset, offset + length, null);
         }
     }
 
@@ -226,39 +199,33 @@ public class IndexedDeque<T> implements Collection<T>
     public void clear()
     {
         if (size() > 0)
-            changeNumber.getAndIncrement();
-        if (this.size() > 0)
         {
-            wipeBuffer(0, this.size());
+            changeNumber.getAndIncrement();
+            wipeBuffer(0, size());
         }
-        this.count = 0;
-        this.start = 0;
+        count = 0;
+        start = 0;
     }
 
     @Override
     public boolean contains(Object item)
     {
-        return this.indexOf(item) != -1;
+        return indexOf(item) != -1;
     }
 
     @Override
     public boolean remove(Object item)
     {
-        boolean result = true;
         int index = indexOf(item);
 
         if (-1 == index)
-        {
-            result = false;
-        }
-        else
-        {
-            remove(index);
-        }
+            return false;
 
-        return result;
+        remove(index);
+        return true;
     }
 
+    @Override
     public int indexOf(Object item)
     {
         int index = 0;
@@ -271,7 +238,7 @@ public class IndexedDeque<T> implements Collection<T>
             ++index;
         }
 
-        if (index == this.size())
+        if (index == size())
         {
             index = -1;
         }
@@ -279,20 +246,38 @@ public class IndexedDeque<T> implements Collection<T>
         return index;
     }
 
-    public void remove(int index)
+    @Override
+    public int lastIndexOf(Object o)
     {
+        // TODO
+        return 0;
+    }
+
+    @Override
+    public List<T> subList(int fromIndex, int toIndex)
+    {
+        throw new IllegalStateException("Operation not implemented");
+    }
+
+    public T remove(int index)
+    {
+        T prev = get(index);
+
         if (index == 0)
         {
             removeFirst();
-            return;
+            return prev;
         }
-        else if (index == size() - 1)
+
+        if (index == size() - 1)
         {
             removeLast();
-            return;
+            return prev;
         }
 
         removeRange(index, 1);
+
+        return prev;
     }
 
     public void addFirst(T item)
@@ -300,7 +285,7 @@ public class IndexedDeque<T> implements Collection<T>
         changeNumber.getAndIncrement();
 
         ensureCapacityFor(1);
-        buffer[postShiftStartOffset(-1)] = item;
+        buffer[shiftStartPre(-1)] = item;
         incrementCount(1);
     }
 
@@ -309,36 +294,38 @@ public class IndexedDeque<T> implements Collection<T>
         changeNumber.getAndIncrement();
 
         ensureCapacityFor(1);
-        buffer[toBufferIndex(this.size())] = item;
+        buffer[toBufferIndex(size())] = item;
         incrementCount(1);
     }
 
     public T removeFirst()
     {
-        if (this.isEmpty())
+        if (isEmpty())
         {
             throw new IllegalStateException("The Deque is empty");
         }
 
-        T result = (T) buffer[this.start];
-        buffer[preShiftStartOffset(1)] = null;
-        decrementCount(1);
         changeNumber.getAndIncrement();
+
+        T result = (T) buffer[start];
+        buffer[shiftStartPost(1)] = null;
+        decrementCount(1);
         return result;
     }
 
     public T removeLast()
     {
-        if (this.isEmpty())
+        if (isEmpty())
         {
             throw new IllegalStateException("The Deque is empty");
         }
 
+        changeNumber.getAndIncrement();
+
         decrementCount(1);
-        int endIndex = toBufferIndex(this.size());
+        int endIndex = toBufferIndex(size());
         T result = (T) buffer[endIndex];
         buffer[endIndex] = null;
-        changeNumber.getAndIncrement();
 
         return result;
     }
@@ -368,13 +355,13 @@ public class IndexedDeque<T> implements Collection<T>
             int fromIndex,
             int count)
     {
-        insertAll(this.size(), collection, fromIndex, count);
+        insertAll(size(), collection, fromIndex, count);
     }
 
     public void insertAll(int index, Iterable<T> collection)
     {
         int count = Utility.count(collection);
-        this.insertAll(index, collection, 0, count);
+        insertAll(index, collection, 0, count);
     }
 
     public void insertAll(
@@ -383,7 +370,11 @@ public class IndexedDeque<T> implements Collection<T>
             int fromIndex,
             int count)
     {
-        checkIndexOutOfRange(index - 1);
+        if (index - 1 >= size())
+        {
+            throw new IndexOutOfBoundsException(
+                    "The supplied index is greater than the Count");
+        }
 
         if (0 == count)
             return;
@@ -393,7 +384,7 @@ public class IndexedDeque<T> implements Collection<T>
         // Make room
         ensureCapacityFor(count);
 
-        if (index < this.size() / 2)
+        if (index < size() / 2)
         {
             // Inserting into the first half of the list
 
@@ -402,7 +393,7 @@ public class IndexedDeque<T> implements Collection<T>
                 // Move items down:
                 //  [0, index) ->
                 //  [Capacity - count, Capacity - count + index)
-                int shiftIndex = this.capacity() - count;
+                int shiftIndex = capacity() - count;
                 for (int j = 0; j < index; j++)
                 {
                     buffer[toBufferIndex(shiftIndex + j)] =
@@ -411,18 +402,19 @@ public class IndexedDeque<T> implements Collection<T>
             }
 
             // shift the starting offset
-            this.shiftStartOffset(-count);
+            int value = -count;
+            toBufferIndex(value);
 
         }
         else
         {
             // Inserting into the second half of the list
 
-            if (index < this.size())
+            if (index < size())
             {
                 // Move items up:
                 // [index, Count) -> [index + count, count + Count)
-                int copyCount = this.size() - index;
+                int copyCount = size() - index;
                 int shiftIndex = index + count;
                 for (int j = 0; j < copyCount; j++)
                 {
@@ -451,7 +443,7 @@ public class IndexedDeque<T> implements Collection<T>
 
         changeNumber.getAndIncrement();
 
-        if (this.isEmpty())
+        if (isEmpty())
         {
             throw new IllegalStateException("The Deque is empty");
         }
@@ -467,7 +459,7 @@ public class IndexedDeque<T> implements Collection<T>
         if (index == 0)
         {
             // Removing from the beginning: shift the start offset
-            this.shiftStartOffset(count);
+            toBufferIndex(count);
             this.count -= count;
             return;
         }
@@ -491,7 +483,7 @@ public class IndexedDeque<T> implements Collection<T>
             }
 
             // Rotate to new view
-            this.shiftStartOffset(count);
+            toBufferIndex(count);
         }
         else
         {
@@ -515,24 +507,57 @@ public class IndexedDeque<T> implements Collection<T>
 
     public T get(int index)
     {
-        checkIndexOutOfRange(index);
+        if (index >= size())
+        {
+            throw new IndexOutOfBoundsException(
+                    "The supplied index is greater than the Count");
+        }
         return (T) buffer[toBufferIndex(index)];
     }
 
-    public void set(int index, T item)
+    @Override
+    public T set(int index, T item)
     {
-        checkIndexOutOfRange(index);
-        buffer[toBufferIndex(index)] = item;
+        if (index >= size())
+        {
+            throw new IndexOutOfBoundsException(
+                    "The supplied index is greater than the Count");
+        }
+
+        T prev = get(index);
+        if(prev == item)
+            return prev;
         changeNumber.getAndIncrement();
+        buffer[toBufferIndex(index)] = item;
+        return prev;
+    }
+
+    @Override
+    public void add(int index, T element)
+    {
+
+    }
+
+    @Override
+    public ListIterator<T> listIterator()
+    {
+        return listIterator(0);
     }
 
     @Override
     public Iterator<T> iterator()
     {
-        return new Iterator<T>()
+        return listIterator(0);
+    }
+
+    @Override
+    public ListIterator<T> listIterator(final int index)
+    {
+        return new ListIterator<T>()
         {
             long localChange = changeNumber.get();
-            int current = 0;
+            int current = index;
+            int modificationIndex = -1;
 
             @Override
             public boolean hasNext()
@@ -547,7 +572,77 @@ public class IndexedDeque<T> implements Collection<T>
             {
                 if (localChange != changeNumber.get())
                     throw new ConcurrentModificationException();
+                modificationIndex = current;
                 return get(current++);
+            }
+
+            @Override
+            public boolean hasPrevious()
+            {
+                if (localChange != changeNumber.get())
+                    throw new ConcurrentModificationException();
+                return current > 0;
+            }
+
+            @Override
+            public T previous()
+            {
+                if (localChange != changeNumber.get())
+                    throw new ConcurrentModificationException();
+                modificationIndex = --current;
+                return get(current);
+            }
+
+            @Override
+            public int nextIndex()
+            {
+                if (localChange != changeNumber.get())
+                    throw new ConcurrentModificationException();
+                return current;
+            }
+
+            @Override
+            public int previousIndex()
+            {
+                if (localChange != changeNumber.get())
+                    throw new ConcurrentModificationException();
+                return current-1;
+            }
+
+            @Override
+            public void remove()
+            {
+                if(modificationIndex < 0)
+                    throw new IllegalStateException();
+                if (localChange != changeNumber.get())
+                    throw new ConcurrentModificationException();
+                IndexedDeque.this.remove(modificationIndex);
+                modificationIndex = -1;
+                localChange = changeNumber.get();
+            }
+
+            @Override
+            public void set(T t)
+            {
+                if(modificationIndex < 0)
+                    throw new IllegalStateException();
+                if (localChange != changeNumber.get())
+                    throw new ConcurrentModificationException();
+                IndexedDeque.this.set(modificationIndex, t);
+                localChange = changeNumber.get();
+            }
+
+            @Override
+            public void add(T t)
+            {
+                if(modificationIndex < 0)
+                    throw new IllegalStateException();
+                if (localChange != changeNumber.get())
+                    throw new ConcurrentModificationException();
+                IndexedDeque.this.add(modificationIndex, t);
+                modificationIndex++;
+                current++;
+                localChange = changeNumber.get();
             }
         };
     }

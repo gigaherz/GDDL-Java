@@ -6,7 +6,11 @@ import java.util.stream.Stream;
 
 public class Utility
 {
-    public static int closestPowerOfTwoGreaterThan(int x)
+    // Ooooh... I just got how this works! Clever!
+    // It's causing all the bits to spread downward
+    // until all the bits below the most-significant 1
+    // are also 1, then adds 1 to fill the power of two.
+    public static int upperPower(int x)
     {
         x--;
         x |= (x >> 1);
