@@ -29,7 +29,7 @@ RootSetName = typeNameHere {
     
     # References
     
-    replace_this_with = RootSetName:namedNumber,
+    replace_this_with = :namedNumber,
 
     # The comma in the last element is optional but allowed.
 }
