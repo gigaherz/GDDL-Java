@@ -14,7 +14,7 @@ public class Program
     {
         try
         {
-            Parser parser = Parser.fromFile("D:\\Projects\\GDDL-Java\\samples\\Test.txt");
+            Parser parser = Parser.fromFile("H:\\Projects\\GDDL-Java\\samples\\Test.txt");
             Element e = parser.parse();
             System.out.println(e.toString(new StringGenerationContext(StringGenerationOptions.Nice)));
         }

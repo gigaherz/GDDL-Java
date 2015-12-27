@@ -1,8 +1,6 @@
 package gigaherz.utils.GDDL.structure;
 
-import gigaherz.utils.GDDL.ContextProvider;
 import gigaherz.utils.GDDL.config.StringGenerationContext;
-import gigaherz.utils.GDDL.exceptions.ParserException;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,7 +26,7 @@ public abstract class Element
         return new Backreference(rooted, name);
     }
 
-    public static Value Null()
+    public static Value nullValue()
     {
         return new Value();
     }
@@ -43,34 +41,17 @@ public abstract class Element
         return new Value(num);
     }
 
-    public static Value intValue(String text)
-    {
-        return new Value(Long.parseLong(text));
-    }
-
-    public static Value intValue(String text, int _base)
-    {
-        return new Value(Long.parseLong(text.substring(2), 16));
-    }
-
     public static Value floatValue(double num)
     {
         return new Value(num);
     }
 
-    public static Value floatValue(String text)
+    public static Value stringValue(String s)
     {
-        return new Value(Double.parseDouble(text));
+        return new Value(s);
     }
 
-    public static Value stringValue(ContextProvider ctx, String text) throws ParserException
-    {
-        if (text.charAt(0) == '"' || text.charAt(0) == '\'')
-            return new Value(Value.unescapeString(ctx, text));
-
-        return new Value(text);
-    }
-
+    // Actual instance methods
     public String getName()
     {
         return name;
@@ -130,7 +111,8 @@ public abstract class Element
 
     protected abstract String toStringInternal(StringGenerationContext ctx);
 
-    public String toString()
+    @Override
+    public final String toString()
     {
         if (hasName())
         {
@@ -140,7 +122,7 @@ public abstract class Element
         return toStringInternal();
     }
 
-    public String toString(StringGenerationContext ctx)
+    public final String toString(StringGenerationContext ctx)
     {
         if (hasName())
         {

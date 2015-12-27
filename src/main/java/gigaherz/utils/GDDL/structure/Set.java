@@ -135,6 +135,7 @@ public class Set extends Element implements List<Element>
         return changed;
     }
 
+    @Override
     public void add(int before, Element e)
     {
         contents.add(before, e);
@@ -177,6 +178,7 @@ public class Set extends Element implements List<Element>
         return r;
     }
 
+    @Override
     public Element remove(int index)
     {
         Element e = contents.get(index);
@@ -225,10 +227,10 @@ public class Set extends Element implements List<Element>
 
     public boolean isSimple()
     {
-        //return !(contents.Any(a => a is Set) || contents.Where(a => a.hasName()).Any(a => a is Set));
-        return false;
+        return contents.stream().noneMatch(a -> a instanceof Set || a.hasName());
     }
 
+    @Override
     protected String toStringInternal()
     {
         if (hasTypeName())
@@ -251,6 +253,7 @@ public class Set extends Element implements List<Element>
         return b.toString();
     }
 
+    @Override
     protected String toStringInternal(StringGenerationContext ctx)
     {
         boolean addBraces = ctx.IndentLevel > 0;
@@ -264,29 +267,67 @@ public class Set extends Element implements List<Element>
 
         final String tabs2 = addBraces ? "  " + tabs1 : tabs1;
 
-        boolean nice = (ctx.Options == StringGenerationOptions.Nice) && (!isSimple() || contents.size() > 10);
+        StringBuilder builder = new StringBuilder();
+
+        boolean _nice = (ctx.Options == StringGenerationOptions.Nice);
+        boolean _simple = (isSimple() && contents.size() <= 10);
+
+        int verbosity = 0;
+        if(_nice && _simple) verbosity = 1;
+        else if(_nice) verbosity = 2;
 
         ctx.IndentLevel++;
 
-        String result = nice
-                ? Utility.joinStream(",\n", contents.stream().map(a -> tabs2 + a.toString(ctx)))
-                : Utility.joinStream(", ", contents.stream().map(a -> a.toString(ctx)));
+        if (hasTypeName())
+        {
+            builder.append(typeName);
+            builder.append(" ");
+        }
+        if(addBraces)
+        {
+            switch(verbosity)
+            {
+                case 0: builder.append("{"); break;
+                case 1: builder.append("{ "); break;
+                case 2: builder.append("{\n"); break;
+            }
+        }
+
+        boolean first = true;
+        for(Element e : contents)
+        {
+            if(!first)
+            {
+                switch(verbosity)
+                {
+                    case 0: builder.append(","); break;
+                    case 1: builder.append(", "); break;
+                    case 2: builder.append(",\n"); break;
+                }
+            }
+            if(verbosity == 2) builder.append(tabs2);
+
+            builder.append(e.toString(ctx));
+
+            first = false;
+        }
 
         if (addBraces)
         {
-            result = String.format(nice ? "{{%n{2}%n%s}}" : "{{{2}}}", tabs1, result);
-        }
-
-        if (hasTypeName())
-        {
-            result = String.format("%s %s", typeName, result);
+            switch(verbosity)
+            {
+                case 0: builder.append("}"); break;
+                case 1: builder.append(" }"); break;
+                case 2: builder.append("\n"); builder.append(tabs1); builder.append("}"); break;
+            }
         }
 
         ctx.IndentLevel--;
 
-        return result;
+        return builder.toString();
     }
 
+    @Override
     public void resolve(Element root)
     {
         for (Element el : contents)
@@ -295,6 +336,7 @@ public class Set extends Element implements List<Element>
         }
     }
 
+    @Override
     public Element simplify()
     {
         for (int i = 0; i < contents.size(); i++)

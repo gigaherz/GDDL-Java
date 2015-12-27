@@ -1,6 +1,6 @@
 package gigaherz.utils.GDDL;
 
-public class Token
+public class Token implements ContextProvider
 {
     public Tokens Name;
     public String Text;
@@ -23,5 +23,11 @@ public class Token
             return String.format("(%s @ %d:%d: %s...)", Name, Context.Line, Context.Column, Text.substring(0, 20));
 
         return String.format("(%s @ %d:%d: %s)", Name, Context.Line, Context.Column, Text);
+    }
+
+    @Override
+    public ParsingContext getParsingContext()
+    {
+        return Context;
     }
 }

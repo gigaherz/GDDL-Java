@@ -2,9 +2,9 @@ package gigaherz.utils.GDDL;
 
 public class ParsingContext
 {
-    public String Filename;
-    public int Line;
-    public int Column;
+    public final String Filename;
+    public final int Line;
+    public final int Column;
 
     public ParsingContext(String f, int l, int c)
     {

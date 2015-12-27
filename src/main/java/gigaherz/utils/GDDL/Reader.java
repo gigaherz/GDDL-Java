@@ -10,8 +10,10 @@ import java.io.IOException;
 public class Reader implements ContextProvider
 {
     final QueueList<Integer> unreadBuffer = new QueueList<>();
+
     boolean endQueued = false;
     FileReader dataSource;
+
     String sourceName;
     int line = 1;
     int column = 1;

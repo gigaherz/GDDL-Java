@@ -1,5 +1,6 @@
 package gigaherz.utils.GDDL;
 
+import gigaherz.utils.GDDL.exceptions.ParserException;
 import gigaherz.utils.GDDL.util.QueueList;
 import gigaherz.utils.GDDL.exceptions.LexerException;
 
@@ -9,49 +10,14 @@ import java.util.Stack;
 public class Lexer implements ContextProvider
 {
     final QueueList<Token> lookAhead = new QueueList<>();
-    final Stack<Integer> prefixStack = new Stack<>();
 
     final Reader reader;
 
     boolean seenEnd = false;
 
-    int prefixPos = 0;
-    Token prefix;
-
     public Lexer(Reader r)
     {
         reader = r;
-    }
-
-    public Tokens prefix()
-    {
-        return prefix.Name;
-    }
-
-    public void beginPrefixScan()
-    {
-        prefixStack.push(prefixPos);
-    }
-
-    public void nextPrefix() throws LexerException, IOException
-    {
-        require(prefixPos + 1);
-
-        prefix = lookAhead.get(prefixPos++);
-    }
-
-    public void endPrefixScan()
-    {
-        prefixPos = prefixStack.pop();
-
-        if (prefixPos > 0)
-        {
-            prefix = lookAhead.get(prefixPos - 1);
-        }
-        else
-        {
-            prefix = null;
-        }
     }
 
     private void require(int count) throws LexerException, IOException
@@ -61,6 +27,13 @@ public class Lexer implements ContextProvider
         {
             readAhead(needed);
         }
+    }
+
+    public Tokens peek(int pos) throws LexerException, IOException
+    {
+        require(pos+1);
+
+        return lookAhead.get(pos).Name;
     }
 
     public Tokens peek() throws LexerException, IOException
@@ -368,6 +341,187 @@ public class Lexer implements ContextProvider
     public String toString()
     {
         return String.format("{Lexer ahead=%s, reader=%s}", Utility.joinCollection(", ", lookAhead), reader);
+    }
+
+    public static String unescapeString(ContextProvider context, String p) throws ParserException
+    {
+        StringBuilder sb = new StringBuilder();
+
+        char startQuote = (char) 0;
+
+        boolean inEscape = false;
+
+        boolean inHexEscape = false;
+        int escapeAcc = 0;
+        int escapeDigits = 0;
+        int escapeMax = 0;
+
+        for (char c : p.toCharArray())
+        {
+            if (startQuote != 0)
+            {
+                if (inHexEscape)
+                {
+                    if (escapeDigits == escapeMax)
+                    {
+                        sb.append((char) escapeAcc);
+                        inHexEscape = false;
+                    }
+                    else if (Character.isDigit(c))
+                    {
+                        escapeAcc = (escapeAcc << 4) + (c - '0');
+                    }
+                    else if ((escapeDigits < escapeMax) && ((c >= 'a') && (c <= 'f')))
+                    {
+                        escapeAcc = (escapeAcc << 4) + 10 + (c - 'a');
+                    }
+                    else if ((escapeDigits < escapeMax) && ((c >= 'A') && (c <= 'F')))
+                    {
+                        escapeAcc = (escapeAcc << 4) + 10 + (c - 'A');
+                    }
+                    else
+                    {
+                        sb.append((char) escapeAcc);
+                        inHexEscape = false;
+                    }
+                    escapeDigits++;
+                }
+
+                if (inEscape)
+                {
+                    switch (c)
+                    {
+                        case '"':
+                            sb.append('"');
+                            break;
+                        case '\'':
+                            sb.append('\'');
+                            break;
+                        case '\\':
+                            sb.append('\\');
+                            break;
+                        case '0':
+                            sb.append('\0');
+                            break;
+                        case 'b':
+                            sb.append('\b');
+                            break;
+                        case 't':
+                            sb.append('\t');
+                            break;
+                        case 'n':
+                            sb.append('\n');
+                            break;
+                        case 'f':
+                            sb.append('\f');
+                            break;
+                        case 'r':
+                            sb.append('\r');
+                            break;
+                        case 'x':
+                            inHexEscape = true;
+                            escapeAcc = 0;
+                            escapeDigits = 0;
+                            escapeMax = 2;
+                            break;
+                        case 'u':
+                            inHexEscape = true;
+                            escapeAcc = 0;
+                            escapeDigits = 0;
+                            escapeMax = 4;
+                            break;
+                    }
+                    inEscape = false;
+                }
+                else if(!inHexEscape)
+                {
+                    if (c == startQuote)
+                        return sb.toString();
+                    switch (c)
+                    {
+                        case '\\':
+                            inEscape = true;
+                            break;
+                        default:
+                            sb.append(c);
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                switch (c)
+                {
+                    case '"':
+                        startQuote = '"';
+                        break;
+                    case '\'':
+                        startQuote = '\'';
+                        break;
+                    default:
+                        sb.append(c);
+                        break;
+                }
+            }
+        }
+
+        throw new ParserException(context, "Invalid string literal");
+    }
+
+    public static String escapeString(String p)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append('"');
+        for (char c : p.toCharArray())
+        {
+            boolean printable = (c >= 32 && c < 127)
+                    || Character.isWhitespace(c)
+                    || Character.isAlphabetic(c)
+                    || Character.isDigit(c)
+                    || Character.isIdeographic(c);
+            if (!Character.isISOControl(c) && printable  && c != '"' && c != '\\')
+            {
+                sb.append(c);
+                continue;
+            }
+
+
+            sb.append('\\');
+            switch (c)
+            {
+                case '\b':
+                    sb.append('b');
+                    break;
+                case '\t':
+                    sb.append('t');
+                    break;
+                case '\n':
+                    sb.append('n');
+                    break;
+                case '\f':
+                    sb.append('f');
+                    break;
+                case '\r':
+                    sb.append('r');
+                    break;
+                case '\"':
+                    sb.append('\"');
+                    break;
+                case '\\':
+                    sb.append('\\');
+                    break;
+                default:
+                    if(c > 0xFF)
+                        sb.append(String.format("u%04x", (int) c));
+                    else
+                        sb.append(String.format("x%02x", (int) c));
+                    break;
+            }
+        }
+        sb.append('"');
+
+        return sb.toString();
     }
 
     public ParsingContext getParsingContext()

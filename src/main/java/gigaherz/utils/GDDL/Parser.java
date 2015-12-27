@@ -5,12 +5,16 @@ import gigaherz.utils.GDDL.exceptions.ParserException;
 import gigaherz.utils.GDDL.structure.Backreference;
 import gigaherz.utils.GDDL.structure.Element;
 import gigaherz.utils.GDDL.structure.Set;
+import gigaherz.utils.GDDL.structure.Value;
+import gigaherz.utils.GDDL.util.BasicIntStack;
 
 import java.io.IOException;
 
 @SuppressWarnings("unused")
 public class Parser implements ContextProvider
 {
+    int prefixPos = -1;
+    final BasicIntStack prefixStack = new BasicIntStack();
     private final Lexer lex;
     private boolean finished_with_rbrace = false;
 
@@ -51,25 +55,31 @@ public class Parser implements ContextProvider
         return lex.pop();
     }
 
+    public void beginPrefixScan()
+    {
+        prefixStack.push(prefixPos);
+    }
+
+    public Tokens nextPrefix() throws LexerException, IOException
+    {
+        return lex.peek(++prefixPos);
+    }
+
+    public void endPrefixScan()
+    {
+        prefixPos = prefixStack.pop();
+    }
     private boolean hasAny(Tokens... tokens) throws LexerException, IOException
     {
-        lex.nextPrefix();
+        Tokens prefix = nextPrefix();
         for (Tokens t : tokens)
         {
-            if (lex.prefix() == t)
+            if (prefix == t)
             {
                 return true;
             }
         }
         return false;
-    }
-
-    private boolean hasPrefix(Tokens... tokens) throws LexerException, IOException
-    {
-        lex.beginPrefixScan();
-        boolean r = hasAny(tokens);
-        lex.endPrefixScan();
-        return r;
     }
 
     private boolean prefix_element() throws LexerException, IOException
@@ -79,44 +89,52 @@ public class Parser implements ContextProvider
 
     private boolean prefix_basicElement() throws LexerException, IOException
     {
-        return hasPrefix(Tokens.NIL, Tokens.NULL, Tokens.TRUE, Tokens.FALSE,
-                Tokens.HEXINT, Tokens.INTEGER, Tokens.DOUBLE, Tokens.STRING)
-                || prefix_backreference() || prefix_set() || prefix_typedSet();
+        beginPrefixScan();
+        boolean r = hasAny(Tokens.NIL, Tokens.NULL, Tokens.TRUE, Tokens.FALSE, Tokens.HEXINT, Tokens.INTEGER, Tokens.DOUBLE, Tokens.STRING);
+        endPrefixScan();
+
+        return r || prefix_backreference() || prefix_set() || prefix_typedSet();
     }
 
     private boolean prefix_namedElement() throws LexerException, IOException
     {
-        lex.beginPrefixScan();
+        beginPrefixScan();
         boolean r = hasAny(Tokens.IDENT) && hasAny(Tokens.EQUALS);
-        lex.endPrefixScan();
+        endPrefixScan();
         return r;
     }
 
     private boolean prefix_backreference() throws LexerException, IOException
     {
-        lex.beginPrefixScan();
+        beginPrefixScan();
         boolean r = hasAny(Tokens.COLON) && hasAny(Tokens.IDENT);
-        lex.endPrefixScan();
+        endPrefixScan();
 
         return r || prefix_identifier();
     }
 
     private boolean prefix_set() throws LexerException, IOException
     {
-        return hasPrefix(Tokens.LBRACE);
+        beginPrefixScan();
+        boolean r = hasAny(Tokens.LBRACE);
+        endPrefixScan();
+        return r;
     }
 
     private boolean prefix_typedSet() throws LexerException, IOException
     {
-        lex.beginPrefixScan();
+        beginPrefixScan();
         boolean r = hasAny(Tokens.IDENT) && hasAny(Tokens.LBRACE);
-        lex.endPrefixScan();
+        endPrefixScan();
         return r;
     }
 
     private boolean prefix_identifier() throws LexerException, IOException
     {
-        return hasPrefix(Tokens.IDENT);
+        beginPrefixScan();
+        boolean r = hasAny(Tokens.IDENT);
+        endPrefixScan();
+        return r;
     }
 
     private Element root() throws IOException, ParserException
@@ -136,31 +154,15 @@ public class Parser implements ContextProvider
 
     private Element basicElement() throws ParserException, IOException
     {
-        if (lex.peek() == Tokens.NIL)
-        {
-            popExpected(Tokens.NIL);
-            return Element.Null();
-        }
-        if (lex.peek() == Tokens.NULL)
-        {
-            popExpected(Tokens.NULL);
-            return Element.Null();
-        }
-        if (lex.peek() == Tokens.TRUE)
-        {
-            popExpected(Tokens.TRUE);
-            return Element.booleanValue(true);
-        }
-        if (lex.peek() == Tokens.FALSE)
-        {
-            popExpected(Tokens.FALSE);
-            return Element.booleanValue(false);
-        }
-        if (lex.peek() == Tokens.INTEGER) return Element.intValue(popExpected(Tokens.INTEGER).Text);
-        if (lex.peek() == Tokens.HEXINT) return Element.intValue(popExpected(Tokens.HEXINT).Text, 16);
-        if (lex.peek() == Tokens.INTEGER) return Element.intValue(popExpected(Tokens.INTEGER).Text);
-        if (lex.peek() == Tokens.DOUBLE) return Element.floatValue(popExpected(Tokens.DOUBLE).Text);
-        if (lex.peek() == Tokens.STRING) return Element.stringValue(lex, popExpected(Tokens.STRING).Text);
+        if (lex.peek() == Tokens.NIL) return nullValue(popExpected(Tokens.NIL));
+        if (lex.peek() == Tokens.NULL) return nullValue(popExpected(Tokens.NULL));
+        if (lex.peek() == Tokens.TRUE) return booleanValue(popExpected(Tokens.TRUE));
+        if (lex.peek() == Tokens.FALSE) return booleanValue(popExpected(Tokens.FALSE));
+        if (lex.peek() == Tokens.INTEGER) return intValue(popExpected(Tokens.INTEGER));
+        if (lex.peek() == Tokens.HEXINT) return intValue(popExpected(Tokens.HEXINT), 16);
+        if (lex.peek() == Tokens.INTEGER) return intValue(popExpected(Tokens.INTEGER));
+        if (lex.peek() == Tokens.DOUBLE) return floatValue(popExpected(Tokens.DOUBLE));
+        if (lex.peek() == Tokens.STRING) return stringValue(popExpected(Tokens.STRING));
         if (prefix_set()) return set();
         if (prefix_typedSet()) return typedSet();
         if (prefix_backreference()) return backreference();
@@ -199,7 +201,7 @@ public class Parser implements ContextProvider
         String I = identifier();
         Backreference B = Element.backreference(rooted, I);
 
-        while (hasPrefix(Tokens.COLON))
+        while (lex.peek() == Tokens.COLON)
         {
             popExpected(Tokens.COLON);
 
@@ -260,6 +262,36 @@ public class Parser implements ContextProvider
         if (lex.peek() == Tokens.IDENT) return popExpected(Tokens.IDENT).Text;
 
         throw new ParserException(this, "Internal error");
+    }
+
+    public static Value nullValue(Token token)
+    {
+        return Element.nullValue();
+    }
+
+    public static Value booleanValue(Token token)
+    {
+        return Element.booleanValue(token.Name == Tokens.TRUE);
+    }
+
+    public static Value intValue(Token token)
+    {
+        return Element.intValue(Long.parseLong(token.Text));
+    }
+
+    public static Value intValue(Token token, int _base)
+    {
+        return Element.intValue(Long.parseLong(token.Text.substring(2), 16));
+    }
+
+    public static Value floatValue(Token token)
+    {
+        return Element.floatValue(Double.parseDouble(token.Text));
+    }
+
+    public static Value stringValue(Token token) throws ParserException
+    {
+        return Element.stringValue(Lexer.unescapeString(token, token.Text));
     }
 
     @Override

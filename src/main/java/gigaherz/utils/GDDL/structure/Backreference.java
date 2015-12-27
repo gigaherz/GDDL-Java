@@ -21,19 +21,21 @@ public class Backreference extends Element
         NamePart.add(I);
     }
 
-    public Element resolvedValue()
+    public void append(String I)
     {
-        return resolvedValue;
+        NamePart.add(I);
     }
 
+    @Override
     public boolean isResolved()
     {
         return resolved;
     }
 
-    public void append(String I)
+    @Override
+    public Element resolvedValue()
     {
-        NamePart.add(I);
+        return resolvedValue;
     }
 
     @Override
