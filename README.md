@@ -24,7 +24,7 @@ RootSetName = typeNameHere {
     .23e45,
     12.34e-5,
     "This is a string literal",
-    "Testing \t\f\b\r\n escape\x20codes\x1234",
+    "Testing \t\f\b\r\n escape\x20codes\u1234",
     'Strings can also be single-quoted.',
 
     { 1,2,3,4,5 } # the comma is optional after a closing brace
@@ -36,15 +36,16 @@ RootSetName = typeNameHere {
 
     # Named sets
 
-    namedSet = { "a", { 1 }, 0x345 },
-    namedTypedSet = set_with_a_type { "\x0001" }
-    
+    "named set" = { "a", { 1 }, 0x345 },
+    namedTypedSet = set_with_a_type { "\u0001" }
+
     # References
-    
+
     replace_this_with = RootSetName:namedNumber,
 
     # The comma in the last element is optional but allowed.
 }
+
 ```
 
 Syntax
@@ -70,7 +71,7 @@ Root: Element
 
 Element: Basic-Element | Named-Element
 
-Named-Element: Identifier '=' Basic-Element
+Named-Element: (Identifier | String) '=' Basic-Element
 
 Basic-Element: Literal | Set | Reference
 
