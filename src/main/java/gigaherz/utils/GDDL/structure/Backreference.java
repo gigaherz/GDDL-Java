@@ -3,27 +3,37 @@ package gigaherz.utils.GDDL.structure;
 import gigaherz.utils.GDDL.config.StringGenerationContext;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class Backreference extends Element
 {
     protected final List<String> NamePart = new ArrayList<>();
 
-    // TODO: Figure out what this syntax feature was meant to be used for XD
-    protected boolean Rooted;
+    protected boolean rooted;
 
     private boolean resolved;
     private Element resolvedValue;
 
-    Backreference(boolean rooted, String I)
+    Backreference(String... parts)
     {
-        Rooted = rooted;
-        NamePart.add(I);
+        Collections.addAll(NamePart, parts);
     }
 
-    public void append(String I)
+    Backreference(boolean rooted, String... parts)
     {
-        NamePart.add(I);
+        this.rooted = rooted;
+        Collections.addAll(NamePart, parts);
+    }
+
+    public void add(String name)
+    {
+        NamePart.add(name);
+    }
+    public void addAll(Collection<String> names)
+    {
+        NamePart.addAll(names);
     }
 
     @Override
@@ -39,7 +49,7 @@ public class Backreference extends Element
     }
 
     @Override
-    protected String toStringInternal()
+    protected String toStringInternal(StringGenerationContext ctx)
     {
         StringBuilder ss = new StringBuilder();
         int count = 0;
@@ -63,27 +73,63 @@ public class Backreference extends Element
     }
 
     @Override
-    protected String toStringInternal(StringGenerationContext ctx)
+    protected Element copy()
     {
-        return toStringInternal();
+        Backreference b = new Backreference();
+        copyTo(b);
+        return b;
     }
 
     @Override
-    public void resolve(Element root)
+    protected void copyTo(Element other)
+    {
+        super.copyTo(other);
+        if(!(other instanceof Backreference))
+            throw new IllegalArgumentException("copyTo for invalid type");
+        Backreference b = (Backreference)other;
+        b.addAll(NamePart);
+        if(resolved)
+        {
+            b.resolved = true;
+            b.resolvedValue = resolvedValue;
+        }
+    }
+
+    @Override
+    public void resolve(Element root, Element parent)
     {
         if (isResolved())
             return;
 
-        Element elm = root;
-
-        for (String it : NamePart)
+        if (!rooted && tryResolve(root, parent, true))
         {
+            resolved = true;
+            return;
+        }
+
+        resolved = tryResolve(root, parent, false);
+    }
+
+    private boolean tryResolve(Element root, Element parent, boolean relative)
+    {
+        Element elm = relative ? parent : root;
+
+        boolean parentRoot = false;
+        if (parent.hasName() && NamePart.get(0).equals(parent.getName()))
+        {
+            parentRoot = true;
+        }
+
+        for (int i = parentRoot ? 1 : 0; i < NamePart.size(); i++)
+        {
+            String part = NamePart.get(i);
+
             if (!(elm instanceof Set))
                 continue;
 
             Set s = (Set) elm;
 
-            Element ne = s.find(it);
+            Element ne = s.find(part);
             if (ne != null)
             {
                 elm = ne;
@@ -91,24 +137,26 @@ public class Backreference extends Element
             }
 
             resolvedValue = null;
-            resolved = true;
-            return;
+            return false;
         }
 
-        resolvedValue = elm;
-        resolved = true;
-
         if (!elm.isResolved())
-            elm.resolve(root);
+            elm.resolve(root, parent);
 
         resolvedValue = elm.resolvedValue();
+
+        return resolvedValue != null;
     }
 
     @Override
     public Element simplify()
     {
         if (resolved && resolvedValue != null)
-            return resolvedValue;
+        {
+            Element resolved = resolvedValue.copy();
+            resolved.setName(getName());
+            return resolved;
+        }
 
         return this;
     }

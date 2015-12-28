@@ -38,21 +38,32 @@ public class Parser implements ContextProvider
         return parse(true);
     }
 
-    public Element parse(boolean resolveReferences) throws IOException, ParserException
+    public Element parse(boolean simplify) throws IOException, ParserException
     {
         Element ret = root();
 
-        if (resolveReferences)
-            ret.resolve(ret);
+        if (simplify)
+        {
+            ret.resolve(ret, ret);
+            ret = ret.simplify();
+        }
 
         return ret;
     }
 
-    private Token popExpected(Tokens expectedToken) throws ParserException, IOException
+    private Token popExpected(Tokens... expected) throws ParserException, IOException
     {
-        if (lex.peek() != expectedToken)
-            throw new ParserException(this, String.format("Unexpected token %s: Expected %s.", lex.peek(), expectedToken));
-        return lex.pop();
+        Tokens current = lex.peek();
+        for(Tokens expectedToken : expected)
+        {
+            if (current == expectedToken)
+                return lex.pop();
+        }
+
+        if(expected.length != 1)
+            throw new ParserException(this, String.format("Unexpected token %s. Expected one of: %s.", current, Utility.joinArray(", ", expected)));
+
+        throw new ParserException(this, String.format("Unexpected token %s. Expected: %s.", current, expected[0]));
     }
 
     public void beginPrefixScan()
@@ -99,7 +110,7 @@ public class Parser implements ContextProvider
     private boolean prefix_namedElement() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(Tokens.IDENT) && hasAny(Tokens.EQUALS);
+        boolean r = hasAny(Tokens.IDENT, Tokens.STRING) && hasAny(Tokens.EQUALS);
         endPrefixScan();
         return r;
     }
@@ -172,7 +183,11 @@ public class Parser implements ContextProvider
 
     private Element namedElement() throws IOException, ParserException
     {
-        String I = identifier();
+        Token N = popExpected(Tokens.IDENT, Tokens.STRING);
+
+        String I;
+        if (N.Name == Tokens.IDENT) I = N.Text;
+        else I = Lexer.unescapeString(N);
 
         popExpected(Tokens.EQUALS);
 
@@ -207,7 +222,7 @@ public class Parser implements ContextProvider
 
             String O = identifier();
 
-            B.append(O);
+            B.add(O);
         }
 
         return B;
@@ -291,7 +306,7 @@ public class Parser implements ContextProvider
 
     public static Value stringValue(Token token) throws ParserException
     {
-        return Element.stringValue(Lexer.unescapeString(token, token.Text));
+        return Element.stringValue(Lexer.unescapeString(token));
     }
 
     @Override

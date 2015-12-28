@@ -1,6 +1,6 @@
 package gigaherz.utils.GDDL.structure;
 
-import gigaherz.utils.GDDL.Utility;
+import gigaherz.utils.GDDL.Lexer;
 import gigaherz.utils.GDDL.config.StringGenerationContext;
 import gigaherz.utils.GDDL.config.StringGenerationOptions;
 
@@ -36,6 +36,8 @@ public class Set extends Element implements List<Element>
 
     public void setTypeName(String value)
     {
+        if(!Lexer.isValidIdentifier(value))
+            throw new IllegalArgumentException("Type value must be a valid identifier");
         typeName = value;
     }
 
@@ -231,29 +233,6 @@ public class Set extends Element implements List<Element>
     }
 
     @Override
-    protected String toStringInternal()
-    {
-        if (hasTypeName())
-            return String.format("%s %s", typeName, toStringInternal(true));
-        return toStringInternal(true);
-    }
-
-    protected String toStringInternal(boolean addBraces)
-    {
-        StringBuilder b = new StringBuilder();
-        if (addBraces) b.append("{");
-        boolean first = true;
-        for (Element e : contents)
-        {
-            if (!first) b.append(", ");
-            b.append(e.toString());
-            first = false;
-        }
-        if (addBraces) b.append("}");
-        return b.toString();
-    }
-
-    @Override
     protected String toStringInternal(StringGenerationContext ctx)
     {
         boolean addBraces = ctx.IndentLevel > 0;
@@ -328,11 +307,29 @@ public class Set extends Element implements List<Element>
     }
 
     @Override
-    public void resolve(Element root)
+    protected Element copy()
+    {
+        Set b = new Set();
+        copyTo(b);
+        return b;
+    }
+
+    @Override
+    protected void copyTo(Element other)
+    {
+        super.copyTo(other);
+        if(!(other instanceof Set))
+            throw new IllegalArgumentException("copyTo for invalid type");
+        Set b = (Set)other;
+        for(Element e : contents) b.add(e.copy());
+    }
+
+    @Override
+    public void resolve(Element root, Element parent)
     {
         for (Element el : contents)
         {
-            el.resolve(root);
+            el.resolve(root, this);
         }
     }
 

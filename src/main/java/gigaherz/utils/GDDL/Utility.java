@@ -31,7 +31,20 @@ public class Utility
     {
         StringBuilder b = new StringBuilder();
         boolean first = true;
-        for (Object e : iterable)
+        for (T e : iterable)
+        {
+            if (!first) b.append(separator);
+            b.append(e.toString());
+            first = false;
+        }
+        return b.toString();
+    }
+
+    public static <T> String joinArray(String separator, T[] elements)
+    {
+        StringBuilder b = new StringBuilder();
+        boolean first = true;
+        for (T e : elements)
         {
             if (!first) b.append(separator);
             b.append(e.toString());

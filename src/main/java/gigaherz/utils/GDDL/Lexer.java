@@ -343,7 +343,27 @@ public class Lexer implements ContextProvider
         return String.format("{Lexer ahead=%s, reader=%s}", Utility.joinCollection(", ", lookAhead), reader);
     }
 
-    public static String unescapeString(ContextProvider context, String p) throws ParserException
+    public static boolean isValidIdentifier(String ident)
+    {
+        boolean first = true;
+
+        for(char c : ident.toCharArray())
+        {
+            if(!Character.isLetter(c) && c != '_')
+            {
+                if (first || !Character.isDigit(c))
+                {
+                    return false;
+                }
+            }
+
+            first = false;
+        }
+
+        return true;
+    }
+
+    public static String unescapeString(Token t) throws ParserException
     {
         StringBuilder sb = new StringBuilder();
 
@@ -356,7 +376,7 @@ public class Lexer implements ContextProvider
         int escapeDigits = 0;
         int escapeMax = 0;
 
-        for (char c : p.toCharArray())
+        for (char c : t.Text.toCharArray())
         {
             if (startQuote != 0)
             {
@@ -465,7 +485,7 @@ public class Lexer implements ContextProvider
             }
         }
 
-        throw new ParserException(context, "Invalid string literal");
+        throw new ParserException(t, "Invalid string literal");
     }
 
     public static String escapeString(String p)

@@ -42,6 +42,11 @@ public class Value extends Element
         return data;
     }
 
+    void setData(Object value)
+    {
+        data = value;
+    }
+
     public String getString()
     {
         return (String) data;
@@ -68,7 +73,25 @@ public class Value extends Element
     }
 
     @Override
-    protected String toStringInternal()
+    protected Element copy()
+    {
+        Value b = new Value();
+        copyTo(b);
+        return b;
+    }
+
+    @Override
+    protected void copyTo(Element other)
+    {
+        super.copyTo(other);
+        if(!(other instanceof Value))
+            throw new IllegalArgumentException("copyTo for invalid type");
+        Value b = (Value)other;
+        b.setData(getData());
+    }
+
+    @Override
+    protected String toStringInternal(StringGenerationContext ctx)
     {
         if (data == null)
         {
@@ -83,12 +106,6 @@ public class Value extends Element
             return Lexer.escapeString(getString());
         }
         return String.format(Locale.ROOT, "%s", data.toString());
-    }
-
-    @Override
-    protected String toStringInternal(StringGenerationContext ctx)
-    {
-        return toStringInternal();
     }
 
 }

@@ -24,12 +24,12 @@ RootSetName = typeNameHere {
 
     # Named sets
 
-    namedSet = { "a", { 1 }, 0x345 },
+    "named set" = { "a", { 1 }, 0x345 },
     namedTypedSet = set_with_a_type { "\u0001" }
     
     # References
     
-    replace_this_with = :namedNumber,
+    replace_this_with = RootSetName:namedNumber,
 
     # The comma in the last element is optional but allowed.
 }

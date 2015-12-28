@@ -1,6 +1,8 @@
 package gigaherz.utils.GDDL.structure;
 
+import gigaherz.utils.GDDL.Lexer;
 import gigaherz.utils.GDDL.config.StringGenerationContext;
+import gigaherz.utils.GDDL.config.StringGenerationOptions;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,9 +23,9 @@ public abstract class Element
         return new Set(initial);
     }
 
-    public static Backreference backreference(boolean rooted, String name)
+    public static Backreference backreference(boolean rooted, String... parts)
     {
-        return new Backreference(rooted, name);
+        return new Backreference(rooted, parts);
     }
 
     public static Value nullValue()
@@ -87,13 +89,12 @@ public abstract class Element
         return (Value) this;
     }
 
-    // Removes single-element non-named sets and backreferences
     public Element simplify()
     {
         return this;
     }
 
-    public void resolve(Element root)
+    public void resolve(Element root, Element parent)
     {
     }
 
@@ -107,28 +108,31 @@ public abstract class Element
         return this;
     }
 
-    protected abstract String toStringInternal();
-
     protected abstract String toStringInternal(StringGenerationContext ctx);
 
     @Override
     public final String toString()
     {
-        if (hasName())
-        {
-            return String.format("%s = %s", name, toStringInternal());
-        }
-
-        return toStringInternal();
+        return toString(new StringGenerationContext(StringGenerationOptions.Compact));
     }
 
     public final String toString(StringGenerationContext ctx)
     {
         if (hasName())
         {
-            return String.format("%s = %s", name, toStringInternal(ctx));
+            String sname = name;
+            if(!Lexer.isValidIdentifier(sname))
+                sname = Lexer.escapeString(sname);
+            return String.format("%s = %s", sname, toStringInternal(ctx));
         }
 
         return toStringInternal(ctx);
+    }
+
+    protected abstract Element copy();
+    protected void copyTo(Element other)
+    {
+        if(hasName())
+            other.setName(getName());
     }
 }
