@@ -1,6 +1,6 @@
-package gigaherz.utils.GDDL.exceptions;
+package gigaherz.util.gddl.exceptions;
 
-import gigaherz.utils.GDDL.ContextProvider;
+import gigaherz.util.gddl.ContextProvider;
 
 public class LexerException extends ParserException
 {

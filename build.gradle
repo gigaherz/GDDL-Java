@@ -1,4 +1,4 @@
-group 'gigaherz.utils.GDDL'
+group 'gigaherz.utils.gddl'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'

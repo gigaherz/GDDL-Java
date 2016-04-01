@@ -1,4 +1,4 @@
-package gigaherz.utils.GDDL.util;
+package gigaherz.util.gddl.util;
 
 import java.util.Arrays;
 

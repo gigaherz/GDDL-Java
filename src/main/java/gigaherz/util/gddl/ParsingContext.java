@@ -1,4 +1,4 @@
-package gigaherz.utils.GDDL;
+package gigaherz.util.gddl;
 
 public class ParsingContext
 {

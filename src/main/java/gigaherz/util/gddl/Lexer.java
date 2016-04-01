@@ -1,11 +1,10 @@
-package gigaherz.utils.GDDL;
+package gigaherz.util.gddl;
 
-import gigaherz.utils.GDDL.exceptions.ParserException;
-import gigaherz.utils.GDDL.util.QueueList;
-import gigaherz.utils.GDDL.exceptions.LexerException;
+import gigaherz.util.gddl.exceptions.LexerException;
+import gigaherz.util.gddl.exceptions.ParserException;
+import gigaherz.util.gddl.util.QueueList;
 
 import java.io.IOException;
-import java.util.Stack;
 
 public class Lexer implements ContextProvider
 {

@@ -1,9 +1,7 @@
-package gigaherz.utils.GDDL.structure;
+package gigaherz.util.gddl.structure;
 
-import gigaherz.utils.GDDL.ContextProvider;
-import gigaherz.utils.GDDL.Lexer;
-import gigaherz.utils.GDDL.config.StringGenerationContext;
-import gigaherz.utils.GDDL.exceptions.ParserException;
+import gigaherz.util.gddl.Lexer;
+import gigaherz.util.gddl.config.StringGenerationContext;
 
 import java.util.Locale;
 

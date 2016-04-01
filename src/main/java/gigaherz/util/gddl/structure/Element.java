@@ -1,8 +1,8 @@
-package gigaherz.utils.GDDL.structure;
+package gigaherz.util.gddl.structure;
 
-import gigaherz.utils.GDDL.Lexer;
-import gigaherz.utils.GDDL.config.StringGenerationContext;
-import gigaherz.utils.GDDL.config.StringGenerationOptions;
+import gigaherz.util.gddl.Lexer;
+import gigaherz.util.gddl.config.StringGenerationContext;
+import gigaherz.util.gddl.config.StringGenerationOptions;
 
 import java.util.Arrays;
 import java.util.Collection;

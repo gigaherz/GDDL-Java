@@ -1,7 +1,6 @@
-package gigaherz.utils.GDDL;
+package gigaherz.util.gddl;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.stream.Stream;
 
 public class Utility

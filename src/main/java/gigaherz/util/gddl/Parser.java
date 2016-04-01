@@ -1,12 +1,12 @@
-package gigaherz.utils.GDDL;
+package gigaherz.util.gddl;
 
-import gigaherz.utils.GDDL.exceptions.LexerException;
-import gigaherz.utils.GDDL.exceptions.ParserException;
-import gigaherz.utils.GDDL.structure.Backreference;
-import gigaherz.utils.GDDL.structure.Element;
-import gigaherz.utils.GDDL.structure.Set;
-import gigaherz.utils.GDDL.structure.Value;
-import gigaherz.utils.GDDL.util.BasicIntStack;
+import gigaherz.util.gddl.structure.Value;
+import gigaherz.util.gddl.exceptions.LexerException;
+import gigaherz.util.gddl.exceptions.ParserException;
+import gigaherz.util.gddl.structure.Backreference;
+import gigaherz.util.gddl.structure.Element;
+import gigaherz.util.gddl.structure.Set;
+import gigaherz.util.gddl.util.BasicIntStack;
 
 import java.io.IOException;
 

@@ -1,10 +1,9 @@
-package gigaherz.utils.GDDL.sample;
+package gigaherz.util.gddl;
 
-import gigaherz.utils.GDDL.Parser;
-import gigaherz.utils.GDDL.config.StringGenerationContext;
-import gigaherz.utils.GDDL.config.StringGenerationOptions;
-import gigaherz.utils.GDDL.exceptions.ParserException;
-import gigaherz.utils.GDDL.structure.Element;
+import gigaherz.util.gddl.config.StringGenerationContext;
+import gigaherz.util.gddl.structure.Element;
+import gigaherz.util.gddl.config.StringGenerationOptions;
+import gigaherz.util.gddl.exceptions.ParserException;
 
 import java.io.IOException;
 
@@ -14,7 +13,7 @@ public class Program
     {
         try
         {
-            Parser parser = Parser.fromFile("H:\\Projects\\GDDL-Java\\samples\\Test.txt");
+            Parser parser = Parser.fromFile("H:\\Projects\\gddl-Java\\samples\\Test.txt");
             Element e = parser.parse();
             System.out.println(e.toString(new StringGenerationContext(StringGenerationOptions.Nice)));
         }
