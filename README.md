@@ -6,14 +6,6 @@ GDDL is a library for accessing data files described in the GDDL syntax.
 The source code is licensed under the 3-clause BSD license.
 See [LICENSE.txt](/LICENSE.txt) for details.
 
-How to Use
---------------------
-
-In your maven/gradle/ivy file, include `https://dl.bintray.com/gigaherz/maven` as a maven repository, then use the groupId `gigaherz.util.gddl`, artifactId `gigaherz.util.gddl`, and the version you want to use.
-
-Use the `Parser.fromFile` function to initialize a parser, and then call `parse` on the parser object to obtain the high-level representation of the data.
-
-
 A complete example
 --------------------
 
@@ -122,6 +114,20 @@ Finally, the syntax allows for referencing other elements in the hiererchy,
 effectively allowing the file to describe a graph instead of just a tree.
 
 In the current version, references work solely on names, and can not reference elements by their type.
+
+It looks a lot like JSON, why not just use JSON?
+------------------------------------------------
+
+If you were already wondering that when you started reading, then why are you even here? Just use JSON, it's a perfectly fine language. I'm not trying to take it away from you.
+
+To anyone else: I wrote this before I learned JSON. It's designed to look a bit like the syntax of C-style programming languages, without the verbosity of XML. This overlaps a lot with the design of JSON, but it's intrinsically different.
+
+How to Use
+--------------------
+
+In your maven/gradle/ivy file, include `https://dl.bintray.com/gigaherz/maven` as a maven repository, then use the groupId `gigaherz.util.gddl`, artifactId `gigaherz.util.gddl`, and the version you want to use.
+
+Use the `Parser.fromFile` function to initialize a parser, and then call `parse` on the parser object to obtain the high-level representation of the data.
 
 Potential future improvements (some crazier than others)
 ------------------------------
