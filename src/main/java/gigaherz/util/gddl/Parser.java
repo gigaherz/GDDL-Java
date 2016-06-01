@@ -267,7 +267,7 @@ public class Parser implements ContextProvider
             throw new ParserException(this, "Internal error");
         Set S = set();
 
-        S.setName(I);
+        S.setTypeName(I);
 
         return S;
     }
