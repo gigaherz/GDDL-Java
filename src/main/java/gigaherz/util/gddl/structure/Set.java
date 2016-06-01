@@ -19,6 +19,11 @@ public class Set extends Element implements List<Element>
     {
     }
 
+    public Set(String typeName)
+    {
+        this.typeName = typeName;
+    }
+
     public Set(Collection<Element> init)
     {
         contents.addAll(init);

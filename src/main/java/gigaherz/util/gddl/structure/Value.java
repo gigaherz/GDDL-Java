@@ -65,6 +65,14 @@ public class Value extends Element
         data = value;
     }
 
+    public long getInteger() { return (long) data; }
+
+    public void setInteger(long value) { data = value; }
+
+    public double getDouble() { return (double) data; }
+
+    public void setDouble(double value) { data = value; }
+
     public boolean isNull()
     {
         return data == null;
