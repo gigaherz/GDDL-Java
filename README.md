@@ -6,6 +6,14 @@ GDDL is a library for accessing data files described in the GDDL syntax.
 The source code is licensed under the 3-clause BSD license.
 See [LICENSE.txt](/LICENSE.txt) for details.
 
+How to Use
+--------------------
+
+In your maven/gradle/ivy file, include `https://dl.bintray.com/gigaherz/maven` as a maven repository, then use the groupId `gigaherz.util.gddl`, artifactId `gigaherz.util.gddl`, and the version you want to use.
+
+Use the `Parser.fromFile` function to initialize a parser, and then call `parse` on the parser object to obtain the high-level representation of the data.
+
+
 A complete example
 --------------------
 
