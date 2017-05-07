@@ -30,7 +30,7 @@ public class Lexer implements ContextProvider
 
     public Tokens peek(int pos) throws LexerException, IOException
     {
-        require(pos+1);
+        require(pos + 1);
 
         return lookAhead.get(pos).Name;
     }
@@ -339,16 +339,16 @@ public class Lexer implements ContextProvider
 
     public String toString()
     {
-        return String.format("{Lexer ahead=%s, reader=%s}", Utility.joinCollection(", ", lookAhead), reader);
+        return String.format("{Lexer ahead=%s, reader=%s}", Utility.join(", ", lookAhead), reader);
     }
 
     public static boolean isValidIdentifier(String ident)
     {
         boolean first = true;
 
-        for(char c : ident.toCharArray())
+        for (char c : ident.toCharArray())
         {
-            if(!Character.isLetter(c) && c != '_')
+            if (!Character.isLetter(c) && c != '_')
             {
                 if (first || !Character.isDigit(c))
                 {
@@ -452,7 +452,7 @@ public class Lexer implements ContextProvider
                     }
                     inEscape = false;
                 }
-                else if(!inHexEscape)
+                else if (!inHexEscape)
                 {
                     if (c == startQuote)
                         return sb.toString();
@@ -499,7 +499,7 @@ public class Lexer implements ContextProvider
                     || Character.isAlphabetic(c)
                     || Character.isDigit(c)
                     || Character.isIdeographic(c);
-            if (!Character.isISOControl(c) && printable  && c != '"' && c != '\\')
+            if (!Character.isISOControl(c) && printable && c != '"' && c != '\\')
             {
                 sb.append(c);
                 continue;
@@ -531,7 +531,7 @@ public class Lexer implements ContextProvider
                     sb.append('\\');
                     break;
                 default:
-                    if(c > 0xFF)
+                    if (c > 0xFF)
                         sb.append(String.format("u%04x", (int) c));
                     else
                         sb.append(String.format("x%02x", (int) c));

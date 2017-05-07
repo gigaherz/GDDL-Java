@@ -11,10 +11,10 @@ public class Backreference extends Element
 {
     protected final List<String> NamePart = new ArrayList<>();
 
-    protected boolean rooted;
-
     private boolean resolved;
     private Element resolvedValue;
+
+    protected boolean rooted;
 
     Backreference(String... parts)
     {
@@ -31,6 +31,7 @@ public class Backreference extends Element
     {
         NamePart.add(name);
     }
+
     public void addAll(Collection<String> names)
     {
         NamePart.addAll(names);
@@ -49,30 +50,6 @@ public class Backreference extends Element
     }
 
     @Override
-    protected String toStringInternal(StringGenerationContext ctx)
-    {
-        StringBuilder ss = new StringBuilder();
-        int count = 0;
-        for (String it : NamePart)
-        {
-            if (count++ > 0)
-                ss.append(':');
-            ss.append(it);
-        }
-
-        if (isResolved())
-        {
-            ss.append('=');
-            if (resolvedValue() == null)
-                ss.append("NULL");
-            else
-                ss.append(resolvedValue());
-        }
-
-        return ss.toString();
-    }
-
-    @Override
     protected Element copy()
     {
         Backreference b = new Backreference();
@@ -84,11 +61,11 @@ public class Backreference extends Element
     protected void copyTo(Element other)
     {
         super.copyTo(other);
-        if(!(other instanceof Backreference))
+        if (!(other instanceof Backreference))
             throw new IllegalArgumentException("copyTo for invalid type");
-        Backreference b = (Backreference)other;
+        Backreference b = (Backreference) other;
         b.addAll(NamePart);
-        if(resolved)
+        if (resolved)
         {
             b.resolved = true;
             b.resolvedValue = resolvedValue;
@@ -159,5 +136,29 @@ public class Backreference extends Element
         }
 
         return this;
+    }
+
+    @Override
+    protected String toStringInternal(StringGenerationContext ctx)
+    {
+        StringBuilder ss = new StringBuilder();
+        int count = 0;
+        for (String it : NamePart)
+        {
+            if (count++ > 0)
+                ss.append(':');
+            ss.append(it);
+        }
+
+        if (isResolved())
+        {
+            ss.append('=');
+            if (resolvedValue() == null)
+                ss.append("NULL");
+            else
+                ss.append(resolvedValue());
+        }
+
+        return ss.toString();
     }
 }

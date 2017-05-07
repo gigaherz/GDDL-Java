@@ -15,7 +15,7 @@ public class BasicIntStack
 
     public void push(int i)
     {
-        if(count == buffer.length)
+        if (count == buffer.length)
         {
             buffer = Arrays.copyOf(buffer, buffer.length * 2);
         }

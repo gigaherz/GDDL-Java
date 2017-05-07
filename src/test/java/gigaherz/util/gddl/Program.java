@@ -13,7 +13,7 @@ public class Program
     {
         try
         {
-            Parser parser = Parser.fromFile("H:\\Projects\\gddl-Java\\samples\\Test.txt");
+            Parser parser = Parser.fromFile(".\\samples\\Test.txt");
             Element e = parser.parse();
             System.out.println(e.toString(new StringGenerationContext(StringGenerationOptions.Nice)));
         }

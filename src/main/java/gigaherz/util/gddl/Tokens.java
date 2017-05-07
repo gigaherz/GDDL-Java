@@ -16,6 +16,5 @@ public enum Tokens
     LBRACE,
     RBRACE,
     IDENT,
-    END,
-    CHAR,
+    END
 }

@@ -13,7 +13,7 @@ public class Set extends Element implements List<Element>
     private final List<Element> contents = new ArrayList<>();
     private final Map<String, Element> names = new HashMap<>();
 
-    private String typeName; // TODO: getter/setter
+    private String typeName;
 
     public Set()
     {
@@ -41,7 +41,7 @@ public class Set extends Element implements List<Element>
 
     public void setTypeName(String value)
     {
-        if(!Lexer.isValidIdentifier(value))
+        if (!Lexer.isValidIdentifier(value))
             throw new IllegalArgumentException("Type value must be a valid identifier");
         typeName = value;
     }
@@ -120,7 +120,7 @@ public class Set extends Element implements List<Element>
     {
         boolean changed = false;
         for (Object e : c)
-            changed = changed || remove(e);
+        { changed = changed || remove(e); }
         return changed;
     }
 
@@ -243,13 +243,14 @@ public class Set extends Element implements List<Element>
         boolean addBraces = ctx.IndentLevel > 0;
         int tabsToGen = ctx.IndentLevel - 1;
 
-        String tabs1 = "";
+        final StringBuilder tabs0 = new StringBuilder();
         for (int i = 0; i < tabsToGen; i++)
         {
-            tabs1 += "  ";
+            tabs0.append("  ");
         }
-
-        final String tabs2 = addBraces ? "  " + tabs1 : tabs1;
+        final String tabs1 = tabs0.toString();
+        if (addBraces) tabs0.append("  ");
+        final String tabs2 = tabs0.toString();
 
         StringBuilder builder = new StringBuilder();
 
@@ -257,8 +258,8 @@ public class Set extends Element implements List<Element>
         boolean _simple = (isSimple() && contents.size() <= 10);
 
         int verbosity = 0;
-        if(_nice && _simple) verbosity = 1;
-        else if(_nice) verbosity = 2;
+        if (_nice && _simple) verbosity = 1;
+        else if (_nice) verbosity = 2;
 
         ctx.IndentLevel++;
 
@@ -267,29 +268,41 @@ public class Set extends Element implements List<Element>
             builder.append(typeName);
             builder.append(" ");
         }
-        if(addBraces)
+        if (addBraces)
         {
-            switch(verbosity)
+            switch (verbosity)
             {
-                case 0: builder.append("{"); break;
-                case 1: builder.append("{ "); break;
-                case 2: builder.append("{\n"); break;
+                case 0:
+                    builder.append("{");
+                    break;
+                case 1:
+                    builder.append("{ ");
+                    break;
+                case 2:
+                    builder.append("{\n");
+                    break;
             }
         }
 
         boolean first = true;
-        for(Element e : contents)
+        for (Element e : contents)
         {
-            if(!first)
+            if (!first)
             {
-                switch(verbosity)
+                switch (verbosity)
                 {
-                    case 0: builder.append(","); break;
-                    case 1: builder.append(", "); break;
-                    case 2: builder.append(",\n"); break;
+                    case 0:
+                        builder.append(",");
+                        break;
+                    case 1:
+                        builder.append(", ");
+                        break;
+                    case 2:
+                        builder.append(",\n");
+                        break;
                 }
             }
-            if(verbosity == 2) builder.append(tabs2);
+            if (verbosity == 2) builder.append(tabs2);
 
             builder.append(e.toString(ctx));
 
@@ -298,11 +311,19 @@ public class Set extends Element implements List<Element>
 
         if (addBraces)
         {
-            switch(verbosity)
+            switch (verbosity)
             {
-                case 0: builder.append("}"); break;
-                case 1: builder.append(" }"); break;
-                case 2: builder.append("\n"); builder.append(tabs1); builder.append("}"); break;
+                case 0:
+                    builder.append("}");
+                    break;
+                case 1:
+                    builder.append(" }");
+                    break;
+                case 2:
+                    builder.append("\n");
+                    builder.append(tabs1);
+                    builder.append("}");
+                    break;
             }
         }
 
@@ -323,10 +344,10 @@ public class Set extends Element implements List<Element>
     protected void copyTo(Element other)
     {
         super.copyTo(other);
-        if(!(other instanceof Set))
+        if (!(other instanceof Set))
             throw new IllegalArgumentException("copyTo for invalid type");
-        Set b = (Set)other;
-        for(Element e : contents) b.add(e.copy());
+        Set b = (Set) other;
+        for (Element e : contents) { b.add(e.copy()); }
     }
 
     @Override

@@ -65,13 +65,25 @@ public class Value extends Element
         data = value;
     }
 
-    public long getInteger() { return (long) data; }
+    public long getInteger()
+    {
+        return (long) data;
+    }
 
-    public void setInteger(long value) { data = value; }
+    public void setInteger(long value)
+    {
+        data = value;
+    }
 
-    public double getDouble() { return (double) data; }
+    public double getDouble()
+    {
+        return (double) data;
+    }
 
-    public void setDouble(double value) { data = value; }
+    public void setDouble(double value)
+    {
+        data = value;
+    }
 
     public boolean isNull()
     {
@@ -90,9 +102,9 @@ public class Value extends Element
     protected void copyTo(Element other)
     {
         super.copyTo(other);
-        if(!(other instanceof Value))
+        if (!(other instanceof Value))
             throw new IllegalArgumentException("copyTo for invalid type");
-        Value b = (Value)other;
+        Value b = (Value) other;
         b.setData(getData());
     }
 
@@ -113,5 +125,4 @@ public class Value extends Element
         }
         return String.format(Locale.ROOT, "%s", data.toString());
     }
-
 }

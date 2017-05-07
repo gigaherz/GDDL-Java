@@ -1,6 +1,8 @@
 package gigaherz.util.gddl;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 public class Utility
@@ -20,35 +22,29 @@ public class Utility
         return (x + 1);
     }
 
-    // TODO: improve this?
-    public static <T> String joinStream(CharSequence separator, Stream<T> stream)
+    public static <T> String join(CharSequence separator, T[] elements)
     {
-        return joinCollection(separator, Arrays.asList(stream.toArray()));
+        return join(separator, Arrays.stream(elements));
     }
 
-    public static <T> String joinCollection(CharSequence separator, Iterable<T> iterable)
+    public static <T> String join(CharSequence separator, Stream<T> stream)
     {
-        StringBuilder b = new StringBuilder();
-        boolean first = true;
-        for (T e : iterable)
-        {
-            if (!first) b.append(separator);
-            b.append(e.toString());
-            first = false;
-        }
-        return b.toString();
+        return join(separator, stream.iterator());
     }
 
-    public static <T> String joinArray(String separator, T[] elements)
+    public static <T> String join(CharSequence separator, Iterable<T> iterable)
     {
-        StringBuilder b = new StringBuilder();
-        boolean first = true;
-        for (T e : elements)
+        return join(separator, iterable.iterator());
+    }
+
+    public static <T> String join(CharSequence separator, Iterator<T> iterator)
+    {
+        StringJoiner joiner = new StringJoiner(separator);
+        while (iterator.hasNext())
         {
-            if (!first) b.append(separator);
-            b.append(e.toString());
-            first = false;
+            T e = iterator.next();
+            joiner.add(e.toString());
         }
-        return b.toString();
+        return joiner.toString();
     }
 }

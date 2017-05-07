@@ -121,7 +121,7 @@ public abstract class Element
         if (hasName())
         {
             String sname = name;
-            if(!Lexer.isValidIdentifier(sname))
+            if (!Lexer.isValidIdentifier(sname))
                 sname = Lexer.escapeString(sname);
             return String.format("%s = %s", sname, toStringInternal(ctx));
         }
@@ -130,9 +130,16 @@ public abstract class Element
     }
 
     protected abstract Element copy();
+
     protected void copyTo(Element other)
     {
-        if(hasName())
+        if (hasName())
             other.setName(getName());
+    }
+
+    public Element withName(String name)
+    {
+        this.setName(name);
+        return this;
     }
 }

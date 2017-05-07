@@ -1,11 +1,11 @@
 package gigaherz.util.gddl;
 
-import gigaherz.util.gddl.structure.Value;
 import gigaherz.util.gddl.exceptions.LexerException;
 import gigaherz.util.gddl.exceptions.ParserException;
 import gigaherz.util.gddl.structure.Backreference;
 import gigaherz.util.gddl.structure.Element;
 import gigaherz.util.gddl.structure.Set;
+import gigaherz.util.gddl.structure.Value;
 import gigaherz.util.gddl.util.BasicIntStack;
 
 import java.io.IOException;
@@ -54,14 +54,14 @@ public class Parser implements ContextProvider
     private Token popExpected(Tokens... expected) throws ParserException, IOException
     {
         Tokens current = lex.peek();
-        for(Tokens expectedToken : expected)
+        for (Tokens expectedToken : expected)
         {
             if (current == expectedToken)
                 return lex.pop();
         }
 
-        if(expected.length != 1)
-            throw new ParserException(this, String.format("Unexpected token %s. Expected one of: %s.", current, Utility.joinArray(", ", expected)));
+        if (expected.length != 1)
+            throw new ParserException(this, String.format("Unexpected token %s. Expected one of: %s.", current, Utility.join(", ", expected)));
 
         throw new ParserException(this, String.format("Unexpected token %s. Expected: %s.", current, expected[0]));
     }
@@ -80,6 +80,7 @@ public class Parser implements ContextProvider
     {
         prefixPos = prefixStack.pop();
     }
+
     private boolean hasAny(Tokens... tokens) throws LexerException, IOException
     {
         Tokens prefix = nextPrefix();

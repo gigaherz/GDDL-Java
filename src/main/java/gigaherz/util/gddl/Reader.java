@@ -11,14 +11,13 @@ public class Reader implements ContextProvider
 {
     final QueueList<Integer> unreadBuffer = new QueueList<>();
 
-    boolean endQueued = false;
-    FileReader dataSource;
+    private final FileReader dataSource;
+    private final String sourceName;
 
-    String sourceName;
-    int line = 1;
-    int column = 1;
-
-    int lastEol;
+    private boolean endQueued = false;
+    private int line = 1;
+    private int column = 1;
+    private int lastEol;
 
     public Reader(String source) throws FileNotFoundException
     {
@@ -26,7 +25,7 @@ public class Reader implements ContextProvider
         dataSource = new FileReader(source);
     }
 
-    void require(int number) throws ReaderException, IOException
+    private void require(int number) throws ReaderException, IOException
     {
         int needed = number - unreadBuffer.size();
         if (needed > 0)
@@ -109,7 +108,7 @@ public class Reader implements ContextProvider
     {
         require(count);
         while (count-- > 0)
-            next();
+        { next(); }
     }
 
     public String toString()

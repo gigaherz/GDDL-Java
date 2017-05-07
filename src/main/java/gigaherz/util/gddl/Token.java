@@ -2,9 +2,9 @@ package gigaherz.util.gddl;
 
 public class Token implements ContextProvider
 {
-    public Tokens Name;
-    public String Text;
-    public ParsingContext Context;
+    public final Tokens Name;
+    public final String Text;
+    public final ParsingContext Context;
 
     public Token(Tokens name, ParsingContext context, String text)
     {
