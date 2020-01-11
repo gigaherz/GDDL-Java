@@ -1,4 +1,4 @@
-package gigaherz.util.gddl.config;
+package gigaherz.util.gddl2.config;
 
 public class StringGenerationContext
 {

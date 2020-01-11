@@ -1,13 +1,15 @@
-package gigaherz.util.gddl;
+package gigaherz.util.gddl2;
 
 public class Token implements ContextProvider
 {
+    public final String Comment;
     public final Tokens Name;
     public final String Text;
     public final ParsingContext Context;
 
-    public Token(Tokens name, ParsingContext context, String text)
+    public Token(String comment, Tokens name, ParsingContext context, String text)
     {
+        Comment = comment;
         Name = name;
         Text = text;
         Context = context;

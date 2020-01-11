@@ -125,7 +125,7 @@ To anyone else: I wrote this before I learned JSON. It's designed to look a bit 
 How to Use
 --------------------
 
-In your maven/gradle/ivy file, include `https://dl.bintray.com/gigaherz/maven` as a maven repository, then use the groupId `gigaherz.util.gddl`, artifactId `gigaherz.util.gddl`, and the version you want to use.
+In your maven/gradle/ivy file, include `https://dl.bintray.com/gigaherz/maven` as a maven repository, then use the groupId `gigaherz.util.gddl`, artifactId `gigaherz.util.gddl2`, and the version you want to use.
 
 Use the `Parser.fromFile` function to initialize a parser, and then call `parse` on the parser object to obtain the high-level representation of the data.
 
@@ -140,4 +140,11 @@ Potential future improvements (some crazier than others)
 
 1. Templating support: element substitution engine.
    * Basically turns the system into effectively a lambda-calculus engine!
-   * Syntax to be determined.
+   * Syntax to be determined, but probably along the lines of:
+     ```
+something = typeName ( name1, name2, name3, ... ) { 
+... references to name2/name2/name3 ... 
+}
+something(value1, value2, value3)
+something(name1=value1, name2=value2, name3=value3)
+```

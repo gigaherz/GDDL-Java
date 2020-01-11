@@ -1,7 +1,7 @@
-package gigaherz.util.gddl.structure;
+package gigaherz.util.gddl2.structure;
 
-import gigaherz.util.gddl.Lexer;
-import gigaherz.util.gddl.config.StringGenerationContext;
+import gigaherz.util.gddl2.Lexer;
+import gigaherz.util.gddl2.config.StringGenerationContext;
 
 import java.util.Locale;
 
@@ -109,7 +109,7 @@ public class Value extends Element
     }
 
     @Override
-    protected String toStringInternal(StringGenerationContext ctx)
+    protected String toStringImpl(StringGenerationContext ctx)
     {
         if (data == null)
         {

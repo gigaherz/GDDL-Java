@@ -1,6 +1,6 @@
-package gigaherz.util.gddl.util;
+package gigaherz.util.gddl2.util;
 
-import gigaherz.util.gddl.Utility;
+import gigaherz.util.gddl2.Utility;
 
 import java.util.Iterator;
 

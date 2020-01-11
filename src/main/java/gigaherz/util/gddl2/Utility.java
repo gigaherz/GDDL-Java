@@ -1,4 +1,4 @@
-package gigaherz.util.gddl;
+package gigaherz.util.gddl2;
 
 import java.util.Arrays;
 import java.util.Iterator;

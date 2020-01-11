@@ -1,7 +1,7 @@
-package gigaherz.util.gddl;
+package gigaherz.util.gddl2;
 
-import gigaherz.util.gddl.exceptions.ReaderException;
-import gigaherz.util.gddl.util.QueueList;
+import gigaherz.util.gddl2.exceptions.ReaderException;
+import gigaherz.util.gddl2.util.QueueList;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

@@ -1,6 +1,6 @@
-package gigaherz.util.gddl.exceptions;
+package gigaherz.util.gddl2.exceptions;
 
-import gigaherz.util.gddl.ContextProvider;
+import gigaherz.util.gddl2.ContextProvider;
 
 public class ParserException extends Exception
 {

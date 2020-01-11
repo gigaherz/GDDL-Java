@@ -1,31 +1,31 @@
-package gigaherz.util.gddl.structure;
+package gigaherz.util.gddl2.structure;
 
-import gigaherz.util.gddl.Lexer;
-import gigaherz.util.gddl.config.StringGenerationContext;
-import gigaherz.util.gddl.config.StringGenerationOptions;
+import gigaherz.util.gddl2.Lexer;
+import gigaherz.util.gddl2.config.StringGenerationContext;
+import gigaherz.util.gddl2.config.StringGenerationOptions;
 
 import java.util.Arrays;
-import java.util.Collection;
 
 @SuppressWarnings("unused")
 public abstract class Element
 {
+    private String comment;
     private String name;
 
     // Factory methods
-    public static Set set(Element... initial)
+    public static Collection set(Element... initial)
     {
-        return new Set(Arrays.asList(initial));
+        return new Collection(Arrays.asList(initial));
     }
 
-    public static Set set(Collection<Element> initial)
+    public static Collection set(java.util.Collection initial)
     {
-        return new Set(initial);
+        return new Collection(initial);
     }
 
-    public static Backreference backreference(boolean rooted, String... parts)
+    public static Reference backreference(boolean rooted, String... parts)
     {
-        return new Backreference(rooted, parts);
+        return new Reference(rooted, parts);
     }
 
     public static Value nullValue()
@@ -54,6 +54,18 @@ public abstract class Element
     }
 
     // Actual instance methods
+    public String getComment()
+    {
+        return comment;
+    }
+
+    public void setComment(String value)
+    {
+        comment = value;
+    }
+
+    public boolean hasComment() {return comment != null && comment.length() > 0; }
+
     public String getName()
     {
         return name;
@@ -69,14 +81,14 @@ public abstract class Element
         return name != null;
     }
 
-    public boolean isSet()
+    public boolean isCollection()
     {
-        return this instanceof Set;
+        return this instanceof Collection;
     }
 
-    public Set asSet()
+    public Collection asCollection()
     {
-        return (Set) this;
+        return (Collection) this;
     }
 
     public boolean isValue()
@@ -108,7 +120,7 @@ public abstract class Element
         return this;
     }
 
-    protected abstract String toStringInternal(StringGenerationContext ctx);
+    protected abstract String toStringImpl(StringGenerationContext ctx);
 
     @Override
     public final String toString()
@@ -118,15 +130,37 @@ public abstract class Element
 
     public final String toString(StringGenerationContext ctx)
     {
+        if (ctx.IndentLevel == 0)
+        {
+            StringBuilder builder = new StringBuilder();
+            if (hasComment() && ctx.Options.writeComments)
+            {
+                for(String s : getComment().split("((\n)|(\r\n))"))
+                {
+                    builder.append("#");
+                    builder.append(s);
+                    builder.append("\n");
+                }
+            }
+            builder.append(toStringWithName(ctx));
+            return builder.toString();
+        }
+        else {
+            return toStringWithName(ctx);
+        }
+    }
+
+    private String toStringWithName(StringGenerationContext ctx)
+    {
         if (hasName())
         {
             String sname = name;
             if (!Lexer.isValidIdentifier(sname))
                 sname = Lexer.escapeString(sname);
-            return String.format("%s = %s", sname, toStringInternal(ctx));
+            return String.format("%s = %s", sname, toStringImpl(ctx));
         }
 
-        return toStringInternal(ctx);
+        return toStringImpl(ctx);
     }
 
     protected abstract Element copy();

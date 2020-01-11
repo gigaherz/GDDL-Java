@@ -1,13 +1,13 @@
-package gigaherz.util.gddl.structure;
+package gigaherz.util.gddl2.structure;
 
-import gigaherz.util.gddl.config.StringGenerationContext;
+import gigaherz.util.gddl2.config.StringGenerationContext;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class Backreference extends Element
+public class Reference extends Element
 {
     protected final List<String> NamePart = new ArrayList<>();
 
@@ -16,12 +16,12 @@ public class Backreference extends Element
 
     protected boolean rooted;
 
-    Backreference(String... parts)
+    Reference(String... parts)
     {
         Collections.addAll(NamePart, parts);
     }
 
-    Backreference(boolean rooted, String... parts)
+    Reference(boolean rooted, String... parts)
     {
         this.rooted = rooted;
         Collections.addAll(NamePart, parts);
@@ -32,7 +32,12 @@ public class Backreference extends Element
         NamePart.add(name);
     }
 
-    public void addAll(Collection<String> names)
+    public void addAll(String... names)
+    {
+        NamePart.addAll(Arrays.asList(names));
+    }
+
+    public void addAll(java.util.Collection<String> names)
     {
         NamePart.addAll(names);
     }
@@ -52,7 +57,7 @@ public class Backreference extends Element
     @Override
     protected Element copy()
     {
-        Backreference b = new Backreference();
+        Reference b = new Reference();
         copyTo(b);
         return b;
     }
@@ -61,9 +66,9 @@ public class Backreference extends Element
     protected void copyTo(Element other)
     {
         super.copyTo(other);
-        if (!(other instanceof Backreference))
+        if (!(other instanceof Reference))
             throw new IllegalArgumentException("copyTo for invalid type");
-        Backreference b = (Backreference) other;
+        Reference b = (Reference) other;
         b.addAll(NamePart);
         if (resolved)
         {
@@ -101,10 +106,10 @@ public class Backreference extends Element
         {
             String part = NamePart.get(i);
 
-            if (!(elm instanceof Set))
+            if (!(elm instanceof Collection))
                 continue;
 
-            Set s = (Set) elm;
+            Collection s = (Collection) elm;
 
             Element ne = s.find(part);
             if (ne != null)
@@ -139,7 +144,7 @@ public class Backreference extends Element
     }
 
     @Override
-    protected String toStringInternal(StringGenerationContext ctx)
+    protected String toStringImpl(StringGenerationContext ctx)
     {
         StringBuilder ss = new StringBuilder();
         int count = 0;

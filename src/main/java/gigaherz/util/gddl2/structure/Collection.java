@@ -1,30 +1,30 @@
-package gigaherz.util.gddl.structure;
+package gigaherz.util.gddl2.structure;
 
-import gigaherz.util.gddl.Lexer;
-import gigaherz.util.gddl.config.StringGenerationContext;
-import gigaherz.util.gddl.config.StringGenerationOptions;
+import gigaherz.util.gddl2.Lexer;
+import gigaherz.util.gddl2.config.StringGenerationContext;
+import gigaherz.util.gddl2.config.StringGenerationOptions;
 
 import java.util.*;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
-public class Set extends Element implements List<Element>
+public class Collection extends Element implements List<Element>
 {
     private final List<Element> contents = new ArrayList<>();
     private final Map<String, Element> names = new HashMap<>();
 
     private String typeName;
 
-    public Set()
+    public Collection()
     {
     }
 
-    public Set(String typeName)
+    public Collection(String typeName)
     {
         this.typeName = typeName;
     }
 
-    public Set(Collection<Element> init)
+    public Collection(java.util.Collection<Element> init)
     {
         contents.addAll(init);
     }
@@ -110,13 +110,13 @@ public class Set extends Element implements List<Element>
     }
 
     @Override
-    public boolean containsAll(Collection<?> c)
+    public boolean containsAll(java.util.Collection<?> c)
     {
         return contents.containsAll(c);
     }
 
     @Override
-    public boolean removeAll(Collection<?> c)
+    public boolean removeAll(java.util.Collection<?> c)
     {
         boolean changed = false;
         for (Object e : c)
@@ -125,7 +125,7 @@ public class Set extends Element implements List<Element>
     }
 
     @Override
-    public boolean retainAll(Collection<?> c)
+    public boolean retainAll(java.util.Collection<?> c)
     {
         boolean changed = false;
         for (Iterator<Element> it = contents.iterator(); it.hasNext(); )
@@ -151,26 +151,20 @@ public class Set extends Element implements List<Element>
     }
 
     @Override
-    public boolean addAll(Collection<? extends Element> c)
+    public boolean addAll(java.util.Collection<? extends Element> c)
     {
-        boolean changed = false;
-        for (Element e : c)
-        {
-            changed = changed || add(e);
-        }
-        return changed;
+        c.forEach(this::add);
+        return !c.isEmpty();
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends Element> c)
+    public boolean addAll(int index, java.util.Collection<? extends Element> c)
     {
-        boolean changed = false;
         for (Element e : c)
         {
             add(index++, e);
-            changed = true;
         }
-        return changed;
+        return !c.isEmpty();
     }
 
     @Override
@@ -234,11 +228,11 @@ public class Set extends Element implements List<Element>
 
     public boolean isSimple()
     {
-        return contents.stream().noneMatch(a -> a instanceof Set || a.hasName());
+        return contents.stream().noneMatch(a -> a instanceof Collection || a.hasName());
     }
 
     @Override
-    protected String toStringInternal(StringGenerationContext ctx)
+    protected String toStringImpl(StringGenerationContext ctx)
     {
         boolean addBraces = ctx.IndentLevel > 0;
         int tabsToGen = ctx.IndentLevel - 1;
@@ -335,7 +329,7 @@ public class Set extends Element implements List<Element>
     @Override
     protected Element copy()
     {
-        Set b = new Set();
+        Collection b = new Collection();
         copyTo(b);
         return b;
     }
@@ -344,9 +338,9 @@ public class Set extends Element implements List<Element>
     protected void copyTo(Element other)
     {
         super.copyTo(other);
-        if (!(other instanceof Set))
+        if (!(other instanceof Collection))
             throw new IllegalArgumentException("copyTo for invalid type");
-        Set b = (Set) other;
+        Collection b = (Collection) other;
         for (Element e : contents) { b.add(e.copy()); }
     }
 
@@ -380,8 +374,8 @@ public class Set extends Element implements List<Element>
         return contents.stream().filter(t -> t.hasName() && t.getName().equals(elementName));
     }
 
-    public Stream<Set> byType(String typeName)
+    public Stream<Collection> byType(String typeName)
     {
-        return contents.stream().filter(t -> t instanceof Set).map(t -> (Set) t).filter(e -> e.typeName.equals(typeName));
+        return contents.stream().filter(t -> t instanceof Collection).map(t -> (Collection) t).filter(e -> e.typeName.equals(typeName));
     }
 }

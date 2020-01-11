@@ -1,8 +1,8 @@
-package gigaherz.util.gddl;
+package gigaherz.util.gddl2;
 
-import gigaherz.util.gddl.exceptions.LexerException;
-import gigaherz.util.gddl.exceptions.ParserException;
-import gigaherz.util.gddl.util.QueueList;
+import gigaherz.util.gddl2.exceptions.LexerException;
+import gigaherz.util.gddl2.exceptions.ParserException;
+import gigaherz.util.gddl2.util.QueueList;
 
 import java.io.IOException;
 
@@ -60,51 +60,79 @@ public class Lexer implements ContextProvider
     private Token parseOne() throws LexerException, IOException
     {
         if (seenEnd)
-            return new Token(Tokens.END, reader.getParsingContext(), "");
+            return new Token("", Tokens.END, reader.getParsingContext(), "");
 
+        StringBuilder commentLines = null;
         int ich = reader.peek();
         blah:
         while (true)
         {
-            if (ich < 0) return new Token(Tokens.END, reader.getParsingContext(), "");
+            if (ich < 0) return new Token("", Tokens.END, reader.getParsingContext(), "");
 
             switch (ich)
             {
                 case ' ':
                 case '\t':
+                    reader.skip(1);
+                    ich = reader.peek();
+                    break;
                 case '\r':
                 case '\n':
-                    reader.skip(1);
-
+                    if (commentLines != null)
+                    {
+                        commentLines.append(reader.read(1));
+                    }
+                    else
+                    {
+                        reader.skip(1);
+                    }
                     ich = reader.peek();
                     break;
                 case '#':
-                    // comment, skip until \r or \n
-                    do
+                {
+                    // comment
+                    if (commentLines == null)
                     {
-                        reader.skip(1);
-
-                        ich = reader.peek();
+                        commentLines = new StringBuilder();
                     }
-                    while (ich > 0 && ich != '\n' && ich != '\r');
+
+                    reader.skip(1);
+                    ich = reader.peek();
+
+                    int number = 0;
+                    while (ich > 0 && ich != '\n' && ich != '\r')
+                    {
+                        number++;
+                        ich = reader.peek(number);
+                    }
+
+                    if (number > 0)
+                    {
+                        commentLines.append(reader.read(number));
+                    }
+                    ich = reader.peek();
+
                     break;
+                }
                 default:
                     break blah;
             }
         }
 
+        String comment = commentLines != null ? commentLines.toString() : "";
+
         switch (ich)
         {
             case '{':
-                return new Token(Tokens.LBRACE, reader.getParsingContext(), reader.read(1));
+                return new Token(comment, Tokens.LBRACE, reader.getParsingContext(), reader.read(1));
             case '}':
-                return new Token(Tokens.RBRACE, reader.getParsingContext(), reader.read(1));
+                return new Token(comment, Tokens.RBRACE, reader.getParsingContext(), reader.read(1));
             case ',':
-                return new Token(Tokens.COMMA, reader.getParsingContext(), reader.read(1));
+                return new Token(comment, Tokens.COMMA, reader.getParsingContext(), reader.read(1));
             case ':':
-                return new Token(Tokens.COLON, reader.getParsingContext(), reader.read(1));
+                return new Token(comment, Tokens.COLON, reader.getParsingContext(), reader.read(1));
             case '=':
-                return new Token(Tokens.EQUALS, reader.getParsingContext(), reader.read(1));
+                return new Token(comment, Tokens.EQUALS, reader.getParsingContext(), reader.read(1));
         }
 
         if (Character.isLetter((char) ich) || ich == '_')
@@ -126,12 +154,12 @@ public class Lexer implements ContextProvider
                 }
             }
 
-            Token id = new Token(Tokens.IDENT, reader.getParsingContext(), reader.read(number));
+            Token id = new Token(comment, Tokens.IDENT, reader.getParsingContext(), reader.read(number));
 
-            if (id.Text.compareToIgnoreCase("nil") == 0) return new Token(Tokens.NIL, id.Context, id.Text);
-            if (id.Text.compareToIgnoreCase("null") == 0) return new Token(Tokens.NULL, id.Context, id.Text);
-            if (id.Text.compareToIgnoreCase("true") == 0) return new Token(Tokens.TRUE, id.Context, id.Text);
-            if (id.Text.compareToIgnoreCase("false") == 0) return new Token(Tokens.FALSE, id.Context, id.Text);
+            if (id.Text.compareToIgnoreCase("nil") == 0) return new Token(comment, Tokens.NIL, id.Context, id.Text);
+            if (id.Text.compareToIgnoreCase("null") == 0) return new Token(comment, Tokens.NULL, id.Context, id.Text);
+            if (id.Text.compareToIgnoreCase("true") == 0) return new Token(comment, Tokens.TRUE, id.Context, id.Text);
+            if (id.Text.compareToIgnoreCase("false") == 0) return new Token(comment, Tokens.FALSE, id.Context, id.Text);
 
             return id;
         }
@@ -167,7 +195,7 @@ public class Lexer implements ContextProvider
 
             number++;
 
-            return new Token(Tokens.STRING, reader.getParsingContext(), reader.read(number));
+            return new Token(comment, Tokens.STRING, reader.getParsingContext(), reader.read(number));
         }
 
         if (Character.isDigit((char) ich) || ich == '.')
@@ -190,7 +218,7 @@ public class Lexer implements ContextProvider
                         ich = reader.peek(number);
                     }
 
-                    return new Token(Tokens.HEXINT, reader.getParsingContext(), reader.read(number));
+                    return new Token(comment, Tokens.HEXINT, reader.getParsingContext(), reader.read(number));
                 }
 
                 number = 1;
@@ -249,9 +277,9 @@ public class Lexer implements ContextProvider
             }
 
             if (fractional)
-                return new Token(Tokens.DOUBLE, reader.getParsingContext(), reader.read(number));
+                return new Token(comment, Tokens.DOUBLE, reader.getParsingContext(), reader.read(number));
 
-            return new Token(Tokens.INTEGER, reader.getParsingContext(), reader.read(number));
+            return new Token(comment, Tokens.INTEGER, reader.getParsingContext(), reader.read(number));
         }
 
         throw new LexerException(this, String.format("Unexpected character: %c", reader.peek()));

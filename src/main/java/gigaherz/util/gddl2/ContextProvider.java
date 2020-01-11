@@ -1,4 +1,4 @@
-package gigaherz.util.gddl;
+package gigaherz.util.gddl2;
 
 public interface ContextProvider
 {

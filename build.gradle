@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'gigaherz.util.gddl'
-version '1.0.2'
+version '2.0.0'
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
@@ -24,7 +24,7 @@ dependencies {
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
-    classifier = 'sources'
+    archiveClassifier = 'sources'
 }
 
 artifacts {

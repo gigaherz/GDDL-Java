@@ -1,12 +1,12 @@
-package gigaherz.util.gddl;
+package gigaherz.util.gddl2;
 
-import gigaherz.util.gddl.exceptions.LexerException;
-import gigaherz.util.gddl.exceptions.ParserException;
-import gigaherz.util.gddl.structure.Backreference;
-import gigaherz.util.gddl.structure.Element;
-import gigaherz.util.gddl.structure.Set;
-import gigaherz.util.gddl.structure.Value;
-import gigaherz.util.gddl.util.BasicIntStack;
+import gigaherz.util.gddl2.exceptions.LexerException;
+import gigaherz.util.gddl2.exceptions.ParserException;
+import gigaherz.util.gddl2.structure.Reference;
+import gigaherz.util.gddl2.structure.Element;
+import gigaherz.util.gddl2.structure.Collection;
+import gigaherz.util.gddl2.structure.Value;
+import gigaherz.util.gddl2.util.BasicIntStack;
 
 import java.io.IOException;
 
@@ -198,11 +198,12 @@ public class Parser implements ContextProvider
         Element B = basicElement();
 
         B.setName(I);
+        B.setComment(N.Comment);
 
         return B;
     }
 
-    private Backreference backreference() throws IOException, ParserException
+    private Reference backreference() throws IOException, ParserException
     {
         boolean rooted = false;
 
@@ -214,26 +215,28 @@ public class Parser implements ContextProvider
         if (!prefix_identifier())
             throw new ParserException(this, String.format("Expected identifier, found %s instead", lex.peek()));
 
-        String I = identifier();
-        Backreference B = Element.backreference(rooted, I);
+        Token I = identifier();
+        Reference B = Element.backreference(rooted, I.Text);
+        B.setComment(I.Comment);
 
         while (lex.peek() == Tokens.COLON)
         {
             popExpected(Tokens.COLON);
 
-            String O = identifier();
+            Token O = identifier();
 
-            B.add(O);
+            B.add(O.Text);
         }
 
         return B;
     }
 
-    private Set set() throws ParserException, IOException
+    private Collection set() throws ParserException, IOException
     {
-        popExpected(Tokens.LBRACE);
+        Token openBrace = popExpected(Tokens.LBRACE);
 
-        Set S = Element.set();
+        Collection S = Element.set();
+        S.setComment(openBrace.Comment);
 
         while (lex.peek() != Tokens.RBRACE)
         {
@@ -260,54 +263,67 @@ public class Parser implements ContextProvider
         return S;
     }
 
-    private Set typedSet() throws IOException, ParserException
+    private Collection typedSet() throws IOException, ParserException
     {
-        String I = identifier();
+        Token I = identifier();
 
         if (!prefix_set())
             throw new ParserException(this, "Internal error");
-        Set S = set();
+        Collection S = set();
 
-        S.setTypeName(I);
+        S.setTypeName(I.Text);
+        S.setComment(I.Comment);
 
         return S;
     }
 
-    private String identifier() throws ParserException, IOException
+    private Token identifier() throws ParserException, IOException
     {
-        if (lex.peek() == Tokens.IDENT) return popExpected(Tokens.IDENT).Text;
+        if (lex.peek() == Tokens.IDENT) return popExpected(Tokens.IDENT);
 
         throw new ParserException(this, "Internal error");
     }
 
     public static Value nullValue(Token token)
     {
-        return Element.nullValue();
+        Value e = Element.nullValue();
+        e.setComment(token.Comment);
+        return e;
     }
 
     public static Value booleanValue(Token token)
     {
-        return Element.booleanValue(token.Name == Tokens.TRUE);
+        Value e = Element.booleanValue(token.Name == Tokens.TRUE);
+        e.setComment(token.Comment);
+        return e;
     }
 
     public static Value intValue(Token token)
     {
-        return Element.intValue(Long.parseLong(token.Text));
+        Value e = Element.intValue(Long.parseLong(token.Text));
+        e.setComment(token.Comment);
+        return e;
     }
 
     public static Value intValue(Token token, int _base)
     {
-        return Element.intValue(Long.parseLong(token.Text.substring(2), 16));
+        Value e = Element.intValue(Long.parseLong(token.Text.substring(2), 16));
+        e.setComment(token.Comment);
+        return e;
     }
 
     public static Value floatValue(Token token)
     {
-        return Element.floatValue(Double.parseDouble(token.Text));
+        Value e = Element.floatValue(Double.parseDouble(token.Text));
+        e.setComment(token.Comment);
+        return e;
     }
 
     public static Value stringValue(Token token) throws ParserException
     {
-        return Element.stringValue(Lexer.unescapeString(token));
+        Value e = Element.stringValue(Lexer.unescapeString(token));
+        e.setComment(token.Comment);
+        return e;
     }
 
     @Override
