@@ -1,7 +1,13 @@
-package gigaherz.util.gddl2;
+package gigaherz.util.gddl2.util;
 
+import gigaherz.util.gddl2.Token;
+import gigaherz.util.gddl2.exceptions.ParserException;
+
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 
@@ -46,5 +52,10 @@ public class Utility
             joiner.add(e.toString());
         }
         return joiner.toString();
+    }
+
+    public static boolean isNullOrEmpty(String comment)
+    {
+        return comment == null || comment.equals("");
     }
 }

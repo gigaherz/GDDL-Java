@@ -3,25 +3,16 @@ package gigaherz.util.gddl2.structure;
 import gigaherz.util.gddl2.Lexer;
 import gigaherz.util.gddl2.config.StringGenerationContext;
 import gigaherz.util.gddl2.config.StringGenerationOptions;
+import gigaherz.util.gddl2.util.Utility;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public abstract class Element
 {
     private String comment;
     private String name;
-
-    // Factory methods
-    public static Collection set(Element... initial)
-    {
-        return new Collection(Arrays.asList(initial));
-    }
-
-    public static Collection set(java.util.Collection initial)
-    {
-        return new Collection(initial);
-    }
 
     public static Reference backreference(boolean rooted, String... parts)
     {
@@ -120,7 +111,7 @@ public abstract class Element
         return this;
     }
 
-    protected abstract String toStringImpl(StringGenerationContext ctx);
+    protected abstract void toStringImpl(StringBuilder builder, StringGenerationContext ctx);
 
     @Override
     public final String toString()
@@ -130,37 +121,34 @@ public abstract class Element
 
     public final String toString(StringGenerationContext ctx)
     {
-        if (ctx.IndentLevel == 0)
-        {
-            StringBuilder builder = new StringBuilder();
-            if (hasComment() && ctx.Options.writeComments)
-            {
-                for(String s : getComment().split("((\n)|(\r\n))"))
-                {
-                    builder.append("#");
-                    builder.append(s);
-                    builder.append("\n");
-                }
-            }
-            builder.append(toStringWithName(ctx));
-            return builder.toString();
-        }
-        else {
-            return toStringWithName(ctx);
-        }
+        StringBuilder builder = new StringBuilder();
+        toStringWithName(builder, ctx);
+        return builder.toString();
     }
 
-    private String toStringWithName(StringGenerationContext ctx)
+    /*package-private*/ void toStringWithName(StringBuilder builder, StringGenerationContext ctx)
     {
+        if (hasComment() && ctx.options.writeComments)
+        {
+            for(String s : getComment().split("(?:(?:\n)|(?:\r\n))"))
+            {
+                ctx.appendIndent(builder);
+                builder.append("#");
+                builder.append(s);
+                builder.append("\n");
+            }
+        }
+        ctx.appendIndent(builder);
         if (hasName())
         {
             String sname = name;
             if (!Lexer.isValidIdentifier(sname))
                 sname = Lexer.escapeString(sname);
-            return String.format("%s = %s", sname, toStringImpl(ctx));
+            builder.append(sname);
+            builder.append(" = ");
         }
 
-        return toStringImpl(ctx);
+        toStringImpl(builder, ctx);
     }
 
     protected abstract Element copy();
@@ -175,5 +163,22 @@ public abstract class Element
     {
         this.setName(name);
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Element element = (Element) o;
+
+        return ((Utility.isNullOrEmpty(comment) && Utility.isNullOrEmpty(element.comment)) || Objects.equals(comment, element.comment)) &&
+                Objects.equals(name, element.name);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(comment, name);
     }
 }

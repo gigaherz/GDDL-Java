@@ -7,11 +7,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class Reader implements ContextProvider
+public class Reader implements ContextProvider, AutoCloseable
 {
     final QueueList<Integer> unreadBuffer = new QueueList<>();
 
-    private final FileReader dataSource;
+    private final java.io.Reader dataSource;
     private final String sourceName;
 
     private boolean endQueued = false;
@@ -19,10 +19,10 @@ public class Reader implements ContextProvider
     private int column = 1;
     private int lastEol;
 
-    public Reader(String source) throws FileNotFoundException
+    public Reader(java.io.Reader reader, String sourceName)
     {
-        sourceName = source;
-        dataSource = new FileReader(source);
+        this.sourceName = sourceName;
+        dataSource = reader;
     }
 
     private void require(int number) throws ReaderException, IOException
@@ -69,22 +69,20 @@ public class Reader implements ContextProvider
         column++;
         if (ch == '\n')
         {
+            column = 1;
             if (lastEol != '\r')
-            {
-                column = 1;
                 line++;
-            }
             lastEol = ch;
         }
         else if (ch == '\r')
         {
+            column = 1;
+            line++;
             lastEol = ch;
         }
         else if (lastEol > 0)
         {
             lastEol = 0;
-            column = 1;
-            line++;
         }
 
         return ch;
@@ -124,5 +122,11 @@ public class Reader implements ContextProvider
     public ParsingContext getParsingContext()
     {
         return new ParsingContext(sourceName, line, column);
+    }
+
+    @Override
+    public void close() throws IOException
+    {
+        dataSource.close();
     }
 }

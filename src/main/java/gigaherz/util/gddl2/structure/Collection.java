@@ -2,7 +2,6 @@ package gigaherz.util.gddl2.structure;
 
 import gigaherz.util.gddl2.Lexer;
 import gigaherz.util.gddl2.config.StringGenerationContext;
-import gigaherz.util.gddl2.config.StringGenerationOptions;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -15,18 +14,34 @@ public class Collection extends Element implements List<Element>
 
     private String typeName;
 
-    public Collection()
+    // Factory methods
+    public static Collection empty()
+    {
+        return new Collection();
+    }
+
+    public static Collection of(Element... initial)
+    {
+        return new Collection(Arrays.asList(initial));
+    }
+
+    public static Collection copyOf(java.util.Collection<Element> initial)
+    {
+        return new Collection(initial);
+    }
+
+    private Collection()
     {
     }
 
-    public Collection(String typeName)
+    private Collection(String typeName)
     {
         this.typeName = typeName;
     }
 
-    public Collection(java.util.Collection<Element> init)
+    private Collection(java.util.Collection<Element> init)
     {
-        contents.addAll(init);
+        this.addAll(init);
     }
 
     public boolean hasTypeName()
@@ -39,11 +54,12 @@ public class Collection extends Element implements List<Element>
         return typeName;
     }
 
-    public void setTypeName(String value)
+    public Collection withTypeName(String value)
     {
         if (!Lexer.isValidIdentifier(value))
             throw new IllegalArgumentException("Type value must be a valid identifier");
         typeName = value;
+        return this;
     }
 
     @Override
@@ -232,98 +248,125 @@ public class Collection extends Element implements List<Element>
     }
 
     @Override
-    protected String toStringImpl(StringGenerationContext ctx)
+    protected void toStringImpl(StringBuilder builder, StringGenerationContext ctx)
     {
-        boolean addBraces = ctx.IndentLevel > 0;
-        int tabsToGen = ctx.IndentLevel - 1;
-
-        final StringBuilder tabs0 = new StringBuilder();
-        for (int i = 0; i < tabsToGen; i++)
-        {
-            tabs0.append("  ");
-        }
-        final String tabs1 = tabs0.toString();
-        if (addBraces) tabs0.append("  ");
-        final String tabs2 = tabs0.toString();
-
-        StringBuilder builder = new StringBuilder();
-
-        boolean _nice = (ctx.Options == StringGenerationOptions.Nice);
-        boolean _simple = (isSimple() && contents.size() <= 10);
-
-        int verbosity = 0;
-        if (_nice && _simple) verbosity = 1;
-        else if (_nice) verbosity = 2;
-
-        ctx.IndentLevel++;
+        ctx.pushIndent();
+        
+        boolean oneElementPerLine = !isSimple() || contents.size() > ctx.options.oneElementPerLineThreshold;
 
         if (hasTypeName())
         {
             builder.append(typeName);
-            builder.append(" ");
+            if (ctx.options.lineBreaksBeforeOpeningBrace == 0)
+                builder.append(" ");
         }
+        boolean addBraces = ctx.indentLevel > 0 || hasTypeName();
         if (addBraces)
         {
-            switch (verbosity)
+            if (oneElementPerLine && ctx.options.lineBreaksBeforeOpeningBrace > 0)
             {
-                case 0:
-                    builder.append("{");
-                    break;
-                case 1:
-                    builder.append("{ ");
-                    break;
-                case 2:
-                    builder.append("{\n");
-                    break;
+                for (int i = 0; i < ctx.options.lineBreaksBeforeOpeningBrace; i++)
+                {
+                    builder.append("\n");
+                }
+                ctx.appendIndent(builder);
             }
+            else if (ctx.options.spacesBeforeOpeningBrace > 0)
+            {
+                for (int i = 0; i < ctx.options.spacesBeforeOpeningBrace; i++)
+                {
+                    builder.append(" ");
+                }
+            }
+            builder.append("{");
+            if (oneElementPerLine && ctx.options.lineBreaksAfterOpeningBrace > 0)
+            {
+                for (int i = 0; i < ctx.options.lineBreaksAfterOpeningBrace; i++)
+                {
+                    builder.append("\n");
+                }
+            }
+            else if (ctx.options.spacesAfterOpeningBrace > 0)
+            {
+                for (int i = 0; i < ctx.options.spacesAfterOpeningBrace; i++)
+                {
+                    builder.append(" ");
+                }
+            }
+            ctx.pushIndent();
+            ctx.incIndent();
         }
 
         boolean first = true;
         for (Element e : contents)
         {
-            if (!first)
-            {
-                switch (verbosity)
-                {
-                    case 0:
-                        builder.append(",");
-                        break;
-                    case 1:
-                        builder.append(", ");
-                        break;
-                    case 2:
-                        builder.append(",\n");
-                        break;
-                }
-            }
-            if (verbosity == 2) builder.append(tabs2);
+            ctx.pushIndent();
 
-            builder.append(e.toString(ctx));
+            if (first && (!oneElementPerLine || ctx.options.lineBreaksAfterOpeningBrace == 0))
+            {
+                ctx.setIndent(0);
+            }
+            else if (!first)
+            {
+                builder.append(",");
+                if (oneElementPerLine)
+                {
+                    builder.append("\n");
+                }
+                else if(ctx.options.spacesBetweenElements > 0)
+                {
+                    for (int i = 0; i < ctx.options.spacesBetweenElements; i++)
+                    {
+                        builder.append(" ");
+                    }
+                }
+
+                if (!oneElementPerLine)
+                    ctx.setIndent(0);
+            }
+
+            e.toStringWithName(builder, ctx);
 
             first = false;
+            ctx.popIndent();
         }
 
         if (addBraces)
         {
-            switch (verbosity)
+            ctx.popIndent();
+            if (oneElementPerLine && ctx.options.lineBreaksBeforeClosingBrace > 0)
             {
-                case 0:
-                    builder.append("}");
-                    break;
-                case 1:
-                    builder.append(" }");
-                    break;
-                case 2:
+                for (int i = 0; i < ctx.options.lineBreaksBeforeClosingBrace; i++)
+                {
                     builder.append("\n");
-                    builder.append(tabs1);
-                    builder.append("}");
-                    break;
+                }
+                ctx.appendIndent(builder);
+            }
+            else if (ctx.options.spacesBeforeClosingBrace > 0)
+            {
+                for (int i = 0; i < ctx.options.spacesBeforeClosingBrace; i++)
+                {
+                    builder.append(" ");
+                }
+            }
+            builder.append("}");
+            if (oneElementPerLine && ctx.options.lineBreaksAfterClosingBrace > 0)
+            {
+                for (int i = 0; i < ctx.options.lineBreaksAfterClosingBrace; i++)
+                {
+                    builder.append("\n");
+                }
+            }
+            else if (ctx.options.spacesAfterClosingBrace > 0)
+            {
+                for (int i = 0; i < ctx.options.spacesAfterClosingBrace; i++)
+                {
+                    builder.append(" ");
+                }
             }
         }
-
-        ctx.IndentLevel--;
-
-        return builder.toString();
+        
+        ctx.popIndent();
     }
 
     @Override
@@ -377,5 +420,23 @@ public class Collection extends Element implements List<Element>
     public Stream<Collection> byType(String typeName)
     {
         return contents.stream().filter(t -> t instanceof Collection).map(t -> (Collection) t).filter(e -> e.typeName.equals(typeName));
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Collection elements = (Collection) o;
+        return contents.equals(elements.contents) &&
+                names.equals(elements.names) &&
+                Objects.equals(typeName, elements.typeName);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(super.hashCode(), contents, names, typeName);
     }
 }

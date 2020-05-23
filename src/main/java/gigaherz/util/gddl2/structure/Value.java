@@ -4,6 +4,7 @@ import gigaherz.util.gddl2.Lexer;
 import gigaherz.util.gddl2.config.StringGenerationContext;
 
 import java.util.Locale;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class Value extends Element
@@ -109,20 +110,39 @@ public class Value extends Element
     }
 
     @Override
-    protected String toStringImpl(StringGenerationContext ctx)
+    protected void toStringImpl(StringBuilder builder, StringGenerationContext ctx)
     {
         if (data == null)
         {
-            return "null";
+            builder.append("null");
         }
-        if (data instanceof Boolean)
+        else if (data instanceof Boolean)
         {
-            return getBoolean() ? "true" : "false";
+            builder.append(getBoolean() ? "true" : "false");
         }
-        if (data instanceof String)
+        else if (data instanceof String)
         {
-            return Lexer.escapeString(getString());
+            builder.append(Lexer.escapeString(getString()));
         }
-        return String.format(Locale.ROOT, "%s", data.toString());
+        else
+        {
+            builder.append(String.format(Locale.ROOT, "%s", data.toString()));
+        }
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Value value = (Value) o;
+        return Objects.equals(data, value.data);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(super.hashCode(), data);
     }
 }

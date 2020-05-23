@@ -1,7 +1,5 @@
 package gigaherz.util.gddl2.util;
 
-import gigaherz.util.gddl2.Utility;
-
 import java.util.Iterator;
 
 public class QueueList<T> implements Iterable<T>
@@ -11,7 +9,7 @@ public class QueueList<T> implements Iterable<T>
     private int capacityMask;
     private int start;
     private int count;
-    private Object[] buffer;
+    private T[] buffer;
 
     public QueueList()
     {
@@ -34,7 +32,8 @@ public class QueueList<T> implements Iterable<T>
         if (null != buffer && value == buffer.length)
             return;
 
-        Object[] newBuffer = new Object[value];
+        @SuppressWarnings("unchecked")
+        T[] newBuffer = (T[])new Object[value];
         for (int i = 0; i < size(); i++)
         {
             newBuffer[i] = get(i);
@@ -75,8 +74,7 @@ public class QueueList<T> implements Iterable<T>
         if (size() == 0)
             throw new IllegalStateException("The Deque is empty");
 
-        @SuppressWarnings("unchecked")
-        T result = (T) buffer[start];
+        T result = buffer[start];
 
         buffer[start] = null;
         start = toBufferIndex(1);
@@ -89,10 +87,7 @@ public class QueueList<T> implements Iterable<T>
         if (index >= size())
             throw new IndexOutOfBoundsException();
 
-        @SuppressWarnings("unchecked")
-        T result = (T) buffer[toBufferIndex(index)];
-
-        return result;
+        return buffer[toBufferIndex(index)];
     }
 
     // VERY unsafe iterator!

@@ -7,28 +7,36 @@ import gigaherz.util.gddl2.structure.Element;
 import gigaherz.util.gddl2.structure.Collection;
 import gigaherz.util.gddl2.structure.Value;
 import gigaherz.util.gddl2.util.BasicIntStack;
+import gigaherz.util.gddl2.util.Utility;
 
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 
 @SuppressWarnings("unused")
-public class Parser implements ContextProvider
+public class Parser implements ContextProvider, AutoCloseable
 {
     int prefixPos = -1;
     final BasicIntStack prefixStack = new BasicIntStack();
-    private final Lexer lex;
+    private final TokenProvider lex;
     private boolean finished_with_rbrace = false;
 
-    Parser(Lexer lexer)
+    Parser(TokenProvider lexer)
     {
         lex = lexer;
     }
 
-    public static Parser fromFile(String filename) throws IOException, ParserException
+    public static Parser fromFile(String filename) throws IOException
     {
-        return new Parser(new Lexer(new Reader(filename)));
+        return new Parser(new Lexer(new Reader(new FileReader(filename), filename)));
     }
 
-    public Lexer getLexer()
+    public static Parser fromString(String text)
+    {
+        return new Parser(new Lexer(new Reader(new StringReader(text), "UNKNOWN")));
+    }
+
+    public TokenProvider getLexer()
     {
         return lex;
     }
@@ -51,10 +59,10 @@ public class Parser implements ContextProvider
         return ret;
     }
 
-    private Token popExpected(Tokens... expected) throws ParserException, IOException
+    private Token popExpected(TokenType... expected) throws ParserException, IOException
     {
-        Tokens current = lex.peek();
-        for (Tokens expectedToken : expected)
+        TokenType current = lex.peek();
+        for (TokenType expectedToken : expected)
         {
             if (current == expectedToken)
                 return lex.pop();
@@ -71,7 +79,7 @@ public class Parser implements ContextProvider
         prefixStack.push(prefixPos);
     }
 
-    public Tokens nextPrefix() throws LexerException, IOException
+    public TokenType nextPrefix() throws LexerException, IOException
     {
         return lex.peek(++prefixPos);
     }
@@ -81,10 +89,10 @@ public class Parser implements ContextProvider
         prefixPos = prefixStack.pop();
     }
 
-    private boolean hasAny(Tokens... tokens) throws LexerException, IOException
+    private boolean hasAny(TokenType... tokens) throws LexerException, IOException
     {
-        Tokens prefix = nextPrefix();
-        for (Tokens t : tokens)
+        TokenType prefix = nextPrefix();
+        for (TokenType t : tokens)
         {
             if (prefix == t)
             {
@@ -102,7 +110,7 @@ public class Parser implements ContextProvider
     private boolean prefix_basicElement() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(Tokens.NIL, Tokens.NULL, Tokens.TRUE, Tokens.FALSE, Tokens.HEXINT, Tokens.INTEGER, Tokens.DOUBLE, Tokens.STRING);
+        boolean r = hasAny(TokenType.NIL, TokenType.NULL, TokenType.TRUE, TokenType.FALSE, TokenType.HEXINT, TokenType.INTEGER, TokenType.DOUBLE, TokenType.STRING);
         endPrefixScan();
 
         return r || prefix_backreference() || prefix_set() || prefix_typedSet();
@@ -111,7 +119,7 @@ public class Parser implements ContextProvider
     private boolean prefix_namedElement() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(Tokens.IDENT, Tokens.STRING) && hasAny(Tokens.EQUALS);
+        boolean r = hasAny(TokenType.IDENT, TokenType.STRING) && hasAny(TokenType.EQUALS);
         endPrefixScan();
         return r;
     }
@@ -119,7 +127,7 @@ public class Parser implements ContextProvider
     private boolean prefix_backreference() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(Tokens.COLON) && hasAny(Tokens.IDENT);
+        boolean r = hasAny(TokenType.COLON) && hasAny(TokenType.IDENT);
         endPrefixScan();
 
         return r || prefix_identifier();
@@ -128,7 +136,7 @@ public class Parser implements ContextProvider
     private boolean prefix_set() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(Tokens.LBRACE);
+        boolean r = hasAny(TokenType.LBRACE);
         endPrefixScan();
         return r;
     }
@@ -136,7 +144,7 @@ public class Parser implements ContextProvider
     private boolean prefix_typedSet() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(Tokens.IDENT) && hasAny(Tokens.LBRACE);
+        boolean r = hasAny(TokenType.IDENT) && hasAny(TokenType.LBRACE);
         endPrefixScan();
         return r;
     }
@@ -144,7 +152,7 @@ public class Parser implements ContextProvider
     private boolean prefix_identifier() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(Tokens.IDENT);
+        boolean r = hasAny(TokenType.IDENT);
         endPrefixScan();
         return r;
     }
@@ -152,7 +160,7 @@ public class Parser implements ContextProvider
     private Element root() throws IOException, ParserException
     {
         Element E = element();
-        popExpected(Tokens.END);
+        popExpected(TokenType.END);
         return E;
     }
 
@@ -166,15 +174,15 @@ public class Parser implements ContextProvider
 
     private Element basicElement() throws ParserException, IOException
     {
-        if (lex.peek() == Tokens.NIL) return nullValue(popExpected(Tokens.NIL));
-        if (lex.peek() == Tokens.NULL) return nullValue(popExpected(Tokens.NULL));
-        if (lex.peek() == Tokens.TRUE) return booleanValue(popExpected(Tokens.TRUE));
-        if (lex.peek() == Tokens.FALSE) return booleanValue(popExpected(Tokens.FALSE));
-        if (lex.peek() == Tokens.INTEGER) return intValue(popExpected(Tokens.INTEGER));
-        if (lex.peek() == Tokens.HEXINT) return intValue(popExpected(Tokens.HEXINT), 16);
-        if (lex.peek() == Tokens.INTEGER) return intValue(popExpected(Tokens.INTEGER));
-        if (lex.peek() == Tokens.DOUBLE) return floatValue(popExpected(Tokens.DOUBLE));
-        if (lex.peek() == Tokens.STRING) return stringValue(popExpected(Tokens.STRING));
+        if (lex.peek() == TokenType.NIL) return nullValue(popExpected(TokenType.NIL));
+        if (lex.peek() == TokenType.NULL) return nullValue(popExpected(TokenType.NULL));
+        if (lex.peek() == TokenType.TRUE) return booleanValue(popExpected(TokenType.TRUE));
+        if (lex.peek() == TokenType.FALSE) return booleanValue(popExpected(TokenType.FALSE));
+        if (lex.peek() == TokenType.INTEGER) return intValue(popExpected(TokenType.INTEGER));
+        if (lex.peek() == TokenType.HEXINT) return intValue(popExpected(TokenType.HEXINT), 16);
+        if (lex.peek() == TokenType.INTEGER) return intValue(popExpected(TokenType.INTEGER));
+        if (lex.peek() == TokenType.DOUBLE) return floatValue(popExpected(TokenType.DOUBLE));
+        if (lex.peek() == TokenType.STRING) return stringValue(popExpected(TokenType.STRING));
         if (prefix_set()) return set();
         if (prefix_typedSet()) return typedSet();
         if (prefix_backreference()) return backreference();
@@ -184,13 +192,13 @@ public class Parser implements ContextProvider
 
     private Element namedElement() throws IOException, ParserException
     {
-        Token N = popExpected(Tokens.IDENT, Tokens.STRING);
+        Token N = popExpected(TokenType.IDENT, TokenType.STRING);
 
         String I;
-        if (N.Name == Tokens.IDENT) I = N.Text;
+        if (N.name == TokenType.IDENT) I = N.text;
         else I = Lexer.unescapeString(N);
 
-        popExpected(Tokens.EQUALS);
+        popExpected(TokenType.EQUALS);
 
         if (!prefix_basicElement())
             throw new ParserException(this, String.format("Expected a basic element after EQUALS, found %s instead", lex.peek()));
@@ -198,7 +206,7 @@ public class Parser implements ContextProvider
         Element B = basicElement();
 
         B.setName(I);
-        B.setComment(N.Comment);
+        B.setComment(N.comment);
 
         return B;
     }
@@ -207,25 +215,25 @@ public class Parser implements ContextProvider
     {
         boolean rooted = false;
 
-        if (lex.peek() == Tokens.COLON)
+        if (lex.peek() == TokenType.COLON)
         {
-            popExpected(Tokens.COLON);
+            popExpected(TokenType.COLON);
             rooted = true;
         }
         if (!prefix_identifier())
             throw new ParserException(this, String.format("Expected identifier, found %s instead", lex.peek()));
 
         Token I = identifier();
-        Reference B = Element.backreference(rooted, I.Text);
-        B.setComment(I.Comment);
+        Reference B = Element.backreference(rooted, I.text);
+        B.setComment(I.comment);
 
-        while (lex.peek() == Tokens.COLON)
+        while (lex.peek() == TokenType.COLON)
         {
-            popExpected(Tokens.COLON);
+            popExpected(TokenType.COLON);
 
             Token O = identifier();
 
-            B.add(O.Text);
+            B.add(O.text);
         }
 
         return B;
@@ -233,12 +241,12 @@ public class Parser implements ContextProvider
 
     private Collection set() throws ParserException, IOException
     {
-        Token openBrace = popExpected(Tokens.LBRACE);
+        Token openBrace = popExpected(TokenType.LBRACE);
 
-        Collection S = Element.set();
-        S.setComment(openBrace.Comment);
+        Collection S = Collection.empty();
+        S.setComment(openBrace.comment);
 
-        while (lex.peek() != Tokens.RBRACE)
+        while (lex.peek() != TokenType.RBRACE)
         {
             finished_with_rbrace = false;
 
@@ -247,16 +255,16 @@ public class Parser implements ContextProvider
 
             S.add(element());
 
-            if (lex.peek() != Tokens.RBRACE)
+            if (lex.peek() != TokenType.RBRACE)
             {
-                if (!finished_with_rbrace || (lex.peek() == Tokens.COMMA))
+                if (!finished_with_rbrace || (lex.peek() == TokenType.COMMA))
                 {
-                    popExpected(Tokens.COMMA);
+                    popExpected(TokenType.COMMA);
                 }
             }
         }
 
-        popExpected(Tokens.RBRACE);
+        popExpected(TokenType.RBRACE);
 
         finished_with_rbrace = true;
 
@@ -269,17 +277,16 @@ public class Parser implements ContextProvider
 
         if (!prefix_set())
             throw new ParserException(this, "Internal error");
-        Collection S = set();
+        Collection S = set().withTypeName(I.text);
 
-        S.setTypeName(I.Text);
-        S.setComment(I.Comment);
+        S.setComment(I.comment);
 
         return S;
     }
 
     private Token identifier() throws ParserException, IOException
     {
-        if (lex.peek() == Tokens.IDENT) return popExpected(Tokens.IDENT);
+        if (lex.peek() == TokenType.IDENT) return popExpected(TokenType.IDENT);
 
         throw new ParserException(this, "Internal error");
     }
@@ -287,42 +294,42 @@ public class Parser implements ContextProvider
     public static Value nullValue(Token token)
     {
         Value e = Element.nullValue();
-        e.setComment(token.Comment);
+        e.setComment(token.comment);
         return e;
     }
 
     public static Value booleanValue(Token token)
     {
-        Value e = Element.booleanValue(token.Name == Tokens.TRUE);
-        e.setComment(token.Comment);
+        Value e = Element.booleanValue(token.name == TokenType.TRUE);
+        e.setComment(token.comment);
         return e;
     }
 
     public static Value intValue(Token token)
     {
-        Value e = Element.intValue(Long.parseLong(token.Text));
-        e.setComment(token.Comment);
+        Value e = Element.intValue(Long.parseLong(token.text));
+        e.setComment(token.comment);
         return e;
     }
 
     public static Value intValue(Token token, int _base)
     {
-        Value e = Element.intValue(Long.parseLong(token.Text.substring(2), 16));
-        e.setComment(token.Comment);
+        Value e = Element.intValue(Long.parseLong(token.text.substring(2), 16));
+        e.setComment(token.comment);
         return e;
     }
 
     public static Value floatValue(Token token)
     {
-        Value e = Element.floatValue(Double.parseDouble(token.Text));
-        e.setComment(token.Comment);
+        Value e = Element.floatValue(Double.parseDouble(token.text));
+        e.setComment(token.comment);
         return e;
     }
 
     public static Value stringValue(Token token) throws ParserException
     {
         Value e = Element.stringValue(Lexer.unescapeString(token));
-        e.setComment(token.Comment);
+        e.setComment(token.comment);
         return e;
     }
 
@@ -330,5 +337,11 @@ public class Parser implements ContextProvider
     public ParsingContext getParsingContext()
     {
         return lex.getParsingContext();
+    }
+
+    @Override
+    public void close() throws IOException
+    {
+        lex.close();
     }
 }

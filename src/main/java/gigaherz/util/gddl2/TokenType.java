@@ -1,6 +1,6 @@
 package gigaherz.util.gddl2;
 
-public enum Tokens
+public enum TokenType
 {
     NIL,
     NULL,

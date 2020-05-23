@@ -2,10 +2,7 @@ package gigaherz.util.gddl2.structure;
 
 import gigaherz.util.gddl2.config.StringGenerationContext;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Reference extends Element
 {
@@ -96,11 +93,7 @@ public class Reference extends Element
     {
         Element elm = relative ? parent : root;
 
-        boolean parentRoot = false;
-        if (parent.hasName() && NamePart.get(0).equals(parent.getName()))
-        {
-            parentRoot = true;
-        }
+        boolean parentRoot = parent.hasName() && NamePart.get(0).equals(parent.getName());
 
         for (int i = parentRoot ? 1 : 0; i < NamePart.size(); i++)
         {
@@ -144,26 +137,42 @@ public class Reference extends Element
     }
 
     @Override
-    protected String toStringImpl(StringGenerationContext ctx)
+    protected void toStringImpl(StringBuilder builder, StringGenerationContext ctx)
     {
-        StringBuilder ss = new StringBuilder();
         int count = 0;
         for (String it : NamePart)
         {
             if (count++ > 0)
-                ss.append(':');
-            ss.append(it);
+                builder.append(':');
+            builder.append(it);
         }
 
         if (isResolved())
         {
-            ss.append('=');
+            builder.append('=');
             if (resolvedValue() == null)
-                ss.append("NULL");
+                builder.append("NULL");
             else
-                ss.append(resolvedValue());
+                builder.append(resolvedValue());
         }
+    }
 
-        return ss.toString();
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Reference reference = (Reference) o;
+        return resolved == reference.resolved &&
+                rooted == reference.rooted &&
+                NamePart.equals(reference.NamePart) &&
+                Objects.equals(resolvedValue, reference.resolvedValue);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(super.hashCode(), NamePart, resolved, resolvedValue, rooted);
     }
 }
