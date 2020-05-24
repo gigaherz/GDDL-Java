@@ -1,16 +1,14 @@
 package gigaherz.util.gddl2;
 
 import gigaherz.util.gddl2.config.StringGenerationContext;
-import gigaherz.util.gddl2.structure.Element;
 import gigaherz.util.gddl2.config.StringGenerationOptions;
 import gigaherz.util.gddl2.exceptions.ParserException;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class FunctionalTest
+public class Program
 {
     public static void main(String[] args)
     {

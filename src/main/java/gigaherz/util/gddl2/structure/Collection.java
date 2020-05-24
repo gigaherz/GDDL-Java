@@ -248,6 +248,12 @@ public class Collection extends Element implements List<Element>
         return contents.stream().noneMatch(a -> a instanceof Collection || a.hasName());
     }
 
+    public Collection withName(String name)
+    {
+        super.withName(name);
+        return this;
+    }
+
     @Override
     protected void toStringImpl(StringBuilder builder, StringGenerationContext ctx)
     {
@@ -371,7 +377,7 @@ public class Collection extends Element implements List<Element>
     }
 
     @Override
-    protected Element copy()
+    protected Collection copy()
     {
         Collection b = new Collection();
         copyTo(b);

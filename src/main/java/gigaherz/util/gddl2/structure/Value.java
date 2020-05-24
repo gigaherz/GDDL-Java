@@ -36,7 +36,7 @@ public class Value extends Element
     }
 
     // Implementation
-    Object data;
+    private Object data;
 
     private Value()
     {
@@ -63,19 +63,14 @@ public class Value extends Element
         data = valueData;
     }
 
-    public Object getData()
+    public void setNull()
     {
-        return data;
-    }
-
-    void setData(Object value)
-    {
-        data = value;
+        data = null;
     }
 
     public String getString()
     {
-        return (String) data;
+        return (String) Objects.requireNonNull(data);
     }
 
     public void setString(String value)
@@ -85,7 +80,7 @@ public class Value extends Element
 
     public boolean getBoolean()
     {
-        return (boolean) data;
+        return (boolean) Objects.requireNonNull(data);
     }
 
     public void setBoolean(boolean value)
@@ -95,7 +90,7 @@ public class Value extends Element
 
     public long getInteger()
     {
-        return (long) data;
+        return (long) Objects.requireNonNull(data);
     }
 
     public void setInteger(long value)
@@ -105,7 +100,7 @@ public class Value extends Element
 
     public double getDouble()
     {
-        return (double) data;
+        return (double) Objects.requireNonNull(data);
     }
 
     public void setDouble(double value)
@@ -118,8 +113,14 @@ public class Value extends Element
         return data == null;
     }
 
+    public Value withName(String name)
+    {
+        super.withName(name);
+        return this;
+    }
+
     @Override
-    protected Element copy()
+    protected Value copy()
     {
         Value b = new Value();
         copyTo(b);
@@ -133,7 +134,7 @@ public class Value extends Element
         if (!(other instanceof Value))
             throw new IllegalArgumentException("copyTo for invalid type");
         Value b = (Value) other;
-        b.setData(getData());
+        b.data = data;
     }
 
     @Override

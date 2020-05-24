@@ -56,8 +56,14 @@ public class Reference extends Element
         return resolvedValue;
     }
 
+    public Reference withName(String name)
+    {
+        super.withName(name);
+        return this;
+    }
+
     @Override
-    protected Element copy()
+    protected Reference copy()
     {
         Reference b = new Reference(rooted);
         copyTo(b);

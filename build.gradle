@@ -22,6 +22,21 @@ dependencies {
     testCompile "com.google.guava:guava:29.0-jre"
 }
 
+sourceSets {
+    demo {
+        java {
+            compileClasspath += main.output
+            runtimeClasspath += main.output
+        }
+    }
+}
+
+configurations {
+    demoCompile.extendsFrom compile
+    demoRuntime.extendsFrom runtime
+}
+
+tasks.build.dependsOn compileDemoJava
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
