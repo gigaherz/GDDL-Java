@@ -14,36 +14,6 @@ public abstract class Element
     private String comment;
     private String name;
 
-    public static Reference backreference(boolean rooted, String... parts)
-    {
-        return new Reference(rooted, parts);
-    }
-
-    public static Value nullValue()
-    {
-        return new Value();
-    }
-
-    public static Value booleanValue(boolean value)
-    {
-        return new Value(value);
-    }
-
-    public static Value intValue(long num)
-    {
-        return new Value(num);
-    }
-
-    public static Value floatValue(double num)
-    {
-        return new Value(num);
-    }
-
-    public static Value stringValue(String s)
-    {
-        return new Value(s);
-    }
-
     // Actual instance methods
     public String getComment()
     {
@@ -170,10 +140,10 @@ public abstract class Element
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Element element = (Element) o;
+        Element other = (Element) o;
 
-        return ((Utility.isNullOrEmpty(comment) && Utility.isNullOrEmpty(element.comment)) || Objects.equals(comment, element.comment)) &&
-                Objects.equals(name, element.name);
+        return ((Utility.isNullOrEmpty(comment) && Utility.isNullOrEmpty(other.comment)) || Objects.equals(comment, other.comment)) &&
+                Objects.equals(name, other.name);
     }
 
     @Override

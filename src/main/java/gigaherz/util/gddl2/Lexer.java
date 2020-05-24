@@ -33,14 +33,14 @@ public class Lexer implements TokenProvider, AutoCloseable
     {
         require(pos + 1);
 
-        return lookAhead.get(pos).name;
+        return lookAhead.get(pos).type;
     }
 
     public TokenType peek() throws LexerException, IOException
     {
         require(1);
 
-        return lookAhead.get(0).name;
+        return lookAhead.get(0).type;
     }
 
     public Token pop() throws LexerException, IOException
@@ -60,15 +60,17 @@ public class Lexer implements TokenProvider, AutoCloseable
 
     private Token parseOne() throws LexerException, IOException
     {
+        ParsingContext parseStart = reader.getParsingContext();
+
         if (seenEnd)
-            return new Token(TokenType.END, "", reader, "");
+            return new Token(TokenType.END, "", parseStart, "");
 
         StringBuilder commentLines = null;
         int ich = reader.peek();
         blah:
         while (true)
         {
-            if (ich < 0) return new Token(TokenType.END, "", reader, "");
+            if (ich < 0) return new Token(TokenType.END, "", parseStart, "");
 
             switch (ich)
             {
@@ -124,11 +126,11 @@ public class Lexer implements TokenProvider, AutoCloseable
 
         switch (ich)
         {
-            case '{': return new Token(TokenType.LBRACE, reader.read(1), reader, comment);
-            case '}': return new Token(TokenType.RBRACE, reader.read(1), reader, comment);
-            case ',': return new Token(TokenType.COMMA, reader.read(1), reader, comment);
-            case ':': return new Token(TokenType.COLON, reader.read(1), reader, comment);
-            case '=': return new Token(TokenType.EQUALS, reader.read(1), reader, comment);
+            case '{': return new Token(TokenType.LBRACE, reader.read(1), parseStart, comment);
+            case '}': return new Token(TokenType.RBRACE, reader.read(1), parseStart, comment);
+            case ',': return new Token(TokenType.COMMA, reader.read(1), parseStart, comment);
+            case ':': return new Token(TokenType.COLON, reader.read(1), parseStart, comment);
+            case '=': return new Token(TokenType.EQUALS, reader.read(1), parseStart, comment);
         }
 
         if (Character.isLetter((char) ich) || ich == '_')
@@ -150,7 +152,7 @@ public class Lexer implements TokenProvider, AutoCloseable
                 }
             }
 
-            Token id = new Token(TokenType.IDENT, reader.read(number), reader, comment);
+            Token id = new Token(TokenType.IDENT, reader.read(number), parseStart, comment);
 
             if (id.text.compareToIgnoreCase("nil") == 0) return new Token(TokenType.NIL, id.text, id, comment);
             if (id.text.compareToIgnoreCase("null") == 0) return new Token(TokenType.NULL, id.text, id, comment);
@@ -191,10 +193,10 @@ public class Lexer implements TokenProvider, AutoCloseable
 
             number++;
 
-            return new Token(TokenType.STRING, reader.read(number), reader, comment);
+            return new Token(TokenType.STRING, reader.read(number), parseStart, comment);
         }
 
-        if (Character.isDigit((char) ich) || ich == '.')
+        if (Character.isDigit((char) ich) || ich == '.' || ich == '-')
         {
             // numbers
             int number = 0;
@@ -209,9 +211,9 @@ public class Lexer implements TokenProvider, AutoCloseable
 
             if (Character.isDigit((char) ich))
             {
-                if (reader.peek(0) == '0' && reader.peek(1) == 'x')
+                if (reader.peek(number) == '0' && reader.peek(number+1) == 'x')
                 {
-                    number = 2;
+                    number += 2;
 
                     ich = reader.peek(number);
                     while (Character.isDigit((char) ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
@@ -221,7 +223,7 @@ public class Lexer implements TokenProvider, AutoCloseable
                         ich = reader.peek(number);
                     }
 
-                    return new Token(TokenType.HEXINT, reader.read(number), reader, comment);
+                    return new Token(TokenType.HEXINT, reader.read(number), parseStart, comment);
                 }
 
                 number = 1;
@@ -242,8 +244,6 @@ public class Lexer implements TokenProvider, AutoCloseable
                 number++;
 
                 ich = reader.peek(number);
-                if (!Character.isDigit((char) ich))
-                    throw new LexerException(this, String.format("Expected DIGIT, found %c", (char) ich));
 
                 while (Character.isDigit((char) ich))
                 {
@@ -280,9 +280,9 @@ public class Lexer implements TokenProvider, AutoCloseable
             }
 
             if (fractional)
-                return new Token(TokenType.DOUBLE, reader.read(number), reader, comment);
+                return new Token(TokenType.DOUBLE, reader.read(number), parseStart, comment);
 
-            return new Token(TokenType.INTEGER, reader.read(number), reader, comment);
+            return new Token(TokenType.INTEGER, reader.read(number), parseStart, comment);
         }
 
         throw new LexerException(this, String.format("Unexpected character: %c", reader.peek()));

@@ -15,7 +15,7 @@ public class StructureTest
     @Test
     public void collectionOfAddsNames()
     {
-        Element value = Value.booleanValue(true).withName("test");
+        Element value = Value.of(true).withName("test");
         Collection collection = Collection.of(value);
         List<Element> l = collection.byName("test").collect(Collectors.toList());
         assertEquals(1, l.size());

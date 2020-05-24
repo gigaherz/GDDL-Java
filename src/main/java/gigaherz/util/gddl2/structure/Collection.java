@@ -9,11 +9,6 @@ import java.util.stream.Stream;
 @SuppressWarnings("unused")
 public class Collection extends Element implements List<Element>
 {
-    private final List<Element> contents = new ArrayList<>();
-    private final Map<String, Element> names = new HashMap<>();
-
-    private String typeName;
-
     // Factory methods
     public static Collection empty()
     {
@@ -29,6 +24,12 @@ public class Collection extends Element implements List<Element>
     {
         return new Collection(initial);
     }
+
+    // Implementation
+    private final List<Element> contents = new ArrayList<>();
+    private final Map<String, Element> names = new HashMap<>();
+
+    private String typeName;
 
     private Collection()
     {

@@ -1,18 +1,20 @@
 package gigaherz.util.gddl2;
 
+import gigaherz.util.gddl2.util.Utility;
+
 import java.util.Objects;
 
 public class Token implements ContextProvider
 {
     public final String comment;
-    public final TokenType name;
+    public final TokenType type;
     public final String text;
     public final ParsingContext context;
 
-    public Token(TokenType name, String text, ContextProvider contextProvider, String comment)
+    public Token(TokenType type, String text, ContextProvider contextProvider, String comment)
     {
         this.comment = comment;
-        this.name = name;
+        this.type = type;
         this.text = text;
         context = contextProvider.getParsingContext();
     }
@@ -21,12 +23,12 @@ public class Token implements ContextProvider
     public String toString()
     {
         if (text == null)
-            return String.format("(%s @ %d:%d)", name, context.line, context.column);
+            return String.format("(%s @ %d:%d)", type, context.line, context.column);
 
         if (text.length() > 22)
-            return String.format("(%s @ %d:%d: %s...)", name, context.line, context.column, text.substring(0, 20));
+            return String.format("(%s @ %d:%d: %s...)", type, context.line, context.column, text.substring(0, 20));
 
-        return String.format("(%s @ %d:%d: %s)", name, context.line, context.column, text);
+        return String.format("(%s @ %d:%d: %s)", type, context.line, context.column, text);
     }
 
     @Override
@@ -34,17 +36,17 @@ public class Token implements ContextProvider
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Token token = (Token) o;
-        return comment.equals(token.comment) &&
-                name == token.name &&
-                text.equals(token.text) &&
-                context.equals(token.context);
+        Token other = (Token) o;
+        return type == other.type &&
+                text.equals(other.text) &&
+                context.equals(other.context) &&
+                ((Utility.isNullOrEmpty(comment) && Utility.isNullOrEmpty(other.comment)) || Objects.equals(comment, other.comment));
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(comment, name, text, context);
+        return Objects.hash(comment, type, text, context);
     }
 
     @Override

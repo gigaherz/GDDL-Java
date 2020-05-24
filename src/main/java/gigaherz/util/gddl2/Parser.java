@@ -12,6 +12,7 @@ import gigaherz.util.gddl2.util.Utility;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Arrays;
 
 @SuppressWarnings("unused")
 public class Parser implements ContextProvider, AutoCloseable
@@ -62,11 +63,8 @@ public class Parser implements ContextProvider, AutoCloseable
     private Token popExpected(TokenType... expected) throws ParserException, IOException
     {
         TokenType current = lex.peek();
-        for (TokenType expectedToken : expected)
-        {
-            if (current == expectedToken)
-                return lex.pop();
-        }
+        if (Arrays.stream(expected).anyMatch(t -> current == t))
+            return lex.pop();
 
         if (expected.length != 1)
             throw new ParserException(this, String.format("Unexpected token %s. Expected one of: %s.", current, Utility.join(", ", expected)));
@@ -92,14 +90,7 @@ public class Parser implements ContextProvider, AutoCloseable
     private boolean hasAny(TokenType... tokens) throws LexerException, IOException
     {
         TokenType prefix = nextPrefix();
-        for (TokenType t : tokens)
-        {
-            if (prefix == t)
-            {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(tokens).anyMatch(t -> prefix == t);
     }
 
     private boolean prefix_element() throws LexerException, IOException
@@ -192,23 +183,21 @@ public class Parser implements ContextProvider, AutoCloseable
 
     private Element namedElement() throws IOException, ParserException
     {
-        Token N = popExpected(TokenType.IDENT, TokenType.STRING);
+        Token name = popExpected(TokenType.IDENT, TokenType.STRING);
 
-        String I;
-        if (N.name == TokenType.IDENT) I = N.text;
-        else I = Lexer.unescapeString(N);
+        String n = name.type == TokenType.IDENT ? name.text : Lexer.unescapeString(name);
 
         popExpected(TokenType.EQUALS);
 
         if (!prefix_basicElement())
             throw new ParserException(this, String.format("Expected a basic element after EQUALS, found %s instead", lex.peek()));
 
-        Element B = basicElement();
+        Element b = basicElement();
 
-        B.setName(I);
-        B.setComment(N.comment);
+        b.setName(n);
+        b.setComment(name.comment);
 
-        return B;
+        return b;
     }
 
     private Reference backreference() throws IOException, ParserException
@@ -223,28 +212,28 @@ public class Parser implements ContextProvider, AutoCloseable
         if (!prefix_identifier())
             throw new ParserException(this, String.format("Expected identifier, found %s instead", lex.peek()));
 
-        Token I = identifier();
-        Reference B = Element.backreference(rooted, I.text);
-        B.setComment(I.comment);
+        Token name = identifier();
+        Reference b = rooted ? Reference.absolute(name.text) : Reference.relative(name.text);
+        b.setComment(name.comment);
 
         while (lex.peek() == TokenType.COLON)
         {
             popExpected(TokenType.COLON);
 
-            Token O = identifier();
+            name = identifier();
 
-            B.add(O.text);
+            b.add(name.text);
         }
 
-        return B;
+        return b;
     }
 
     private Collection set() throws ParserException, IOException
     {
         Token openBrace = popExpected(TokenType.LBRACE);
 
-        Collection S = Collection.empty();
-        S.setComment(openBrace.comment);
+        Collection s = Collection.empty();
+        s.setComment(openBrace.comment);
 
         while (lex.peek() != TokenType.RBRACE)
         {
@@ -253,7 +242,7 @@ public class Parser implements ContextProvider, AutoCloseable
             if (!prefix_element())
                 throw new ParserException(this, String.format("Expected element after LBRACE, found %s instead", lex.peek()));
 
-            S.add(element());
+            s.add(element());
 
             if (lex.peek() != TokenType.RBRACE)
             {
@@ -268,20 +257,20 @@ public class Parser implements ContextProvider, AutoCloseable
 
         finished_with_rbrace = true;
 
-        return S;
+        return s;
     }
 
     private Collection typedSet() throws IOException, ParserException
     {
-        Token I = identifier();
+        Token type = identifier();
 
         if (!prefix_set())
             throw new ParserException(this, "Internal error");
-        Collection S = set().withTypeName(I.text);
+        Collection s = set().withTypeName(type.text);
 
-        S.setComment(I.comment);
+        s.setComment(type.comment);
 
-        return S;
+        return s;
     }
 
     private Token identifier() throws ParserException, IOException
@@ -293,42 +282,42 @@ public class Parser implements ContextProvider, AutoCloseable
 
     public static Value nullValue(Token token)
     {
-        Value e = Element.nullValue();
+        Value e = Value.nullValue();
         e.setComment(token.comment);
         return e;
     }
 
     public static Value booleanValue(Token token)
     {
-        Value e = Element.booleanValue(token.name == TokenType.TRUE);
+        Value e = Value.of(token.type == TokenType.TRUE);
         e.setComment(token.comment);
         return e;
     }
 
     public static Value intValue(Token token)
     {
-        Value e = Element.intValue(Long.parseLong(token.text));
+        Value e = Value.of(Long.parseLong(token.text));
         e.setComment(token.comment);
         return e;
     }
 
     public static Value intValue(Token token, int _base)
     {
-        Value e = Element.intValue(Long.parseLong(token.text.substring(2), 16));
+        Value e = Value.of(Long.parseLong(token.text.substring(2), _base));
         e.setComment(token.comment);
         return e;
     }
 
     public static Value floatValue(Token token)
     {
-        Value e = Element.floatValue(Double.parseDouble(token.text));
+        Value e = Value.of(Double.parseDouble(token.text));
         e.setComment(token.comment);
         return e;
     }
 
     public static Value stringValue(Token token) throws ParserException
     {
-        Value e = Element.stringValue(Lexer.unescapeString(token));
+        Value e = Value.of(Lexer.unescapeString(token));
         e.setComment(token.comment);
         return e;
     }

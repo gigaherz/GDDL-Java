@@ -9,29 +9,56 @@ import java.util.Objects;
 @SuppressWarnings("unused")
 public class Value extends Element
 {
+    // Factory Methods
+    public static Value nullValue()
+    {
+        return new Value();
+    }
+
+    public static Value of(boolean value)
+    {
+        return new Value(value);
+    }
+
+    public static Value of(long num)
+    {
+        return new Value(num);
+    }
+
+    public static Value of(double num)
+    {
+        return new Value(num);
+    }
+
+    public static Value of(String s)
+    {
+        return new Value(s);
+    }
+
+    // Implementation
     Object data;
 
-    Value()
+    private Value()
     {
         data = null;
     }
 
-    Value(boolean valueData)
+    private Value(boolean valueData)
     {
         data = valueData;
     }
 
-    Value(String valueData)
+    private Value(String valueData)
     {
         data = valueData;
     }
 
-    Value(long valueData)
+    private Value(long valueData)
     {
         data = valueData;
     }
 
-    Value(double valueData)
+    private Value(double valueData)
     {
         data = valueData;
     }

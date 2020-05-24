@@ -5,12 +5,11 @@ import gigaherz.util.gddl2.exceptions.LexerException;
 import gigaherz.util.gddl2.exceptions.ParserException;
 import gigaherz.util.gddl2.structure.Collection;
 import gigaherz.util.gddl2.structure.Element;
+import gigaherz.util.gddl2.structure.Reference;
 import gigaherz.util.gddl2.structure.Value;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -38,7 +37,7 @@ public class ParserTest
         assertEquals(new Token(TokenType.HEXINT, "0x1", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.STRING, "\"1\"", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.TRUE, "true", new ParsingContext("TEST", 1, 1), ""), provider.pop());
-        assertEquals(new Token(TokenType.FALSE, "true", new ParsingContext("TEST", 1, 1), ""), provider.pop());
+        assertEquals(new Token(TokenType.FALSE, "false", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.LBRACE, "{", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.RBRACE, "}", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.EQUALS, "=", new ParsingContext("TEST", 1, 1), ""), provider.pop());
@@ -57,7 +56,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addInt().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.intValue(1), parser.parse(false));
+        assertEquals(Value.of(1), parser.parse(false));
     }
 
     @Test
@@ -65,7 +64,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addInt().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.intValue(1), parser.parse(false));
+        assertEquals(Value.of(1), parser.parse(false));
     }
 
     @Test
@@ -73,7 +72,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addHexInt().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.intValue(1), parser.parse(false));
+        assertEquals(Value.of(1), parser.parse(false));
     }
 
     @Test
@@ -81,7 +80,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addFloat().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.floatValue(1), parser.parse(false));
+        assertEquals(Value.of(1.0), parser.parse(false));
     }
 
     @Test
@@ -89,7 +88,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addString().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.stringValue("1"), parser.parse(false));
+        assertEquals(Value.of("1"), parser.parse(false));
     }
 
     @Test
@@ -97,7 +96,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addBooleanTrue().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.booleanValue(true), parser.parse(false));
+        assertEquals(Value.of(true), parser.parse(false));
     }
 
     @Test
@@ -105,7 +104,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addBooleanFalse().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.booleanValue(false), parser.parse(false));
+        assertEquals(Value.of(false), parser.parse(false));
     }
 
     @Test
@@ -129,7 +128,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addLBrace().addInt().addRBrace().build();
         Parser parser = new Parser(provider);
-        assertEquals(Collection.of(Value.intValue(1)), parser.parse(false));
+        assertEquals(Collection.of(Value.of(1)), parser.parse(false));
     }
 
     @Test
@@ -137,7 +136,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addLBrace().addInt().addComma().addInt().addRBrace().build();
         Parser parser = new Parser(provider);
-        assertEquals(Collection.of(Value.intValue(1), Value.intValue(1)), parser.parse(false));
+        assertEquals(Collection.of(Value.of(1), Value.of(1)), parser.parse(false));
     }
 
     @Test
@@ -155,7 +154,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addLBrace().addLBrace().addRBrace().addInt().addRBrace().build();
         Parser parser = new Parser(provider);
-        Collection expected = Collection.of(Collection.empty(), Value.intValue(1));
+        Collection expected = Collection.of(Collection.empty(), Value.of(1));
         Element actual = parser.parse(false);
         assertEquals(expected, actual);
     }
@@ -165,7 +164,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addLBrace().addInt().addComma().addRBrace().build();
         Parser parser = new Parser(provider);
-        assertEquals(Collection.of(Value.intValue(1)), parser.parse(false));
+        assertEquals(Collection.of(Value.of(1)), parser.parse(false));
     }
 
     @Test
@@ -173,7 +172,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addLBrace().addString("\"a\"").addEquals().addInt().addRBrace().build();
         Parser parser = new Parser(provider);
-        Collection expected = Collection.of(Value.intValue(1).withName("a"));
+        Collection expected = Collection.of(Value.of(1).withName("a"));
         Element actual = parser.parse(false);
         assertEquals(expected, actual);
     }
@@ -193,7 +192,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addLBrace().addIdentifier("a").addColon().addIdentifier("b").addRBrace().build();
         Parser parser = new Parser(provider);
-        Collection expected = Collection.of(Element.backreference(false, "a", "b"));
+        Collection expected = Collection.of(Reference.relative("a", "b"));
         Element actual = parser.parse(false);
         assertEquals(expected, actual);
     }
@@ -203,7 +202,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addLBrace().addColon().addIdentifier("a").addColon().addIdentifier("b").addRBrace().build();
         Parser parser = new Parser(provider);
-        Collection expected = Collection.of(Element.backreference(true, "a", "b"));
+        Collection expected = Collection.of(Reference.absolute("a", "b"));
         Element actual = parser.parse(false);
         assertEquals(expected, actual);
     }
@@ -257,7 +256,7 @@ public class ParserTest
 
         public MockLexerBuilder addBooleanFalse()
         {
-            return add(TokenType.FALSE, "true");
+            return add(TokenType.FALSE, "false");
         }
 
         public MockLexerBuilder addLBrace()
@@ -348,7 +347,7 @@ public class ParserTest
         @Override
         public TokenType peek(int index) throws IOException
         {
-            return get(index).name;
+            return get(index).type;
         }
 
         @Override

@@ -6,37 +6,42 @@ import java.util.*;
 
 public class Reference extends Element
 {
-    protected final List<String> NamePart = new ArrayList<>();
+    public static Reference absolute(String... parts)
+    {
+        return new Reference(true, parts);
+    }
+
+    public static Reference relative(String... parts)
+    {
+        return new Reference(false, parts);
+    }
+
+    protected final List<String> namePart = new ArrayList<>();
 
     private boolean resolved;
     private Element resolvedValue;
 
     protected boolean rooted;
 
-    Reference(String... parts)
-    {
-        Collections.addAll(NamePart, parts);
-    }
-
-    Reference(boolean rooted, String... parts)
+    private Reference(boolean rooted, String... parts)
     {
         this.rooted = rooted;
-        Collections.addAll(NamePart, parts);
+        Collections.addAll(namePart, parts);
     }
 
     public void add(String name)
     {
-        NamePart.add(name);
+        namePart.add(name);
     }
 
     public void addAll(String... names)
     {
-        NamePart.addAll(Arrays.asList(names));
+        namePart.addAll(Arrays.asList(names));
     }
 
     public void addAll(java.util.Collection<String> names)
     {
-        NamePart.addAll(names);
+        namePart.addAll(names);
     }
 
     @Override
@@ -54,7 +59,7 @@ public class Reference extends Element
     @Override
     protected Element copy()
     {
-        Reference b = new Reference();
+        Reference b = new Reference(rooted);
         copyTo(b);
         return b;
     }
@@ -66,7 +71,7 @@ public class Reference extends Element
         if (!(other instanceof Reference))
             throw new IllegalArgumentException("copyTo for invalid type");
         Reference b = (Reference) other;
-        b.addAll(NamePart);
+        b.addAll(namePart);
         if (resolved)
         {
             b.resolved = true;
@@ -93,11 +98,11 @@ public class Reference extends Element
     {
         Element elm = relative ? parent : root;
 
-        boolean parentRoot = parent.hasName() && NamePart.get(0).equals(parent.getName());
+        boolean parentRoot = parent.hasName() && namePart.get(0).equals(parent.getName());
 
-        for (int i = parentRoot ? 1 : 0; i < NamePart.size(); i++)
+        for (int i = parentRoot ? 1 : 0; i < namePart.size(); i++)
         {
-            String part = NamePart.get(i);
+            String part = namePart.get(i);
 
             if (!(elm instanceof Collection))
                 continue;
@@ -140,7 +145,7 @@ public class Reference extends Element
     protected void toStringImpl(StringBuilder builder, StringGenerationContext ctx)
     {
         int count = 0;
-        for (String it : NamePart)
+        for (String it : namePart)
         {
             if (count++ > 0)
                 builder.append(':');
@@ -166,13 +171,13 @@ public class Reference extends Element
         Reference reference = (Reference) o;
         return resolved == reference.resolved &&
                 rooted == reference.rooted &&
-                NamePart.equals(reference.NamePart) &&
+                namePart.equals(reference.namePart) &&
                 Objects.equals(resolvedValue, reference.resolvedValue);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(super.hashCode(), NamePart, resolved, resolvedValue, rooted);
+        return Objects.hash(super.hashCode(), namePart, resolved, resolvedValue, rooted);
     }
 }
