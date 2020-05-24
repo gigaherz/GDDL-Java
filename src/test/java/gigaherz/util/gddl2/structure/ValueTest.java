@@ -91,14 +91,6 @@ public class ValueTest
     }
 
     @Test
-    public void invalidCopyThrows()
-    {
-        Value v = Value.nullValue();
-        Reference r = Reference.absolute();
-        assertThrows(IllegalArgumentException.class, () -> v.copyTo(r));
-    }
-
-    @Test
     public void copyOfNullWorks()
     {
         Value v = Value.nullValue().copy();
