@@ -1,11 +1,9 @@
 package gigaherz.util.gddl2.structure;
 
-import gigaherz.util.gddl2.Lexer;
-import gigaherz.util.gddl2.config.StringGenerationContext;
 import gigaherz.util.gddl2.config.StringGenerationOptions;
+import gigaherz.util.gddl2.processing.Formatter;
 import gigaherz.util.gddl2.util.Utility;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
@@ -81,44 +79,10 @@ public abstract class Element
         return this;
     }
 
-    protected abstract void toStringImpl(StringBuilder builder, StringGenerationContext ctx);
-
     @Override
     public final String toString()
     {
-        return toString(new StringGenerationContext(StringGenerationOptions.Compact));
-    }
-
-    public final String toString(StringGenerationContext ctx)
-    {
-        StringBuilder builder = new StringBuilder();
-        toStringWithName(builder, ctx);
-        return builder.toString();
-    }
-
-    /*package-private*/ void toStringWithName(StringBuilder builder, StringGenerationContext ctx)
-    {
-        if (hasComment() && ctx.options.writeComments)
-        {
-            for(String s : getComment().split("(?:(?:\n)|(?:\r\n))"))
-            {
-                ctx.appendIndent(builder);
-                builder.append("#");
-                builder.append(s);
-                builder.append("\n");
-            }
-        }
-        ctx.appendIndent(builder);
-        if (hasName())
-        {
-            String sname = name;
-            if (!Lexer.isValidIdentifier(sname))
-                sname = Lexer.escapeString(sname);
-            builder.append(sname);
-            builder.append(" = ");
-        }
-
-        toStringImpl(builder, ctx);
+        return Formatter.formatCompact(this);
     }
 
     protected abstract Element copy();

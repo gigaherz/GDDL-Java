@@ -1,8 +1,7 @@
 package gigaherz.util.gddl2;
 
-import gigaherz.util.gddl2.config.StringGenerationContext;
-import gigaherz.util.gddl2.config.StringGenerationOptions;
 import gigaherz.util.gddl2.exceptions.ParserException;
+import gigaherz.util.gddl2.processing.Formatter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,7 +15,7 @@ public class Program
         {
             var parser = Parser.fromFile("./samples/Test.txt");
             var e = parser.parse();
-            var result = e.toString(new StringGenerationContext(StringGenerationOptions.Nice));
+            var result = Formatter.formatNice(e);
             System.out.println(result);
             Files.writeString(Paths.get("./samples/Test.output.txt"), result);
         }

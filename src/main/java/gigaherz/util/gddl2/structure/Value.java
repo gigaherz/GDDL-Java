@@ -1,9 +1,5 @@
 package gigaherz.util.gddl2.structure;
 
-import gigaherz.util.gddl2.Lexer;
-import gigaherz.util.gddl2.config.StringGenerationContext;
-
-import java.util.Locale;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
@@ -113,6 +109,26 @@ public class Value extends Element
         return data == null;
     }
 
+    public boolean isBoolean()
+    {
+        return data instanceof Boolean;
+    }
+
+    public boolean isInteger()
+    {
+        return data instanceof Long;
+    }
+
+    public boolean isDouble()
+    {
+        return data instanceof Double;
+    }
+
+    public boolean isString()
+    {
+        return data instanceof String;
+    }
+
     public Value withName(String name)
     {
         super.withName(name);
@@ -135,27 +151,6 @@ public class Value extends Element
             throw new IllegalArgumentException("copyTo for invalid type");
         Value b = (Value) other;
         b.data = data;
-    }
-
-    @Override
-    protected void toStringImpl(StringBuilder builder, StringGenerationContext ctx)
-    {
-        if (data == null)
-        {
-            builder.append("null");
-        }
-        else if (data instanceof Boolean)
-        {
-            builder.append(getBoolean() ? "true" : "false");
-        }
-        else if (data instanceof String)
-        {
-            builder.append(Lexer.escapeString(getString()));
-        }
-        else
-        {
-            builder.append(String.format(Locale.ROOT, "%s", data.toString()));
-        }
     }
 
     @Override

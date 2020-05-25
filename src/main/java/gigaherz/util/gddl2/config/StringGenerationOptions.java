@@ -2,22 +2,22 @@ package gigaherz.util.gddl2.config;
 
 public class StringGenerationOptions
 {
-    public static final StringGenerationOptions Compact = new StringGenerationOptions(); // Default
-    public static final StringGenerationOptions Nice = new StringGenerationOptions();
+    public static final StringGenerationOptions COMPACT = new StringGenerationOptions(); // Default
+    public static final StringGenerationOptions NICE = new StringGenerationOptions();
 
     static {
-        Nice.writeComments = true;
-        Nice.lineBreaksAfterOpeningBrace = 1;
-        Nice.lineBreaksBeforeClosingBrace = 1;
-        Nice.lineBreaksAfterClosingBrace = 1;
-        Nice.lineBreaksAfterValues = 1;
-        Nice.spacesBeforeOpeningBrace = 0;
-        Nice.spacesAfterOpeningBrace = 1;
-        Nice.spacesBeforeClosingBrace = 1;
-        Nice.spacesAfterClosingBrace = 0;
-        Nice.spacesBetweenElements = 1;
-        Nice.oneElementPerLineThreshold = 10;
-        Nice.spacesPerIndent = 4;
+        NICE.writeComments = true;
+        NICE.lineBreaksAfterOpeningBrace = 1;
+        NICE.lineBreaksBeforeClosingBrace = 1;
+        NICE.lineBreaksAfterClosingBrace = 1;
+        NICE.lineBreaksAfterValues = 1;
+        NICE.spacesBeforeOpeningBrace = 0;
+        NICE.spacesAfterOpeningBrace = 1;
+        NICE.spacesBeforeClosingBrace = 1;
+        NICE.spacesAfterClosingBrace = 0;
+        NICE.spacesBetweenElements = 1;
+        NICE.oneElementPerLineThreshold = 10;
+        NICE.spacesPerIndent = 4;
     }
 
     // Sets
@@ -51,4 +51,13 @@ public class StringGenerationOptions
 
     // Comments
     public boolean writeComments = false;
+
+    // Uncategorized
+    public boolean omitCommaAfterClosingBrace = false;
+    public FloatMode floatFormattingStyle = FloatMode.AUTO;
+
+    public enum FloatMode
+    {
+        DECIMAL, SCIENTIFIC, AUTO;
+    }
 }

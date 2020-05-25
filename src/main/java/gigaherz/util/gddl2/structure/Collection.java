@@ -1,7 +1,6 @@
 package gigaherz.util.gddl2.structure;
 
 import gigaherz.util.gddl2.Lexer;
-import gigaherz.util.gddl2.config.StringGenerationContext;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -252,128 +251,6 @@ public class Collection extends Element implements List<Element>
     {
         super.withName(name);
         return this;
-    }
-
-    @Override
-    protected void toStringImpl(StringBuilder builder, StringGenerationContext ctx)
-    {
-        ctx.pushIndent();
-        
-        boolean oneElementPerLine = !isSimple() || contents.size() > ctx.options.oneElementPerLineThreshold;
-
-        if (hasTypeName())
-        {
-            builder.append(typeName);
-            if (ctx.options.lineBreaksBeforeOpeningBrace == 0)
-                builder.append(" ");
-        }
-        boolean addBraces = ctx.indentLevel > 0 || hasTypeName();
-        if (addBraces)
-        {
-            if (oneElementPerLine && ctx.options.lineBreaksBeforeOpeningBrace > 0)
-            {
-                for (int i = 0; i < ctx.options.lineBreaksBeforeOpeningBrace; i++)
-                {
-                    builder.append("\n");
-                }
-                ctx.appendIndent(builder);
-            }
-            else if (ctx.options.spacesBeforeOpeningBrace > 0)
-            {
-                for (int i = 0; i < ctx.options.spacesBeforeOpeningBrace; i++)
-                {
-                    builder.append(" ");
-                }
-            }
-            builder.append("{");
-            if (oneElementPerLine && ctx.options.lineBreaksAfterOpeningBrace > 0)
-            {
-                for (int i = 0; i < ctx.options.lineBreaksAfterOpeningBrace; i++)
-                {
-                    builder.append("\n");
-                }
-            }
-            else if (ctx.options.spacesAfterOpeningBrace > 0)
-            {
-                for (int i = 0; i < ctx.options.spacesAfterOpeningBrace; i++)
-                {
-                    builder.append(" ");
-                }
-            }
-            ctx.pushIndent();
-            ctx.incIndent();
-        }
-
-        boolean first = true;
-        for (Element e : contents)
-        {
-            ctx.pushIndent();
-
-            if (first && (!oneElementPerLine || ctx.options.lineBreaksAfterOpeningBrace == 0))
-            {
-                ctx.setIndent(0);
-            }
-            else if (!first)
-            {
-                builder.append(",");
-                if (oneElementPerLine)
-                {
-                    builder.append("\n");
-                }
-                else if(ctx.options.spacesBetweenElements > 0)
-                {
-                    for (int i = 0; i < ctx.options.spacesBetweenElements; i++)
-                    {
-                        builder.append(" ");
-                    }
-                }
-
-                if (!oneElementPerLine)
-                    ctx.setIndent(0);
-            }
-
-            e.toStringWithName(builder, ctx);
-
-            first = false;
-            ctx.popIndent();
-        }
-
-        if (addBraces)
-        {
-            ctx.popIndent();
-            if (oneElementPerLine && ctx.options.lineBreaksBeforeClosingBrace > 0)
-            {
-                for (int i = 0; i < ctx.options.lineBreaksBeforeClosingBrace; i++)
-                {
-                    builder.append("\n");
-                }
-                ctx.appendIndent(builder);
-            }
-            else if (ctx.options.spacesBeforeClosingBrace > 0)
-            {
-                for (int i = 0; i < ctx.options.spacesBeforeClosingBrace; i++)
-                {
-                    builder.append(" ");
-                }
-            }
-            builder.append("}");
-            if (oneElementPerLine && ctx.options.lineBreaksAfterClosingBrace > 0)
-            {
-                for (int i = 0; i < ctx.options.lineBreaksAfterClosingBrace; i++)
-                {
-                    builder.append("\n");
-                }
-            }
-            else if (ctx.options.spacesAfterClosingBrace > 0)
-            {
-                for (int i = 0; i < ctx.options.spacesAfterClosingBrace; i++)
-                {
-                    builder.append(" ");
-                }
-            }
-        }
-        
-        ctx.popIndent();
     }
 
     @Override

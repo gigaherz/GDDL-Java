@@ -1,7 +1,5 @@
 package gigaherz.util.gddl2.structure;
 
-import gigaherz.util.gddl2.config.StringGenerationContext;
-
 import java.util.*;
 
 public class Reference extends Element
@@ -16,7 +14,7 @@ public class Reference extends Element
         return new Reference(false, parts);
     }
 
-    protected final List<String> namePart = new ArrayList<>();
+    protected final List<String> nameParts = new ArrayList<>();
 
     private boolean resolved;
     private Element resolvedValue;
@@ -26,22 +24,27 @@ public class Reference extends Element
     private Reference(boolean rooted, String... parts)
     {
         this.rooted = rooted;
-        Collections.addAll(namePart, parts);
+        Collections.addAll(nameParts, parts);
     }
 
     public void add(String name)
     {
-        namePart.add(name);
+        nameParts.add(name);
     }
 
     public void addAll(String... names)
     {
-        namePart.addAll(Arrays.asList(names));
+        nameParts.addAll(Arrays.asList(names));
     }
 
     public void addAll(java.util.Collection<String> names)
     {
-        namePart.addAll(names);
+        nameParts.addAll(names);
+    }
+
+    public List<String> getNameParts()
+    {
+        return Collections.unmodifiableList(nameParts);
     }
 
     @Override
@@ -77,7 +80,7 @@ public class Reference extends Element
         if (!(other instanceof Reference))
             throw new IllegalArgumentException("copyTo for invalid type");
         Reference b = (Reference) other;
-        b.addAll(namePart);
+        b.addAll(nameParts);
         if (resolved)
         {
             b.resolved = true;
@@ -104,11 +107,11 @@ public class Reference extends Element
     {
         Element elm = relative ? parent : root;
 
-        boolean parentRoot = parent.hasName() && namePart.get(0).equals(parent.getName());
+        boolean parentRoot = parent.hasName() && nameParts.get(0).equals(parent.getName());
 
-        for (int i = parentRoot ? 1 : 0; i < namePart.size(); i++)
+        for (int i = parentRoot ? 1 : 0; i < nameParts.size(); i++)
         {
-            String part = namePart.get(i);
+            String part = nameParts.get(i);
 
             if (!(elm instanceof Collection))
                 continue;
@@ -148,27 +151,6 @@ public class Reference extends Element
     }
 
     @Override
-    protected void toStringImpl(StringBuilder builder, StringGenerationContext ctx)
-    {
-        int count = 0;
-        for (String it : namePart)
-        {
-            if (count++ > 0)
-                builder.append(':');
-            builder.append(it);
-        }
-
-        if (isResolved())
-        {
-            builder.append('=');
-            if (resolvedValue() == null)
-                builder.append("NULL");
-            else
-                builder.append(resolvedValue());
-        }
-    }
-
-    @Override
     public boolean equals(Object o)
     {
         if (this == o) return true;
@@ -177,13 +159,13 @@ public class Reference extends Element
         Reference reference = (Reference) o;
         return resolved == reference.resolved &&
                 rooted == reference.rooted &&
-                namePart.equals(reference.namePart) &&
+                nameParts.equals(reference.nameParts) &&
                 Objects.equals(resolvedValue, reference.resolvedValue);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(super.hashCode(), namePart, resolved, resolvedValue, rooted);
+        return Objects.hash(super.hashCode(), nameParts, resolved, resolvedValue, rooted);
     }
 }
