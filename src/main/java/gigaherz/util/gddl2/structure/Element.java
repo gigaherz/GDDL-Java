@@ -1,7 +1,6 @@
 package gigaherz.util.gddl2.structure;
 
-import gigaherz.util.gddl2.config.StringGenerationOptions;
-import gigaherz.util.gddl2.processing.Formatter;
+import gigaherz.util.gddl2.serialization.Formatter;
 import gigaherz.util.gddl2.util.Utility;
 
 import java.util.Objects;

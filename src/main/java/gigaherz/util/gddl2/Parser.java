@@ -310,7 +310,24 @@ public class Parser implements ContextProvider, AutoCloseable
 
     public static Value floatValue(Token token)
     {
-        Value e = Value.of(Double.parseDouble(token.text));
+        double value;
+        switch (token.text)
+        {
+            case ".NaN":
+                value = Double.NaN;
+                break;
+            case ".Inf":
+            case "+.Inf":
+                value = Double.POSITIVE_INFINITY;
+                break;
+            case "-.Inf":
+                value = Double.NEGATIVE_INFINITY;
+                break;
+            default:
+                value = Double.parseDouble(token.text);
+                break;
+        }
+        Value e = Value.of(value);
         e.setComment(token.comment);
         return e;
     }

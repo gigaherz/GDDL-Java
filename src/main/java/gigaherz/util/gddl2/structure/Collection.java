@@ -1,6 +1,7 @@
 package gigaherz.util.gddl2.structure;
 
 import gigaherz.util.gddl2.Lexer;
+import gigaherz.util.gddl2.util.MultiMap;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -26,7 +27,7 @@ public class Collection extends Element implements List<Element>
 
     // Implementation
     private final List<Element> contents = new ArrayList<>();
-    private final Map<String, Element> names = new HashMap<>();
+    private final MultiMap<String, Element> names = new MultiMap<>();
 
     private String typeName;
 
@@ -73,7 +74,7 @@ public class Collection extends Element implements List<Element>
     {
         Element old = contents.get(index);
         if (old.hasName())
-            names.remove(old.getName());
+            names.remove(old.getName(), old);
         contents.set(index, value);
         if (value.hasName())
             names.put(value.getName(), value);
@@ -151,7 +152,7 @@ public class Collection extends Element implements List<Element>
             {
                 it.remove();
                 if (e.hasName())
-                    names.remove(e.getName());
+                    names.remove(e.getName(), e);
                 changed = true;
             }
         }
@@ -191,7 +192,7 @@ public class Collection extends Element implements List<Element>
         Element e = (Element) o;
         boolean r = contents.remove(e);
         if (e.hasName())
-            names.remove(e.getName());
+            names.remove(e.getName(), e);
         return r;
     }
 
@@ -201,7 +202,7 @@ public class Collection extends Element implements List<Element>
         Element e = contents.get(index);
         contents.remove(index);
         if (e.hasName())
-            names.remove(e.getName());
+            names.remove(e.getName(), e);
         return e;
     }
 
@@ -291,9 +292,9 @@ public class Collection extends Element implements List<Element>
         return this;
     }
 
-    public Element find(String name)
+    public Optional<Element> get(String name)
     {
-        return names.get(name);
+        return names.get(name).stream().findFirst();
     }
 
     public Stream<Element> byName(String elementName)

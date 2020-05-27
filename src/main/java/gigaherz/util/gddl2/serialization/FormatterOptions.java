@@ -1,9 +1,9 @@
-package gigaherz.util.gddl2.config;
+package gigaherz.util.gddl2.serialization;
 
-public class StringGenerationOptions
+public class FormatterOptions
 {
-    public static final StringGenerationOptions COMPACT = new StringGenerationOptions(); // Default
-    public static final StringGenerationOptions NICE = new StringGenerationOptions();
+    public static final FormatterOptions COMPACT = new FormatterOptions(); // Default
+    public static final FormatterOptions NICE = new FormatterOptions();
 
     static {
         NICE.writeComments = true;
@@ -20,7 +20,7 @@ public class StringGenerationOptions
         NICE.spacesPerIndent = 4;
     }
 
-    // Sets
+    // Collections
     public int lineBreaksBeforeOpeningBrace = 0;
     public int lineBreaksAfterOpeningBrace = 0;
     public int lineBreaksBeforeClosingBrace = 0;
@@ -31,33 +31,22 @@ public class StringGenerationOptions
     public int spacesAfterClosingBrace = 0;
     public int oneElementPerLineThreshold = Integer.MAX_VALUE;
     public int spacesBetweenElements = 1;
+    public boolean omitCommaAfterClosingBrace = false;
 
     // Values
     public int lineBreaksAfterValues = 0;
-
-    // Naming
-    public boolean alwaysQuoteNames = false;
-    public int lineBreaksAfterName = 0;
-
-    // Typing
-    public boolean alwaysQuoteTypes = false;
-    public int lineBreaksAfterType = 0;
+    public DoubleFormattingStyle floatFormattingStyle = DoubleFormattingStyle.AUTO;
+    public boolean alwaysShowNumberSign = false;
+    public boolean alwaysShowExponentSign = false;
+    public int autoScientificNotationUpper = 5;
+    public int autoScientificNotationLower = -2;
+    public int floatSignificantFigures = 15;
 
     // Indentation
     public boolean indentUsingTabs = false;
     public int spacesPerIndent = 2;
-    public int indentSetContents = 0;
-    public int indentExtraLines = 0;
 
     // Comments
     public boolean writeComments = false;
 
-    // Uncategorized
-    public boolean omitCommaAfterClosingBrace = false;
-    public FloatMode floatFormattingStyle = FloatMode.AUTO;
-
-    public enum FloatMode
-    {
-        DECIMAL, SCIENTIFIC, AUTO;
-    }
 }

@@ -10,9 +10,4 @@ public class ParserException extends Exception
     {
         super(String.format("%s: %s", context.getParsingContext(), message));
     }
-
-    public ParserException(ContextProvider context, String message, Throwable throwable)
-    {
-        super(String.format("%s: %s", context.getParsingContext(), message), throwable);
-    }
 }

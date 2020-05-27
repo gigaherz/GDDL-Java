@@ -1,13 +1,7 @@
 package gigaherz.util.gddl2.util;
 
-import gigaherz.util.gddl2.Token;
-import gigaherz.util.gddl2.exceptions.ParserException;
-
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 

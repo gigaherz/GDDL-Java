@@ -1,7 +1,6 @@
-package gigaherz.util.gddl2.processing;
+package gigaherz.util.gddl2.serialization;
 
 import gigaherz.util.gddl2.Lexer;
-import gigaherz.util.gddl2.config.StringGenerationOptions;
 import gigaherz.util.gddl2.structure.Collection;
 import gigaherz.util.gddl2.structure.Element;
 import gigaherz.util.gddl2.structure.Reference;
@@ -16,15 +15,15 @@ public class Formatter
 {
     public static String formatCompact(Element e)
     {
-        return format(e, StringGenerationOptions.COMPACT);
+        return format(e, FormatterOptions.COMPACT);
     }
 
     public static String formatNice(Element e)
     {
-        return format(e, StringGenerationOptions.NICE);
+        return format(e, FormatterOptions.NICE);
     }
 
-    public static String format(Element e, StringGenerationOptions options)
+    public static String format(Element e, FormatterOptions options)
     {
         StringBuilder b = new StringBuilder();
         Formatter f = new Formatter(b, options);
@@ -33,12 +32,12 @@ public class Formatter
     }
 
     private final BasicIntStack indentLevels = new BasicIntStack();
-    private final StringGenerationOptions options;
+    private final FormatterOptions options;
     private final StringBuilder builder;
 
     public int indentLevel = 0;
 
-    public Formatter(StringBuilder builder, StringGenerationOptions options)
+    public Formatter(StringBuilder builder, FormatterOptions options)
     {
         this.builder = builder;
         this.options = options;
@@ -98,7 +97,7 @@ public class Formatter
         formatElement(e, false);
     }
 
-    public void formatComment(Element e)
+    protected void formatComment(Element e)
     {
         if (e.hasComment() && options.writeComments)
         {
@@ -173,12 +172,12 @@ public class Formatter
         }
     }
 
-    private void formatInteger(long exp2)
+    protected void formatInteger(long value)
     {
-        builder.append(String.format(Locale.ROOT, "%d", exp2));
+        builder.append(String.format(Locale.ROOT, "%d", value));
     }
 
-    private void formatDoubleCustom(double value)
+    protected void formatDoubleCustom(double value)
     {
         switch (options.floatFormattingStyle)
         {
@@ -189,18 +188,18 @@ public class Formatter
                 formatDoubleScientific(value);
                 break;
             default:
-                formatDoubleShortest(value);
+                formatDoubleAuto(value);
                 break;
         }
     }
 
-    private void formatDoubleShortest(double value)
+    protected void formatDoubleAuto(double value)
     {
         if (formatSpecial(value))
             return;
 
-        int exp = (int) Math.floor(Math.log10(value));
-        if (exp >= 5 || exp < -2)
+        int exp = (int) Math.floor(Math.log10(Math.abs(value)));
+        if (exp >= options.autoScientificNotationUpper || exp < options.autoScientificNotationLower)
         {
             formatDoubleScientific(value);
         }
@@ -210,73 +209,107 @@ public class Formatter
         }
     }
 
-    private void formatDoubleScientific(double value)
+    protected void formatDoubleScientific(double value)
     {
         if (formatSpecial(value))
             return;
 
-        int exp = (int) Math.floor(Math.log10(value));
+        int exp = (int) Math.floor(Math.log10(Math.abs(value)));
         double adjusted = value / Math.pow(10, exp);
         formatDoubleDecimal(adjusted);
         builder.append("e");
-        formatSign(exp);
+        if (options.alwaysShowExponentSign)
+            formatSign(value);
+        else
+            formatNegative(value);
         formatInteger(Math.abs(exp));
     }
 
-    private void formatDoubleDecimal(double value)
+    protected void formatDoubleDecimal(double value)
     {
-        formatNegative(value);
+        if (options.alwaysShowNumberSign)
+            formatSign(value);
+        else
+            formatNegative(value);
         value = Math.abs(value);
+
         double integral = Math.floor(value);
         double fractional = value - integral;
+
         List<Integer> temp = new ArrayList<>();
-        while(integral > 0)
-        {
-            double digit = integral % 10;
-            integral = Math.floor(integral / 10);
-            temp.add((int) digit);
-        }
-        for(int i=temp.size()-1;i>=0;i--)
-        {
-            builder.append((char)('0'+temp.get(i)));
-        }
-        if (temp.size() == 0) builder.append('0');
+
+        int intDigits = formatIntegral(integral, temp);
+
         builder.append(".");
-        int digits = 0;
-        value = fractional;
+
+        formatFractional(fractional, intDigits, temp);
+    }
+
+    private int formatIntegral(double integral, List<Integer> temp)
+    {
+        if (!(integral > 0))
+        {
+            builder.append('0');
+            return 0;
+        }
+
+        int exp = (int) Math.ceil(Math.log10(integral));
+        double value = integral / Math.pow(10, exp);
+
+        int nonTrailingDigits = formatDigits(temp, Math.min(exp, options.floatSignificantFigures), value);
+        for(int i = nonTrailingDigits; i < exp; i++)
+        {
+            builder.append('0');
+        }
+        return exp;
+    }
+
+    private void formatFractional(double fractional, int intDigits, List<Integer> temp)
+    {
+        formatDigits(temp, (options.floatSignificantFigures - intDigits), fractional);
+    }
+
+    private int formatDigits(List<Integer> temp, int exp, double value)
+    {
         temp.clear();
-        while(value > 0 && digits <= 13)
+        while (value > 0 && temp.size() < exp)
         {
             value *= 10;
             int digit = (int)Math.floor(value);
             value -= digit;
             temp.add(digit);
-            digits++;
         }
-        if (digits == 0)
+        if (temp.size() == 0)
         {
-            builder.append("0");
+            temp.add(0);
         }
-        else
+        int nonTrailingDigits = roundDigits(temp, value);
+        for (int i = 0; i < nonTrailingDigits; i++)
         {
-            int l = temp.size()-1;
-            int r = value >= 0.5 ? 1 : 0;
-            while (r > 0 && l >= 0) // round up
+            builder.append((char) ('0' + temp.get(i)));
+        }
+        return nonTrailingDigits;
+    }
+
+    private int roundDigits(List<Integer> temp, double value)
+    {
+        int l = temp.size()-1;
+        int r = value >= 0.5 ? 1 : 0;
+        while (r > 0 && l >= 0) // round up
+        {
+            int v = temp.get(l);
+            v++;
+            if (v >= 10)
             {
-                int v = temp.get(l);
-                v++;
-                if (v >= 10)
-                {
-                    r = 1;
-                    v -= 10;
-                }
-                else
-                {
-                    r = 0;
-                }
-                temp.set(l, v);
-                l--;
+                r = 1;
+                v -= 10;
             }
+            else
+            {
+                r = 0;
+            }
+            temp.set(l, v);
+            l--;
         }
         int firstTrailingZero=temp.size();
         for(int i=temp.size()-1;i>=0;i--)
@@ -287,10 +320,7 @@ public class Formatter
                 break;
             }
         }
-        for(int i=0;i<firstTrailingZero;i++)
-        {
-            builder.append((char)('0'+temp.get(i)));
-        }
+        return firstTrailingZero;
     }
 
     private boolean formatSpecial(double value)
@@ -302,7 +332,10 @@ public class Formatter
         }
         else if (Double.isInfinite(value))
         {
-            formatNegative(value);
+            if (options.alwaysShowNumberSign)
+                formatSign(value);
+            else
+                formatNegative(value);
             builder.append(".Inf");
             return true;
         }

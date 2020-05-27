@@ -6,6 +6,7 @@ import gigaherz.util.gddl2.util.QueueList;
 import gigaherz.util.gddl2.util.Utility;
 
 import java.io.IOException;
+import java.util.BitSet;
 
 public class Lexer implements TokenProvider, AutoCloseable
 {
@@ -196,17 +197,27 @@ public class Lexer implements TokenProvider, AutoCloseable
             return new Token(TokenType.STRING, reader.read(number), parseStart, comment);
         }
 
-        if (Character.isDigit((char) ich) || ich == '.' || ich == '-')
+        if (Character.isDigit((char) ich) || ich == '.' || ich == '+' || ich == '-')
         {
             // numbers
             int number = 0;
             boolean fractional = false;
 
-            if (ich == '-')
+            if (ich == '.' && reader.peek(number+1) == 'N' && reader.peek(number+2) == 'a' && reader.peek(number+3) == 'N')
+            {
+                return new Token(TokenType.DOUBLE, reader.read(number+4), parseStart, comment);
+            }
+
+            if (ich == '-' || ich == '+')
             {
                 number++;
 
                 ich = reader.peek(number);
+            }
+
+            if (ich == '.' && reader.peek(number+1) == 'I' && reader.peek(number+2) == 'n' && reader.peek(number+3) == 'f')
+            {
+                return new Token(TokenType.DOUBLE, reader.read(number+4), parseStart, comment);
             }
 
             if (Character.isDigit((char) ich))
@@ -386,6 +397,20 @@ public class Lexer implements TokenProvider, AutoCloseable
         reader.close();
     }
 
+    private static final BitSet NON_PRINTABLE = new BitSet();
+    {
+        NON_PRINTABLE.set(Character.LINE_SEPARATOR);
+        NON_PRINTABLE.set(Character.PARAGRAPH_SEPARATOR);
+        NON_PRINTABLE.set(Character.CONTROL);
+        NON_PRINTABLE.set(Character.PRIVATE_USE);
+        NON_PRINTABLE.set(Character.SURROGATE);
+    }
+
+    private static boolean isValidStringCharacter(char c, char delimiter)
+    {
+        return !NON_PRINTABLE.get(Character.getType(c)) && !Character.isISOControl(c) && c != delimiter && c != '\\';
+    }
+
     public static boolean isValidIdentifier(String ident)
     {
         boolean first = true;
@@ -533,17 +558,17 @@ public class Lexer implements TokenProvider, AutoCloseable
 
     public static String escapeString(String p)
     {
+        return escapeString(p, '"');
+    }
+
+    public static String escapeString(String p, char delimiter)
+    {
         StringBuilder sb = new StringBuilder();
 
-        sb.append('"');
+        sb.append(delimiter);
         for (char c : p.toCharArray())
         {
-            boolean printable = (c >= 32 && c < 127)
-                    || Character.isWhitespace(c)
-                    || Character.isAlphabetic(c)
-                    || Character.isDigit(c)
-                    || Character.isIdeographic(c);
-            if (!Character.isISOControl(c) && printable && c != '"' && c != '\\')
+            if (isValidStringCharacter(c, delimiter))
             {
                 sb.append(c);
                 continue;
@@ -581,7 +606,7 @@ public class Lexer implements TokenProvider, AutoCloseable
                     break;
             }
         }
-        sb.append('"');
+        sb.append(delimiter);
 
         return sb.toString();
     }

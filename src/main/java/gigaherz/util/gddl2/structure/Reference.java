@@ -118,10 +118,10 @@ public class Reference extends Element
 
             Collection s = (Collection) elm;
 
-            Element ne = s.find(part);
-            if (ne != null)
+            var ne = s.get(part);
+            if (ne.isPresent())
             {
-                elm = ne;
+                elm = ne.get();
                 continue;
             }
 

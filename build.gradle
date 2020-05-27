@@ -8,9 +8,9 @@ version '2.0.0'
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
+sourceCompatibility = targetCompatibility = 11.0
 compileJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = targetCompatibility = 11.0
 }
 
 repositories {

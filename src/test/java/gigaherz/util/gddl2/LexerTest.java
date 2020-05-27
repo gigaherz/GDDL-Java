@@ -39,17 +39,34 @@ public class LexerTest
         assertEquals(tokenFloat("-1.0e-1"), lexSingle("-1.0e-1"));
         assertEquals(tokenFloat("-1.e1"), lexSingle("-1.e1"));
         assertEquals(tokenFloat("-.1e1"), lexSingle("-.1e1"));
+
+        assertEquals(tokenFloat("+1.0"), lexSingle("+1.0"));
+        assertEquals(tokenFloat("+1."), lexSingle("+1."));
+        assertEquals(tokenFloat("+.1"), lexSingle("+.1"));
+        assertEquals(tokenFloat("+1.0e1"), lexSingle("+1.0e1"));
+        assertEquals(tokenFloat("+1.0e+1"), lexSingle("+1.0e+1"));
+        assertEquals(tokenFloat("+1.0e-1"), lexSingle("+1.0e-1"));
+        assertEquals(tokenFloat("+1.e1"), lexSingle("+1.e1"));
+        assertEquals(tokenFloat("+.1e1"), lexSingle("+.1e1"));
+
+        assertEquals(tokenFloat(".Inf"), lexSingle(".Inf"));
+        assertEquals(tokenFloat("-.Inf"), lexSingle("-.Inf"));
+        assertEquals(tokenFloat("+.Inf"), lexSingle("+.Inf"));
+        assertEquals(tokenFloat(".NaN"), lexSingle(".NaN"));
     }
 
     @Test
     public void lexesStrings() throws LexerException, IOException
     {
+        // Ascii text
         assertEquals(tokenString("\"a\""), lexSingle("\"a\""));
         assertEquals(tokenString("\"b\\\"\""), lexSingle("\"b\\\"\""));
         assertEquals(tokenString("\"b'\""), lexSingle("\"b'\""));
         assertEquals(tokenString("'a'"), lexSingle("'a'"));
         assertEquals(tokenString("'b\\''"), lexSingle("'b\\''"));
         assertEquals(tokenString("'b\"'"), lexSingle("'b\"'"));
+
+        // Escapes
         assertEquals(tokenString("'\\x00'"), lexSingle("'\\x00'"));
         assertEquals(tokenString("'\\x0F'"), lexSingle("'\\x0F'"));
         assertEquals(tokenString("'\\xF0'"), lexSingle("'\\xF0'"));
@@ -58,6 +75,10 @@ public class LexerTest
         assertEquals(tokenString("'\\u000F'"), lexSingle("'\\u000F'"));
         assertEquals(tokenString("'\\uF000'"), lexSingle("'\\uF000'"));
         assertEquals(tokenString("'\\uF00F'"), lexSingle("'\\uF00F'"));
+
+        // Unicode
+        assertEquals(tokenString("'\uD800\uDF3C\uD800\uDF30\uD800\uDF32 \uD800\uDF32\uD800\uDF3B\uD800\uDF34\uD800\uDF43 \uD800\uDF39̈\uD800\uDF44\uD800\uDF30\uD800\uDF3D, \uD800\uDF3D\uD800\uDF39 \uD800\uDF3C\uD800\uDF39\uD800\uDF43 \uD800\uDF45\uD800\uDF3F \uD800\uDF3D\uD800\uDF33\uD800\uDF30\uD800\uDF3D \uD800\uDF31\uD800\uDF42\uD800\uDF39\uD800\uDF32\uD800\uDF32\uD800\uDF39\uD800\uDF38.'"),
+                lexSingle("'\uD800\uDF3C\uD800\uDF30\uD800\uDF32 \uD800\uDF32\uD800\uDF3B\uD800\uDF34\uD800\uDF43 \uD800\uDF39̈\uD800\uDF44\uD800\uDF30\uD800\uDF3D, \uD800\uDF3D\uD800\uDF39 \uD800\uDF3C\uD800\uDF39\uD800\uDF43 \uD800\uDF45\uD800\uDF3F \uD800\uDF3D\uD800\uDF33\uD800\uDF30\uD800\uDF3D \uD800\uDF31\uD800\uDF42\uD800\uDF39\uD800\uDF32\uD800\uDF32\uD800\uDF39\uD800\uDF38.'"));
     }
 
     @Test
@@ -108,7 +129,7 @@ public class LexerTest
     {
         Lexer lexer = new Lexer(makeReader(text));
         Token token = lexer.pop();
-        assertEquals(TokenType.END, lexer.peek());
+        assertEquals(String.format("Should find END after reading token %s", token), TokenType.END, lexer.peek());
         return token;
     }
 
