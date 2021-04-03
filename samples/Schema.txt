@@ -1,16 +1,58 @@
 #import GDDL-Schema
 
-Scene = schema {
+Minecraft = schema {
 
-    Root = typed_set {
-        set_type = "scene",
-        
-        children = list {
-            { Scene:Transform, min=1, max=1 }
+    document = :Save,
+
+    Save = collection {
+        children = {
+            Players = {
+                min = 0,
+                max = +.Inf,
+                type = collection {
+
+                }
+                children = { :Player }
+            }
+
+            Levels = {
+                type = "list",
+                min = 0,
+                max = +.Inf,
+                children = { :Level }
+            }
         }
     }
-    
-    Transform = element {
-    
+
+    Players = collection {
+
+    }
+
+    Level = collection {
+        type="object",
+    }
+
+    Region = collection {
+
+    }
+
+    Chunk = collection {
+
+    }
+
+    Section = collection {
+
+    }
+
+    Player = collection {
+
+    }
+
+    Entity = collection {
+
+    }
+
+    BlockEntity = collection {
+
     }
 }

@@ -397,20 +397,6 @@ public class Lexer implements TokenProvider, AutoCloseable
         reader.close();
     }
 
-    private static final BitSet NON_PRINTABLE = new BitSet();
-    {
-        NON_PRINTABLE.set(Character.LINE_SEPARATOR);
-        NON_PRINTABLE.set(Character.PARAGRAPH_SEPARATOR);
-        NON_PRINTABLE.set(Character.CONTROL);
-        NON_PRINTABLE.set(Character.PRIVATE_USE);
-        NON_PRINTABLE.set(Character.SURROGATE);
-    }
-
-    private static boolean isValidStringCharacter(char c, char delimiter)
-    {
-        return !NON_PRINTABLE.get(Character.getType(c)) && !Character.isISOControl(c) && c != delimiter && c != '\\';
-    }
-
     public static boolean isValidIdentifier(String ident)
     {
         boolean first = true;
@@ -556,58 +542,4 @@ public class Lexer implements TokenProvider, AutoCloseable
         throw new ParserException(t, "Invalid string literal");
     }
 
-    public static String escapeString(String p)
-    {
-        return escapeString(p, '"');
-    }
-
-    public static String escapeString(String p, char delimiter)
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(delimiter);
-        for (char c : p.toCharArray())
-        {
-            if (isValidStringCharacter(c, delimiter))
-            {
-                sb.append(c);
-                continue;
-            }
-
-            sb.append('\\');
-            switch (c)
-            {
-                case '\b':
-                    sb.append('b');
-                    break;
-                case '\t':
-                    sb.append('t');
-                    break;
-                case '\n':
-                    sb.append('n');
-                    break;
-                case '\f':
-                    sb.append('f');
-                    break;
-                case '\r':
-                    sb.append('r');
-                    break;
-                case '\"':
-                    sb.append('\"');
-                    break;
-                case '\\':
-                    sb.append('\\');
-                    break;
-                default:
-                    if (c > 0xFF)
-                        sb.append(String.format("u%04x", (int) c));
-                    else
-                        sb.append(String.format("x%02x", (int) c));
-                    break;
-            }
-        }
-        sb.append(delimiter);
-
-        return sb.toString();
-    }
 }
