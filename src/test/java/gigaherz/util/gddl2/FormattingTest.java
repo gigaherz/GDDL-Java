@@ -22,6 +22,20 @@ public class FormattingTest
     }
 
     @Test
+    public void testIntegersCompact()
+    {
+        assertEquals("0", formatOneCompact(Value.of(0)));
+        assertEquals("1", formatOneCompact(Value.of(1)));
+        assertEquals("10", formatOneCompact(Value.of(10)));
+        assertEquals("100", formatOneCompact(Value.of(100)));
+        assertEquals("9223372036854775807", formatOneCompact(Value.of(Long.MAX_VALUE)));
+        assertEquals("-1", formatOneCompact(Value.of(-1)));
+        assertEquals("-10", formatOneCompact(Value.of(-10)));
+        assertEquals("-100", formatOneCompact(Value.of(-100)));
+        assertEquals("-9223372036854775808", formatOneCompact(Value.of(Long.MIN_VALUE)));
+    }
+
+    @Test
     public void testFloatsCompact()
     {
         assertEquals("1.0", formatOneCompact(Value.of(1.0)));
@@ -33,6 +47,9 @@ public class FormattingTest
         assertEquals("3.0e-50", formatOneCompact(Value.of(3e-50)));
         assertEquals("1.999999999999999e15", formatOneCompact(Value.of(1999999999999999.0)));
         assertEquals("2.0e32", formatOneCompact(Value.of(199999999999999999999999999999999.0)));
+        assertEquals(".NaN", formatOneCompact(Value.of(Float.NaN)));
+        assertEquals(".Inf", formatOneCompact(Value.of(Float.POSITIVE_INFINITY)));
+        assertEquals("-.Inf", formatOneCompact(Value.of(Float.NEGATIVE_INFINITY)));
     }
 
     @Test
