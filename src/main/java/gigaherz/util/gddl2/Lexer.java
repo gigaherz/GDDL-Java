@@ -133,7 +133,7 @@ public class Lexer implements TokenProvider, AutoCloseable
             case '=': return new Token(TokenType.EQUALS, reader.read(1), startContext, comment);
         }
 
-        if (Character.isLetter((char) ich) || ich == '_')
+        if (Utility.isLetter(ich) || ich == '_')
         {
             int number = 1;
             while (true)
@@ -142,7 +142,7 @@ public class Lexer implements TokenProvider, AutoCloseable
                 if (ich < 0)
                     break;
 
-                if (Character.isLetter((char) ich) || Character.isDigit((char) ich) || ich == '_')
+                if (Utility.isLetter(ich) || Utility.isDigit(ich) || ich == '_')
                 {
                     number++;
                 }
@@ -196,7 +196,7 @@ public class Lexer implements TokenProvider, AutoCloseable
             return new Token(TokenType.STRING, reader.read(number), startContext, comment);
         }
 
-        if (Character.isDigit((char) ich) || ich == '.' || ich == '+' || ich == '-')
+        if (Utility.isDigit(ich) || ich == '.' || ich == '+' || ich == '-')
         {
             // numbers
             int number = 0;
@@ -219,14 +219,14 @@ public class Lexer implements TokenProvider, AutoCloseable
                 return new Token(TokenType.DOUBLE, reader.read(number+4), startContext, comment);
             }
 
-            if (Character.isDigit((char) ich))
+            if (Utility.isDigit(ich))
             {
                 if (reader.peek(number) == '0' && reader.peek(number+1) == 'x')
                 {
                     number += 2;
 
                     ich = reader.peek(number);
-                    while (Character.isDigit((char) ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
+                    while (Utility.isDigit(ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
                     {
                         number++;
 
@@ -238,7 +238,7 @@ public class Lexer implements TokenProvider, AutoCloseable
 
                 number = 1;
                 ich = reader.peek(number);
-                while (Character.isDigit((char) ich))
+                while (Utility.isDigit(ich))
                 {
                     number++;
 
@@ -255,7 +255,7 @@ public class Lexer implements TokenProvider, AutoCloseable
 
                 ich = reader.peek(number);
 
-                while (Character.isDigit((char) ich))
+                while (Utility.isDigit(ich))
                 {
                     number++;
 
@@ -278,10 +278,10 @@ public class Lexer implements TokenProvider, AutoCloseable
                     ich = reader.peek(number);
                 }
 
-                if (!Character.isDigit((char) ich))
+                if (!Utility.isDigit(ich))
                     throw new LexerException(this, String.format("Expected DIGIT, found %c", ich));
 
-                while (Character.isDigit((char) ich))
+                while (Utility.isDigit(ich))
                 {
                     number++;
 
@@ -316,7 +316,7 @@ public class Lexer implements TokenProvider, AutoCloseable
             case 13:
                 return "'\\r'";
             default:
-                if (Character.isISOControl(ich))
+                if (Utility.isControl(ich))
                     return String.format("'\\u%04x'", ich);
                 return String.format("'%c'", ich);
         }
@@ -350,22 +350,22 @@ public class Lexer implements TokenProvider, AutoCloseable
             number++;
 
             ich = reader.peek(number);
-            if (Character.isDigit((char) ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
+            if (Utility.isDigit(ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
             {
                 number++;
 
                 ich = reader.peek(number);
-                if (Character.isDigit((char) ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
+                if (Utility.isDigit(ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
                 {
                     number++;
 
                     ich = reader.peek(number);
-                    if (Character.isDigit((char) ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
+                    if (Utility.isDigit(ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
                     {
                         number++;
 
                         ich = reader.peek(number);
-                        if (Character.isDigit((char) ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
+                        if (Utility.isDigit(ich) || (ich >= 'a' && ich <= 'f') || (ich >= 'A' && ich <= 'F'))
                         {
                             number++;
                         }
@@ -402,9 +402,9 @@ public class Lexer implements TokenProvider, AutoCloseable
 
         for (char c : ident.toCharArray())
         {
-            if (!Character.isLetter(c) && c != '_')
+            if (!Utility.isLetter(c) && c != '_')
             {
-                if (first || !Character.isDigit(c))
+                if (first || !Utility.isDigit(c))
                 {
                     return false;
                 }
@@ -440,7 +440,7 @@ public class Lexer implements TokenProvider, AutoCloseable
                         sb.append((char) escapeAcc);
                         inHexEscape = false;
                     }
-                    else if (Character.isDigit(c))
+                    else if (Utility.isDigit(c))
                     {
                         escapeAcc = (escapeAcc << 4) + (c - '0');
                     }

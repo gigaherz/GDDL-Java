@@ -34,6 +34,21 @@ public class Utility
         return ((NON_PRINTABLE>>Character.getType(c))&1) == 0;
     }
 
+    public static boolean isLetter(int c)
+    {
+        return Character.isLetter(c);
+    }
+
+    public static boolean isDigit(int c)
+    {
+        return Character.isDigit(c);
+    }
+
+    public static boolean isControl(int c)
+    {
+        return Character.isISOControl(c);
+    }
+
     public static <T> String join(CharSequence separator, T[] elements)
     {
         return join(separator, Arrays.stream(elements));

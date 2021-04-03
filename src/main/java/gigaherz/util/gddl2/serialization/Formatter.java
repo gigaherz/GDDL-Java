@@ -540,6 +540,6 @@ public class Formatter
 
     private static boolean isValidStringCharacter(char c, char delimiter)
     {
-        return Utility.isPrintable(c) && !Character.isISOControl(c) && c != delimiter && c != '\\';
+        return Utility.isPrintable(c) && !Utility.isControl(c) && c != delimiter && c != '\\';
     }
 }
