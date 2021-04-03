@@ -35,11 +35,6 @@ public class Collection extends Element implements List<Element>
     {
     }
 
-    private Collection(String typeName)
-    {
-        this.typeName = typeName;
-    }
-
     private Collection(java.util.Collection<Element> init)
     {
         this.addAll(init);

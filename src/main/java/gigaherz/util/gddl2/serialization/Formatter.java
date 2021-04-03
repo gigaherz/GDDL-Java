@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 public class Formatter
 {
@@ -99,11 +100,13 @@ public class Formatter
         formatElement(e, false);
     }
 
+    private static final Pattern COMMENT_LINE_SPLITTER = Pattern.compile("(?:(?:\n)|(?:\r\n))");
+
     protected void formatComment(Element e)
     {
         if (e.hasComment() && options.writeComments)
         {
-            for(String s : e.getComment().split("(?:(?:\n)|(?:\r\n))"))
+            for(String s : COMMENT_LINE_SPLITTER.split(e.getComment()))
             {
                 appendIndent();
                 builder.append("#");
