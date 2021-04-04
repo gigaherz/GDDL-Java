@@ -2,7 +2,7 @@ package gigaherz.util.gddl2.structure;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ReferenceTest
 {
@@ -65,7 +65,7 @@ public class ReferenceTest
         Value relativeChild = Value.of("the child").withName("child");
         Collection parent = Collection.of(Value.of("the parent"), relativeChild).withName("parent");
         Collection root = Collection.of(Value.of("root"), parent);
-        Reference r = Reference.relative("parent","child");
+        Reference r = Reference.relative("parent", "child");
         r.resolve(root, parent);
         assertEquals(relativeChild, r.resolvedValue());
     }

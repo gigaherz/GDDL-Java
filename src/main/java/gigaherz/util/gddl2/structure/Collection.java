@@ -1,6 +1,5 @@
 package gigaherz.util.gddl2.structure;
 
-import gigaherz.util.gddl2.Lexer;
 import gigaherz.util.gddl2.util.MultiMap;
 import gigaherz.util.gddl2.util.Utility;
 

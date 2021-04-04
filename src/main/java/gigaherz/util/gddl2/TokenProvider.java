@@ -7,6 +7,7 @@ import java.io.IOException;
 public interface TokenProvider extends ContextProvider, AutoCloseable
 {
     TokenType peek() throws LexerException, IOException;
+
     TokenType peek(int index) throws LexerException, IOException;
 
     Token pop() throws LexerException, IOException;

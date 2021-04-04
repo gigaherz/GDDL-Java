@@ -3,8 +3,6 @@ package gigaherz.util.gddl2;
 import gigaherz.util.gddl2.exceptions.ReaderException;
 import gigaherz.util.gddl2.util.QueueList;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 
 public class Reader implements ContextProvider, AutoCloseable

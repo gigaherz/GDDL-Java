@@ -228,15 +228,15 @@ public class Utility
     }
 
     private static final int NON_PRINTABLE =
-            (1<<Character.LINE_SEPARATOR) |
-                    (1<<Character.PARAGRAPH_SEPARATOR) |
-                    (1<<Character.CONTROL) |
-                    (1<<Character.PRIVATE_USE) |
-                    (1<<Character.SURROGATE);
+            (1 << Character.LINE_SEPARATOR) |
+                    (1 << Character.PARAGRAPH_SEPARATOR) |
+                    (1 << Character.CONTROL) |
+                    (1 << Character.PRIVATE_USE) |
+                    (1 << Character.SURROGATE);
 
     public static boolean isPrintable(char c)
     {
-        return ((NON_PRINTABLE>>Character.getType(c))&1) == 0;
+        return ((NON_PRINTABLE >> Character.getType(c)) & 1) == 0;
     }
 
     public static boolean isLetter(int c)

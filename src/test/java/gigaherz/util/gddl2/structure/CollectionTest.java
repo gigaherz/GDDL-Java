@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class CollectionTest
 {
@@ -60,7 +60,7 @@ public class CollectionTest
     {
         Collection collection = Collection.empty();
         assertEquals(0, collection.size());
-        collection.addAll(Arrays.asList(Value.of(1),Value.of(2),Value.of(3)));
+        collection.addAll(Arrays.asList(Value.of(1), Value.of(2), Value.of(3)));
         assertEquals(3, collection.size());
     }
 
@@ -68,7 +68,7 @@ public class CollectionTest
     public void collectionGetReturnsElements()
     {
         Value second = Value.of(2);
-        Collection collection = Collection.of(Value.of(1),second,Value.of(3));
+        Collection collection = Collection.of(Value.of(1), second, Value.of(3));
         assertEquals(second, collection.get(1));
     }
 

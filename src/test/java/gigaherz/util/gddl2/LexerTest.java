@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.StringReader;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class LexerTest
 {
@@ -227,5 +227,4 @@ public class LexerTest
     {
         return new Token(name, text, context, comment);
     }
-
 }

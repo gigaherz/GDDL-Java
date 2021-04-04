@@ -407,7 +407,7 @@ public class Lexer implements TokenProvider, AutoCloseable
         {
             return Utility.unescapeString(t.text);
         }
-        catch(IllegalArgumentException ex)
+        catch (IllegalArgumentException ex)
         {
             throw new ParserException(t, "Unescaping string", ex);
         }

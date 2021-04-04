@@ -33,7 +33,7 @@ public class QueueList<T> implements Iterable<T>
             return;
 
         @SuppressWarnings("unchecked")
-        T[] newBuffer = (T[])new Object[value];
+        T[] newBuffer = (T[]) new Object[value];
         for (int i = 0; i < size(); i++)
         {
             newBuffer[i] = get(i);

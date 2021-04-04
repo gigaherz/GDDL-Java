@@ -22,7 +22,10 @@ public abstract class Element
         comment = value;
     }
 
-    public boolean hasComment() {return comment != null && comment.length() > 0; }
+    public boolean hasComment()
+    {
+        return comment != null && comment.length() > 0;
+    }
 
     public String getName()
     {

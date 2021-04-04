@@ -48,7 +48,7 @@ public class MultiMap<TKey, TValue>
     @SuppressWarnings("UnusedReturnValue")
     public boolean put(TKey key, TValue value)
     {
-        if (contains(key,value))
+        if (contains(key, value))
             return false;
         return getOrCreate(key).add(value);
     }

@@ -1,6 +1,5 @@
 package gigaherz.util.gddl2.serialization;
 
-import gigaherz.util.gddl2.Lexer;
 import gigaherz.util.gddl2.structure.Collection;
 import gigaherz.util.gddl2.structure.Element;
 import gigaherz.util.gddl2.structure.Reference;
@@ -9,7 +8,6 @@ import gigaherz.util.gddl2.util.BasicIntStack;
 import gigaherz.util.gddl2.util.Utility;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -106,9 +104,9 @@ public class Formatter
     {
         if (e.hasComment() && options.writeComments)
         {
-            for(int i=0;i<options.blankLinesBeforeComment;i++)
+            for (int i = 0; i < options.blankLinesBeforeComment; i++)
                 builder.append("\n");
-            for(String s : COMMENT_LINE_SPLITTER.split(e.getComment()))
+            for (String s : COMMENT_LINE_SPLITTER.split(e.getComment()))
             {
                 appendIndent();
                 builder.append("#");
@@ -135,15 +133,15 @@ public class Formatter
     {
         if (e instanceof Value)
         {
-            formatValue((Value)e);
+            formatValue((Value) e);
         }
         else if (e instanceof Reference)
         {
-            formatReference((Reference)e);
+            formatReference((Reference) e);
         }
         else if (e instanceof Collection)
         {
-            formatCollection((Collection)e, hasNext);
+            formatCollection((Collection) e, hasNext);
         }
         else
         {
@@ -165,7 +163,7 @@ public class Formatter
         {
             formatInteger(v.getInteger());
         }
-        else if(v.isDouble())
+        else if (v.isDouble())
         {
             formatDoubleCustom(v.getDouble());
         }
@@ -264,7 +262,7 @@ public class Formatter
         double value = integral / Math.pow(10, exp);
 
         int nonTrailingDigits = formatDigits(temp, Math.min(exp, options.floatSignificantFigures), value);
-        for(int i = nonTrailingDigits; i < exp; i++)
+        for (int i = nonTrailingDigits; i < exp; i++)
         {
             builder.append('0');
         }
@@ -282,7 +280,7 @@ public class Formatter
         while (value > 0 && temp.size() < exp)
         {
             value *= 10;
-            int digit = (int)Math.floor(value);
+            int digit = (int) Math.floor(value);
             value -= digit;
             temp.add(digit);
         }
@@ -300,7 +298,7 @@ public class Formatter
 
     private int roundDigits(List<Integer> temp, double value)
     {
-        int l = temp.size()-1;
+        int l = temp.size() - 1;
         int r = value >= 0.5 ? 1 : 0;
         while (r > 0 && l >= 0) // round up
         {
@@ -318,8 +316,8 @@ public class Formatter
             temp.set(l, v);
             l--;
         }
-        int firstTrailingZero=temp.size();
-        for(int i=temp.size()-1;i>=0;i--)
+        int firstTrailingZero = temp.size();
+        for (int i = temp.size() - 1; i >= 0; i--)
         {
             if (temp.get(i) != 0)
             {
@@ -446,7 +444,7 @@ public class Formatter
                     setIndent(0);
             }
 
-            boolean hasNext1 = (i+1) < c.size();
+            boolean hasNext1 = (i + 1) < c.size();
             formatComment(e);
             formatName(e);
             formatElement(e, hasNext1);

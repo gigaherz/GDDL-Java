@@ -2,9 +2,9 @@ package gigaherz.util.gddl2;
 
 import gigaherz.util.gddl2.exceptions.LexerException;
 import gigaherz.util.gddl2.exceptions.ParserException;
-import gigaherz.util.gddl2.structure.Reference;
-import gigaherz.util.gddl2.structure.Element;
 import gigaherz.util.gddl2.structure.Collection;
+import gigaherz.util.gddl2.structure.Element;
+import gigaherz.util.gddl2.structure.Reference;
 import gigaherz.util.gddl2.structure.Value;
 import gigaherz.util.gddl2.util.BasicIntStack;
 import gigaherz.util.gddl2.util.Utility;

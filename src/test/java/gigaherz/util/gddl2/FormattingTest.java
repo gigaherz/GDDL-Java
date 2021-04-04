@@ -6,7 +6,7 @@ import gigaherz.util.gddl2.structure.Element;
 import gigaherz.util.gddl2.structure.Value;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class FormattingTest
 {

@@ -6,7 +6,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.StringReader;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class ReaderTest
 {

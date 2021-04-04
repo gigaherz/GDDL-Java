@@ -4,19 +4,19 @@ public class FormatterOptions
 {
     public static final FormatterOptions COMPACT = new Builder().build(); // Default
     public static final FormatterOptions NICE = new Builder()
-                .writeComments(true)
-                .lineBreaksAfterOpeningBrace(1)
-                .lineBreaksBeforeClosingBrace(1)
-                .lineBreaksAfterClosingBrace(1)
-                .lineBreaksAfterValues(1)
-                .spacesBeforeOpeningBrace(0)
-                .spacesAfterOpeningBrace(1)
-                .spacesBeforeClosingBrace(1)
-                .spacesAfterClosingBrace(0)
-                .spacesBetweenElements(1)
-                .oneElementPerLineThreshold(10)
-                .spacesPerIndent(4)
-                .blankLinesBeforeComment(1)
+            .writeComments(true)
+            .lineBreaksAfterOpeningBrace(1)
+            .lineBreaksBeforeClosingBrace(1)
+            .lineBreaksAfterClosingBrace(1)
+            .lineBreaksAfterValues(1)
+            .spacesBeforeOpeningBrace(0)
+            .spacesAfterOpeningBrace(1)
+            .spacesBeforeClosingBrace(1)
+            .spacesAfterClosingBrace(0)
+            .spacesBetweenElements(1)
+            .oneElementPerLineThreshold(10)
+            .spacesPerIndent(4)
+            .blankLinesBeforeComment(1)
             .build();
 
     // Collections

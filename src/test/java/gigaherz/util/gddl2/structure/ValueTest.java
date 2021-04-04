@@ -3,7 +3,6 @@ package gigaherz.util.gddl2.structure;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 public class ValueTest
 {
