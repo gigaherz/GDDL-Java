@@ -67,8 +67,8 @@ public class Lexer implements TokenProvider, AutoCloseable
 
         StringBuilder commentLines = null;
         int ich = reader.peek();
-        blah:
-        while (true)
+
+        commentLoop: while (true)
         {
             if (ich < 0) return new Token(TokenType.END, "", startContext, "");
 
@@ -118,7 +118,7 @@ public class Lexer implements TokenProvider, AutoCloseable
                     break;
                 }
                 default:
-                    break blah;
+                    break commentLoop;
             }
         }
 
