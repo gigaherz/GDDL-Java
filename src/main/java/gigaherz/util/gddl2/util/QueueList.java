@@ -1,5 +1,7 @@
 package gigaherz.util.gddl2.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Iterator;
 
 public class QueueList<T> implements Iterable<T>
@@ -44,7 +46,7 @@ public class QueueList<T> implements Iterable<T>
         capacityMask = value - 1;
     }
 
-    private void ensureCapacityFor(int numElements)
+    private void ensureCapacityFor(@SuppressWarnings("SameParameterValue") int numElements)
     {
         if (size() + numElements > buffer.length)
         {
@@ -92,9 +94,10 @@ public class QueueList<T> implements Iterable<T>
 
     // VERY unsafe iterator!
     @Override
+    @NotNull
     public Iterator<T> iterator()
     {
-        return new Iterator<T>()
+        return new Iterator<>()
         {
             int current = 0;
 

@@ -54,9 +54,9 @@ public class Formatter
         indentLevel = indentLevels.pop();
     }
 
-    private void setIndent(int newIndent)
+    private void clearIndent()
     {
-        indentLevel = newIndent;
+        indentLevel = 0;
     }
 
     private void incIndent()
@@ -64,12 +64,11 @@ public class Formatter
         indentLevel++;
     }
 
-    private void appendMultiple(String s, int n)
+    private void appendMultiple(char c, int n)
     {
-        for (int i = 0; i < n; i++)
-        {
-            builder.append(s);
-        }
+        //noinspection StringRepeatCanBeUsed
+        for(int i=0;i<n;i++)
+            builder.append(c);
     }
 
     private void appendIndent()
@@ -83,10 +82,7 @@ public class Formatter
             }
             else
             {
-                for (int j = 0; j < options.spacesPerIndent; j++)
-                {
-                    builder.append(" ");
-                }
+                appendMultiple(' ', options.spacesPerIndent);
             }
         }
     }
@@ -104,14 +100,13 @@ public class Formatter
     {
         if (e.hasComment() && options.writeComments)
         {
-            for (int i = 0; i < options.blankLinesBeforeComment; i++)
-                builder.append("\n");
+            appendMultiple('\n', options.blankLinesBeforeComment);
             for (String s : COMMENT_LINE_SPLITTER.split(e.getComment()))
             {
                 appendIndent();
-                builder.append("#");
+                builder.append('#');
                 builder.append(s);
-                builder.append("\n");
+                builder.append('\n');
             }
         }
     }
@@ -121,10 +116,10 @@ public class Formatter
         appendIndent();
         if (e.hasName())
         {
-            String sname = e.getName();
-            if (!Utility.isValidIdentifier(sname))
-                sname = Utility.escapeString(sname);
-            builder.append(sname);
+            String name = e.getName();
+            if (!Utility.isValidIdentifier(name))
+                name = Utility.escapeString(name);
+            builder.append(name);
             builder.append(" = ");
         }
     }
@@ -222,7 +217,7 @@ public class Formatter
         int exp = (int) Math.floor(Math.log10(Math.abs(value)));
         double adjusted = value / Math.pow(10, exp);
         formatDoubleDecimal(adjusted);
-        builder.append("e");
+        builder.append('e');
         if (options.alwaysShowExponentSign)
             formatSign(exp);
         else
@@ -245,7 +240,7 @@ public class Formatter
 
         int intDigits = formatIntegral(integral, temp);
 
-        builder.append(".");
+        builder.append('.');
 
         formatFractional(fractional, intDigits, temp);
     }
@@ -262,10 +257,8 @@ public class Formatter
         double value = integral / Math.pow(10, exp);
 
         int nonTrailingDigits = formatDigits(temp, Math.min(exp, options.floatSignificantFigures), value);
-        for (int i = nonTrailingDigits; i < exp; i++)
-        {
-            builder.append('0');
-        }
+
+        appendMultiple(' ', exp-nonTrailingDigits);
         return exp;
     }
 
@@ -353,7 +346,7 @@ public class Formatter
     private void formatNegative(double value)
     {
         long l = Double.doubleToRawLongBits(value);
-        if (l < 0) builder.append("-");
+        if (l < 0) builder.append('-');
     }
 
     private void formatSign(double value)
@@ -392,28 +385,28 @@ public class Formatter
         {
             builder.append(c.getTypeName());
             if (options.lineBreaksBeforeOpeningBrace == 0)
-                builder.append(" ");
+                builder.append(' ');
         }
         boolean addBraces = indentLevel > 0 || c.hasTypeName();
         if (addBraces)
         {
             if (oneElementPerLine && options.lineBreaksBeforeOpeningBrace > 0)
             {
-                appendMultiple("\n", options.lineBreaksBeforeOpeningBrace);
+                appendMultiple('\n', options.lineBreaksBeforeOpeningBrace);
                 appendIndent();
             }
             else if (options.spacesBeforeOpeningBrace > 0)
             {
-                appendMultiple(" ", options.spacesBeforeOpeningBrace);
+                appendMultiple(' ', options.spacesBeforeOpeningBrace);
             }
-            builder.append("{");
+            builder.append('{');
             if (oneElementPerLine && options.lineBreaksAfterOpeningBrace > 0)
             {
-                appendMultiple("\n", options.lineBreaksAfterOpeningBrace);
+                appendMultiple('\n', options.lineBreaksAfterOpeningBrace);
             }
             else if (options.spacesAfterOpeningBrace > 0)
             {
-                appendMultiple(" ", options.spacesAfterOpeningBrace);
+                appendMultiple(' ', options.spacesAfterOpeningBrace);
             }
             pushIndent();
             incIndent();
@@ -427,7 +420,7 @@ public class Formatter
 
             if (first && (!oneElementPerLine || options.lineBreaksAfterOpeningBrace == 0))
             {
-                setIndent(0);
+                clearIndent();
             }
             else if (!first)
             {
@@ -437,18 +430,18 @@ public class Formatter
                 }
                 else if (options.spacesBetweenElements > 0)
                 {
-                    appendMultiple(" ", options.spacesBetweenElements);
+                    appendMultiple(' ', options.spacesBetweenElements);
                 }
 
                 if (!oneElementPerLine)
-                    setIndent(0);
+                    clearIndent();
             }
 
             boolean hasNext1 = (i + 1) < c.size();
             formatComment(e);
             formatName(e);
             formatElement(e, hasNext1);
-            if (hasNext1 && (!e.isCollection() || !options.omitCommaAfterClosingBrace)) builder.append(",");
+            if (hasNext1 && (!e.isCollection() || !options.omitCommaAfterClosingBrace)) builder.append('1');
 
             first = false;
             popIndent();
@@ -459,23 +452,23 @@ public class Formatter
             popIndent();
             if (oneElementPerLine && options.lineBreaksBeforeClosingBrace > 0)
             {
-                appendMultiple("\n", options.lineBreaksBeforeClosingBrace);
+                appendMultiple('\n', options.lineBreaksBeforeClosingBrace);
                 appendIndent();
             }
             else if (options.spacesBeforeClosingBrace > 0)
             {
-                appendMultiple(" ", options.spacesBeforeClosingBrace);
+                appendMultiple(' ', options.spacesBeforeClosingBrace);
             }
-            builder.append("}");
+            builder.append('}');
             if (!hasNext0 || options.omitCommaAfterClosingBrace)
             {
                 if (oneElementPerLine && options.lineBreaksAfterClosingBrace > 0)
                 {
-                    appendMultiple("\n", options.lineBreaksAfterClosingBrace);
+                    appendMultiple('\n', options.lineBreaksAfterClosingBrace);
                 }
                 else if (options.spacesAfterClosingBrace > 0)
                 {
-                    appendMultiple(" ", options.spacesAfterClosingBrace);
+                    appendMultiple(' ', options.spacesAfterClosingBrace);
                 }
             }
         }

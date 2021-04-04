@@ -19,7 +19,7 @@ public class Reference extends Element
     private boolean resolved;
     private Element resolvedValue;
 
-    protected boolean rooted;
+    protected final boolean rooted;
 
     private Reference(boolean rooted, String... parts)
     {

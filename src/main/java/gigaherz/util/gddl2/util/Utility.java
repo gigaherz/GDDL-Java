@@ -22,11 +22,12 @@ public class Utility
         return (x + 1);
     }
 
-    public static boolean isValidIdentifier(String ident)
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean isValidIdentifier(String text)
     {
         boolean first = true;
 
-        for (char c : ident.toCharArray())
+        for (char c : text.toCharArray())
         {
             if (!Utility.isLetter(c) && c != '_')
             {
@@ -191,14 +192,13 @@ public class Utility
                 {
                     if (c == startQuote)
                         return sb.toString();
-                    switch (c)
+                    if (c == '\\')
                     {
-                        case '\\':
-                            inEscape = true;
-                            break;
-                        default:
-                            sb.append(c);
-                            break;
+                        inEscape = true;
+                    }
+                    else
+                    {
+                        sb.append(c);
                     }
                 }
             }

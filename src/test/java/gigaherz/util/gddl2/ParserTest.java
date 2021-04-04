@@ -238,7 +238,7 @@ public class ParserTest
     }
 
     @Test
-    public void parsesBackreference() throws IOException, ParserException
+    public void parsesReference() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addIdentifier("a").addColon().addIdentifier("b").addRBrace().build();
         Parser parser = new Parser(provider);
@@ -248,7 +248,7 @@ public class ParserTest
     }
 
     @Test
-    public void parsesRootedBackreference() throws IOException, ParserException
+    public void parsesRootedReference() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addColon().addIdentifier("a").addColon().addIdentifier("b").addRBrace().build();
         Parser parser = new Parser(provider);
@@ -269,9 +269,9 @@ public class ParserTest
     {
         private final ImmutableList.Builder<Token> builder = ImmutableList.builder();
 
-        public MockLexerBuilder addEnd()
+        private void addEnd()
         {
-            return add(TokenType.END, "");
+            add(TokenType.END, "");
         }
 
         public MockLexerBuilder addInt()
@@ -403,7 +403,7 @@ public class ParserTest
             this.preparedTokens = preparedTokens;
         }
 
-        private Token get(int index) throws IOException
+        private Token get(int index)
         {
             if (closed)
                 throw new IllegalStateException("The TokenProvider is closed.");
@@ -414,19 +414,19 @@ public class ParserTest
         }
 
         @Override
-        public TokenType peek() throws IOException
+        public TokenType peek()
         {
             return peek(0);
         }
 
         @Override
-        public TokenType peek(int index) throws IOException
+        public TokenType peek(int index)
         {
             return get(index).type;
         }
 
         @Override
-        public Token pop() throws IOException
+        public Token pop()
         {
             Token t = get(0);
             index++;

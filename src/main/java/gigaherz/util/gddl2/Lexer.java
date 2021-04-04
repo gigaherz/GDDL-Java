@@ -63,14 +63,14 @@ public class Lexer implements TokenProvider, AutoCloseable
         ParsingContext startContext = reader.getParsingContext();
 
         if (seenEnd)
-            return new Token(TokenType.END, "", startContext, "");
+            return makeEndToken(startContext);
 
         StringBuilder commentLines = null;
         int ich = reader.peek();
 
         commentLoop: while (true)
         {
-            if (ich < 0) return new Token(TokenType.END, "", startContext, "");
+            if (ich < 0) return makeEndToken(startContext);
 
             switch (ich)
             {
@@ -301,6 +301,12 @@ public class Lexer implements TokenProvider, AutoCloseable
         }
 
         throw new LexerException(this, String.format("Unexpected character: %c", reader.peek()));
+    }
+
+    private Token makeEndToken(ParsingContext startContext)
+    {
+        seenEnd = true;
+        return new Token(TokenType.END, "", startContext, "");
     }
 
     private String debugChar(int ich)

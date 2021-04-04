@@ -2,6 +2,7 @@ package gigaherz.util.gddl2.structure;
 
 import gigaherz.util.gddl2.util.MultiMap;
 import gigaherz.util.gddl2.util.Utility;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -95,20 +96,24 @@ public class Collection extends Element implements List<Element>
     }
 
     @Override
+    @NotNull
     public Iterator<Element> iterator()
     {
         return contents.iterator();
     }
 
     @Override
+    @NotNull
     public Object[] toArray()
     {
         return contents.toArray();
     }
 
     @Override
-    public <T> T[] toArray(T[] a)
+    @NotNull
+    public <T> T[] toArray(@NotNull T[] a)
     {
+        //noinspection SuspiciousToArrayCall
         return contents.toArray(a);
     }
 
@@ -122,7 +127,7 @@ public class Collection extends Element implements List<Element>
     }
 
     @Override
-    public boolean containsAll(java.util.Collection<?> c)
+    public boolean containsAll(@NotNull java.util.Collection<?> c)
     {
         return contents.containsAll(c);
     }
@@ -137,7 +142,7 @@ public class Collection extends Element implements List<Element>
     }
 
     @Override
-    public boolean retainAll(java.util.Collection<?> c)
+    public boolean retainAll(@NotNull java.util.Collection<?> c)
     {
         boolean changed = false;
         for (Iterator<Element> it = contents.iterator(); it.hasNext(); )
@@ -214,18 +219,21 @@ public class Collection extends Element implements List<Element>
     }
 
     @Override
+    @NotNull
     public ListIterator<Element> listIterator()
     {
         return contents.listIterator();
     }
 
     @Override
+    @NotNull
     public ListIterator<Element> listIterator(int index)
     {
         return contents.listIterator(index);
     }
 
     @Override
+    @NotNull
     public List<Element> subList(int fromIndex, int toIndex)
     {
         return contents.subList(fromIndex, toIndex);

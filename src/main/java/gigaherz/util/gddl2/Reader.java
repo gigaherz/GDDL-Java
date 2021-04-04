@@ -60,7 +60,7 @@ public class Reader implements ContextProvider, AutoCloseable
         return unreadBuffer.get(index);
     }
 
-    public int next() throws ReaderException
+    public int next()
     {
         int ch = unreadBuffer.remove();
 

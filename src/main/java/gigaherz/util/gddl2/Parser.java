@@ -32,7 +32,8 @@ public class Parser implements ContextProvider, AutoCloseable
     int prefixPos = -1;
     final BasicIntStack prefixStack = new BasicIntStack();
     private final TokenProvider lex;
-    private boolean finishedWithRbrace = false;
+    @SuppressWarnings("FieldCanBeLocal")
+    private boolean finishedWithRBrace = false;
 
     Parser(TokenProvider lexer)
     {
@@ -95,22 +96,22 @@ public class Parser implements ContextProvider, AutoCloseable
         return Arrays.stream(tokens).anyMatch(t -> prefix == t);
     }
 
-    private boolean prefix_element() throws LexerException, IOException
+    private boolean prefixElement() throws LexerException, IOException
     {
-        return prefix_basicElement() || prefix_namedElement();
+        return prefixBasicElement() || prefixNamedElement();
     }
 
-    private boolean prefix_basicElement() throws LexerException, IOException
+    private boolean prefixBasicElement() throws LexerException, IOException
     {
         beginPrefixScan();
         boolean r = hasAny(TokenType.NIL, TokenType.NULL, TokenType.TRUE, TokenType.FALSE,
                 TokenType.HEXINT, TokenType.INTEGER, TokenType.DOUBLE, TokenType.STRING);
         endPrefixScan();
 
-        return r || prefix_backreference() || prefix_set() || prefix_typedSet();
+        return r || prefixReference() || prefixSet() || prefixTypedSet();
     }
 
-    private boolean prefix_namedElement() throws LexerException, IOException
+    private boolean prefixNamedElement() throws LexerException, IOException
     {
         beginPrefixScan();
         boolean r = hasAny(TokenType.IDENT, TokenType.STRING) && hasAny(TokenType.EQUALS);
@@ -118,16 +119,16 @@ public class Parser implements ContextProvider, AutoCloseable
         return r;
     }
 
-    private boolean prefix_backreference() throws LexerException, IOException
+    private boolean prefixReference() throws LexerException, IOException
     {
         beginPrefixScan();
         boolean r = hasAny(TokenType.COLON) && hasAny(TokenType.IDENT);
         endPrefixScan();
 
-        return r || prefix_identifier();
+        return r || prefixIdentifier();
     }
 
-    private boolean prefix_set() throws LexerException, IOException
+    private boolean prefixSet() throws LexerException, IOException
     {
         beginPrefixScan();
         boolean r = hasAny(TokenType.LBRACE);
@@ -135,7 +136,7 @@ public class Parser implements ContextProvider, AutoCloseable
         return r;
     }
 
-    private boolean prefix_typedSet() throws LexerException, IOException
+    private boolean prefixTypedSet() throws LexerException, IOException
     {
         beginPrefixScan();
         boolean r = hasAny(TokenType.IDENT) && hasAny(TokenType.LBRACE);
@@ -143,7 +144,7 @@ public class Parser implements ContextProvider, AutoCloseable
         return r;
     }
 
-    private boolean prefix_identifier() throws LexerException, IOException
+    private boolean prefixIdentifier() throws LexerException, IOException
     {
         beginPrefixScan();
         boolean r = hasAny(TokenType.IDENT);
@@ -160,8 +161,8 @@ public class Parser implements ContextProvider, AutoCloseable
 
     private Element element() throws ParserException, IOException
     {
-        if (prefix_namedElement()) return namedElement();
-        if (prefix_basicElement()) return basicElement();
+        if (prefixNamedElement()) return namedElement();
+        if (prefixBasicElement()) return basicElement();
 
         throw new ParserException(this, "Internal Error");
     }
@@ -177,9 +178,9 @@ public class Parser implements ContextProvider, AutoCloseable
         if (lex.peek() == TokenType.INTEGER) return intValue(popExpected(TokenType.INTEGER));
         if (lex.peek() == TokenType.DOUBLE) return floatValue(popExpected(TokenType.DOUBLE));
         if (lex.peek() == TokenType.STRING) return stringValue(popExpected(TokenType.STRING));
-        if (prefix_set()) return set();
-        if (prefix_typedSet()) return typedSet();
-        if (prefix_backreference()) return backreference();
+        if (prefixSet()) return set();
+        if (prefixTypedSet()) return typedSet();
+        if (prefixReference()) return reference();
 
         throw new ParserException(this, "Internal Error");
     }
@@ -192,7 +193,7 @@ public class Parser implements ContextProvider, AutoCloseable
 
         popExpected(TokenType.EQUALS);
 
-        if (!prefix_basicElement())
+        if (!prefixBasicElement())
             throw new ParserException(this, String.format("Expected a basic element after EQUALS, found %s instead", lex.peek()));
 
         Element b = basicElement();
@@ -203,7 +204,7 @@ public class Parser implements ContextProvider, AutoCloseable
         return b;
     }
 
-    private Reference backreference() throws IOException, ParserException
+    private Reference reference() throws IOException, ParserException
     {
         boolean rooted = false;
 
@@ -212,7 +213,7 @@ public class Parser implements ContextProvider, AutoCloseable
             popExpected(TokenType.COLON);
             rooted = true;
         }
-        if (!prefix_identifier())
+        if (!prefixIdentifier())
             throw new ParserException(this, String.format("Expected identifier, found %s instead", lex.peek()));
 
         Token name = identifier();
@@ -240,16 +241,16 @@ public class Parser implements ContextProvider, AutoCloseable
 
         while (lex.peek() != TokenType.RBRACE)
         {
-            finishedWithRbrace = false;
+            finishedWithRBrace = false;
 
-            if (!prefix_element())
+            if (!prefixElement())
                 throw new ParserException(this, String.format("Expected element after LBRACE, found %s instead", lex.peek()));
 
             s.add(element());
 
             if (lex.peek() != TokenType.RBRACE)
             {
-                if (!finishedWithRbrace || (lex.peek() == TokenType.COMMA))
+                if (!finishedWithRBrace || (lex.peek() == TokenType.COMMA))
                 {
                     popExpected(TokenType.COMMA);
                 }
@@ -258,7 +259,7 @@ public class Parser implements ContextProvider, AutoCloseable
 
         popExpected(TokenType.RBRACE);
 
-        finishedWithRbrace = true;
+        finishedWithRBrace = true;
 
         return s;
     }
@@ -267,7 +268,7 @@ public class Parser implements ContextProvider, AutoCloseable
     {
         Token type = identifier();
 
-        if (!prefix_set())
+        if (!prefixSet())
             throw new ParserException(this, "Internal error");
         Collection s = set()
                 .withTypeName(type.text);
