@@ -106,6 +106,8 @@ public class Formatter
     {
         if (e.hasComment() && options.writeComments)
         {
+            for(int i=0;i<options.blankLinesBeforeComment;i++)
+                builder.append("\n");
             for(String s : COMMENT_LINE_SPLITTER.split(e.getComment()))
             {
                 appendIndent();

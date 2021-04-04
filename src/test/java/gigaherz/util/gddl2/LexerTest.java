@@ -133,7 +133,6 @@ public class LexerTest
         return token;
     }
 
-
     public static Reader makeReader(String text)
     {
         return new Reader(new StringReader(text), "TEST");

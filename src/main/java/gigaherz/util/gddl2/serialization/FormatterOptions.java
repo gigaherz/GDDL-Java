@@ -16,6 +16,7 @@ public class FormatterOptions
                 .spacesBetweenElements(1)
                 .oneElementPerLineThreshold(10)
                 .spacesPerIndent(4)
+                .blankLinesBeforeComment(1)
             .build();
 
     // Collections
@@ -46,6 +47,7 @@ public class FormatterOptions
 
     // Comments
     public final boolean writeComments;
+    public final int blankLinesBeforeComment;
 
     // Internal Constructor
     private FormatterOptions(Builder builder)
@@ -71,6 +73,7 @@ public class FormatterOptions
         indentUsingTabs = builder.indentUsingTabs;
         spacesPerIndent = builder.spacesPerIndent;
         writeComments = builder.writeComments;
+        blankLinesBeforeComment = builder.blankLinesBeforeComment;
     }
 
     public static class Builder
@@ -103,7 +106,8 @@ public class FormatterOptions
 
         // Comments
         private boolean writeComments = false;
-        
+        private int blankLinesBeforeComment = 0;
+
         public Builder lineBreaksBeforeOpeningBrace(int lineBreaksBeforeOpeningBrace)
         {
             this.lineBreaksBeforeOpeningBrace = lineBreaksBeforeOpeningBrace;
@@ -227,6 +231,12 @@ public class FormatterOptions
         public Builder writeComments(boolean writeComments)
         {
             this.writeComments = writeComments;
+            return this;
+        }
+
+        public Builder blankLinesBeforeComment(int blankLinesBeforeComment)
+        {
+            this.blankLinesBeforeComment = blankLinesBeforeComment;
             return this;
         }
 

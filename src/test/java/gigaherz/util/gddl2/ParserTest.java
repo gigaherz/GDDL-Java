@@ -12,7 +12,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ParserTest
 {
@@ -21,7 +21,12 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder()
                 .addInt()
+                .addNInt()
                 .addFloat()
+                .addNFloat()
+                .addNaN()
+                .addInf()
+                .addNInf()
                 .addHexInt()
                 .addString()
                 .addBooleanTrue()
@@ -33,7 +38,12 @@ public class ParserTest
                 .build();
 
         assertEquals(new Token(TokenType.INTEGER, "1", new ParsingContext("TEST", 1, 1), ""), provider.pop());
+        assertEquals(new Token(TokenType.INTEGER, "-1", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.DOUBLE, "1.0", new ParsingContext("TEST", 1, 1), ""), provider.pop());
+        assertEquals(new Token(TokenType.DOUBLE, "-1.0", new ParsingContext("TEST", 1, 1), ""), provider.pop());
+        assertEquals(new Token(TokenType.DOUBLE, ".NaN", new ParsingContext("TEST", 1, 1), ""), provider.pop());
+        assertEquals(new Token(TokenType.DOUBLE, ".Inf", new ParsingContext("TEST", 1, 1), ""), provider.pop());
+        assertEquals(new Token(TokenType.DOUBLE, "-.Inf", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.HEXINT, "0x1", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.STRING, "\"1\"", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.TRUE, "true", new ParsingContext("TEST", 1, 1), ""), provider.pop());
@@ -68,6 +78,14 @@ public class ParserTest
     }
 
     @Test
+    public void parsesNegativeIntegerAsValue() throws IOException, ParserException
+    {
+        TokenProvider provider = lexerBuilder().addNInt().build();
+        Parser parser = new Parser(provider);
+        assertEquals(Value.of(-1), parser.parse(false));
+    }
+
+    @Test
     public void parsesHexIntegerAsValue() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addHexInt().build();
@@ -81,6 +99,38 @@ public class ParserTest
         TokenProvider provider = lexerBuilder().addFloat().build();
         Parser parser = new Parser(provider);
         assertEquals(Value.of(1.0), parser.parse(false));
+    }
+
+    @Test
+    public void parsesNegativeDoubleAsValue() throws IOException, ParserException
+    {
+        var provider = lexerBuilder().addNFloat().build();
+        Parser parser = new Parser(provider);
+        assertEquals(Value.of(-1.0), parser.parse(false));
+    }
+
+    @Test
+    public void parsesNaNAsValue() throws IOException, ParserException
+    {
+        var provider = lexerBuilder().addNaN().build();
+        Parser parser = new Parser(provider);
+        assertEquals(Value.of(Double.NaN), parser.parse(false));
+    }
+
+    @Test
+    public void parsesInfinityAsValue() throws IOException, ParserException
+    {
+        var provider = lexerBuilder().addInf().build();
+        Parser parser = new Parser(provider);
+        assertEquals(Value.of(Double.POSITIVE_INFINITY), parser.parse(false));
+    }
+
+    @Test
+    public void parsesNegativeInfinityAsValue() throws IOException, ParserException
+    {
+        var provider = lexerBuilder().addNInf().build();
+        Parser parser = new Parser(provider);
+        assertEquals(Value.of(Double.NEGATIVE_INFINITY), parser.parse(false));
     }
 
     @Test
@@ -229,9 +279,34 @@ public class ParserTest
             return add(TokenType.INTEGER, "1");
         }
 
+        public MockLexerBuilder addNInt()
+        {
+            return add(TokenType.INTEGER, "-1");
+        }
+
         public MockLexerBuilder addFloat()
         {
             return add(TokenType.DOUBLE, "1.0");
+        }
+
+        public MockLexerBuilder addNFloat()
+        {
+            return add(TokenType.DOUBLE, "-1.0");
+        }
+
+        public MockLexerBuilder addNaN()
+        {
+            return add(TokenType.DOUBLE, ".NaN");
+        }
+
+        public MockLexerBuilder addInf()
+        {
+            return add(TokenType.DOUBLE, ".Inf");
+        }
+
+        public MockLexerBuilder addNInf()
+        {
+            return add(TokenType.DOUBLE, "-.Inf");
         }
 
         public MockLexerBuilder addHexInt()
@@ -334,7 +409,7 @@ public class ParserTest
                 throw new IllegalStateException("The TokenProvider is closed.");
             int idx = this.index + index;
             if (idx >= preparedTokens.size())
-                idx = preparedTokens.size()-1;
+                idx = preparedTokens.size() - 1;
             return preparedTokens.get(idx);
         }
 
@@ -363,7 +438,7 @@ public class ParserTest
         {
             if (closed)
                 throw new IllegalStateException("The TokenProvider is closed.");
-            return preparedTokens.get(Math.min(index, preparedTokens.size()-1)).context;
+            return preparedTokens.get(Math.min(index, preparedTokens.size() - 1)).context;
         }
 
         @Override

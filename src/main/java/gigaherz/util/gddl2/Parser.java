@@ -17,16 +17,7 @@ import java.util.Arrays;
 @SuppressWarnings("unused")
 public class Parser implements ContextProvider, AutoCloseable
 {
-    int prefixPos = -1;
-    final BasicIntStack prefixStack = new BasicIntStack();
-    private final TokenProvider lex;
-    private boolean finished_with_rbrace = false;
-
-    Parser(TokenProvider lexer)
-    {
-        lex = lexer;
-    }
-
+    // Factory Methods
     public static Parser fromFile(String filename) throws IOException
     {
         return new Parser(new Lexer(new Reader(new FileReader(filename), filename)));
@@ -35,6 +26,17 @@ public class Parser implements ContextProvider, AutoCloseable
     public static Parser fromString(String text)
     {
         return new Parser(new Lexer(new Reader(new StringReader(text), "UNKNOWN")));
+    }
+
+    // Implementation
+    int prefixPos = -1;
+    final BasicIntStack prefixStack = new BasicIntStack();
+    private final TokenProvider lex;
+    private boolean finishedWithRbrace = false;
+
+    Parser(TokenProvider lexer)
+    {
+        lex = lexer;
     }
 
     public TokenProvider getLexer()
@@ -101,7 +103,8 @@ public class Parser implements ContextProvider, AutoCloseable
     private boolean prefix_basicElement() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(TokenType.NIL, TokenType.NULL, TokenType.TRUE, TokenType.FALSE, TokenType.HEXINT, TokenType.INTEGER, TokenType.DOUBLE, TokenType.STRING);
+        boolean r = hasAny(TokenType.NIL, TokenType.NULL, TokenType.TRUE, TokenType.FALSE,
+                TokenType.HEXINT, TokenType.INTEGER, TokenType.DOUBLE, TokenType.STRING);
         endPrefixScan();
 
         return r || prefix_backreference() || prefix_set() || prefix_typedSet();
@@ -237,7 +240,7 @@ public class Parser implements ContextProvider, AutoCloseable
 
         while (lex.peek() != TokenType.RBRACE)
         {
-            finished_with_rbrace = false;
+            finishedWithRbrace = false;
 
             if (!prefix_element())
                 throw new ParserException(this, String.format("Expected element after LBRACE, found %s instead", lex.peek()));
@@ -246,7 +249,7 @@ public class Parser implements ContextProvider, AutoCloseable
 
             if (lex.peek() != TokenType.RBRACE)
             {
-                if (!finished_with_rbrace || (lex.peek() == TokenType.COMMA))
+                if (!finishedWithRbrace || (lex.peek() == TokenType.COMMA))
                 {
                     popExpected(TokenType.COMMA);
                 }
@@ -255,7 +258,7 @@ public class Parser implements ContextProvider, AutoCloseable
 
         popExpected(TokenType.RBRACE);
 
-        finished_with_rbrace = true;
+        finishedWithRbrace = true;
 
         return s;
     }
@@ -266,7 +269,8 @@ public class Parser implements ContextProvider, AutoCloseable
 
         if (!prefix_set())
             throw new ParserException(this, "Internal error");
-        Collection s = set().withTypeName(type.text);
+        Collection s = set()
+                .withTypeName(type.text);
 
         s.setComment(type.comment);
 
