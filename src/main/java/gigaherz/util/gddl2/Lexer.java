@@ -126,11 +126,16 @@ public class Lexer implements TokenProvider, AutoCloseable
 
         switch (ich)
         {
-            case '{': return new Token(TokenType.LBRACE, reader.read(1), startContext, comment);
-            case '}': return new Token(TokenType.RBRACE, reader.read(1), startContext, comment);
-            case ',': return new Token(TokenType.COMMA, reader.read(1), startContext, comment);
-            case ':': return new Token(TokenType.COLON, reader.read(1), startContext, comment);
-            case '=': return new Token(TokenType.EQUALS, reader.read(1), startContext, comment);
+            case '{':
+                return new Token(TokenType.LBRACE, reader.read(1), startContext, comment);
+            case '}':
+                return new Token(TokenType.RBRACE, reader.read(1), startContext, comment);
+            case ',':
+                return new Token(TokenType.COMMA, reader.read(1), startContext, comment);
+            case ':':
+                return new Token(TokenType.COLON, reader.read(1), startContext, comment);
+            case '=':
+                return new Token(TokenType.EQUALS, reader.read(1), startContext, comment);
         }
 
         if (Utility.isLetter(ich) || ich == '_')
@@ -202,9 +207,9 @@ public class Lexer implements TokenProvider, AutoCloseable
             int number = 0;
             boolean fractional = false;
 
-            if (ich == '.' && reader.peek(number+1) == 'N' && reader.peek(number+2) == 'a' && reader.peek(number+3) == 'N')
+            if (ich == '.' && reader.peek(number + 1) == 'N' && reader.peek(number + 2) == 'a' && reader.peek(number + 3) == 'N')
             {
-                return new Token(TokenType.DOUBLE, reader.read(number+4), startContext, comment);
+                return new Token(TokenType.DOUBLE, reader.read(number + 4), startContext, comment);
             }
 
             if (ich == '-' || ich == '+')
@@ -214,14 +219,14 @@ public class Lexer implements TokenProvider, AutoCloseable
                 ich = reader.peek(number);
             }
 
-            if (ich == '.' && reader.peek(number+1) == 'I' && reader.peek(number+2) == 'n' && reader.peek(number+3) == 'f')
+            if (ich == '.' && reader.peek(number + 1) == 'I' && reader.peek(number + 2) == 'n' && reader.peek(number + 3) == 'f')
             {
-                return new Token(TokenType.DOUBLE, reader.read(number+4), startContext, comment);
+                return new Token(TokenType.DOUBLE, reader.read(number + 4), startContext, comment);
             }
 
             if (Utility.isDigit(ich))
             {
-                if (reader.peek(number) == '0' && reader.peek(number+1) == 'x')
+                if (reader.peek(number) == '0' && reader.peek(number + 1) == 'x')
                 {
                     number += 2;
 
@@ -396,149 +401,15 @@ public class Lexer implements TokenProvider, AutoCloseable
         reader.close();
     }
 
-    public static boolean isValidIdentifier(String ident)
-    {
-        boolean first = true;
-
-        for (char c : ident.toCharArray())
-        {
-            if (!Utility.isLetter(c) && c != '_')
-            {
-                if (first || !Utility.isDigit(c))
-                {
-                    return false;
-                }
-            }
-
-            first = false;
-        }
-
-        return true;
-    }
-
     public static String unescapeString(Token t) throws ParserException
     {
-        StringBuilder sb = new StringBuilder();
-
-        char startQuote = (char) 0;
-
-        boolean inEscape = false;
-
-        boolean inHexEscape = false;
-        int escapeAcc = 0;
-        int escapeDigits = 0;
-        int escapeMax = 0;
-
-        for (char c : t.text.toCharArray())
+        try
         {
-            if (startQuote != 0)
-            {
-                if (inHexEscape)
-                {
-                    if (escapeDigits == escapeMax)
-                    {
-                        sb.append((char) escapeAcc);
-                        inHexEscape = false;
-                    }
-                    else if (Utility.isDigit(c))
-                    {
-                        escapeAcc = (escapeAcc << 4) + (c - '0');
-                    }
-                    else if ((escapeDigits < escapeMax) && ((c >= 'a') && (c <= 'f')))
-                    {
-                        escapeAcc = (escapeAcc << 4) + 10 + (c - 'a');
-                    }
-                    else if ((escapeDigits < escapeMax) && ((c >= 'A') && (c <= 'F')))
-                    {
-                        escapeAcc = (escapeAcc << 4) + 10 + (c - 'A');
-                    }
-                    else
-                    {
-                        sb.append((char) escapeAcc);
-                        inHexEscape = false;
-                    }
-                    escapeDigits++;
-                }
-
-                if (inEscape)
-                {
-                    switch (c)
-                    {
-                        case '"':
-                            sb.append('"');
-                            break;
-                        case '\'':
-                            sb.append('\'');
-                            break;
-                        case '\\':
-                            sb.append('\\');
-                            break;
-                        case '0':
-                            sb.append('\0');
-                            break;
-                        case 'b':
-                            sb.append('\b');
-                            break;
-                        case 't':
-                            sb.append('\t');
-                            break;
-                        case 'n':
-                            sb.append('\n');
-                            break;
-                        case 'f':
-                            sb.append('\f');
-                            break;
-                        case 'r':
-                            sb.append('\r');
-                            break;
-                        case 'x':
-                            inHexEscape = true;
-                            escapeAcc = 0;
-                            escapeDigits = 0;
-                            escapeMax = 2;
-                            break;
-                        case 'u':
-                            inHexEscape = true;
-                            escapeAcc = 0;
-                            escapeDigits = 0;
-                            escapeMax = 4;
-                            break;
-                    }
-                    inEscape = false;
-                }
-                else if (!inHexEscape)
-                {
-                    if (c == startQuote)
-                        return sb.toString();
-                    switch (c)
-                    {
-                        case '\\':
-                            inEscape = true;
-                            break;
-                        default:
-                            sb.append(c);
-                            break;
-                    }
-                }
-            }
-            else
-            {
-                switch (c)
-                {
-                    case '"':
-                        startQuote = '"';
-                        break;
-                    case '\'':
-                        startQuote = '\'';
-                        break;
-                    default:
-                        sb.append(c);
-                        break;
-                }
-            }
+            return Utility.unescapeString(t.text);
         }
-
-        throw new ParserException(t, "Invalid string literal");
+        catch(IllegalArgumentException ex)
+        {
+            throw new ParserException(t, "Unescaping string", ex);
+        }
     }
-
 }

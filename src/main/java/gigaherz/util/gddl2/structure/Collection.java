@@ -2,6 +2,7 @@ package gigaherz.util.gddl2.structure;
 
 import gigaherz.util.gddl2.Lexer;
 import gigaherz.util.gddl2.util.MultiMap;
+import gigaherz.util.gddl2.util.Utility;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -52,7 +53,7 @@ public class Collection extends Element implements List<Element>
 
     public Collection withTypeName(String value)
     {
-        if (!Lexer.isValidIdentifier(value))
+        if (!Utility.isValidIdentifier(value))
             throw new IllegalArgumentException("Type value must be a valid identifier");
         typeName = value;
         return this;

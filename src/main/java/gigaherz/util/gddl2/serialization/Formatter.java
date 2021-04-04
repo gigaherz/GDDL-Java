@@ -124,8 +124,8 @@ public class Formatter
         if (e.hasName())
         {
             String sname = e.getName();
-            if (!Lexer.isValidIdentifier(sname))
-                sname = escapeString(sname);
+            if (!Utility.isValidIdentifier(sname))
+                sname = Utility.escapeString(sname);
             builder.append(sname);
             builder.append(" = ");
         }
@@ -171,7 +171,7 @@ public class Formatter
         }
         else if (v.isString())
         {
-            builder.append(escapeString(v.getString()));
+            builder.append(Utility.escapeString(v.getString()));
         }
         else
         {
@@ -483,65 +483,5 @@ public class Formatter
         }
 
         popIndent();
-    }
-
-    public static String escapeString(String p)
-    {
-        return escapeString(p, '"');
-    }
-
-    public static String escapeString(String p, char delimiter)
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(delimiter);
-        for (char c : p.toCharArray())
-        {
-            if (isValidStringCharacter(c, delimiter))
-            {
-                sb.append(c);
-                continue;
-            }
-
-            sb.append('\\');
-            switch (c)
-            {
-                case '\b':
-                    sb.append('b');
-                    break;
-                case '\t':
-                    sb.append('t');
-                    break;
-                case '\n':
-                    sb.append('n');
-                    break;
-                case '\f':
-                    sb.append('f');
-                    break;
-                case '\r':
-                    sb.append('r');
-                    break;
-                case '\"':
-                    sb.append('\"');
-                    break;
-                case '\\':
-                    sb.append('\\');
-                    break;
-                default:
-                    if (c > 0xFF)
-                        sb.append(String.format("u%04x", (int) c));
-                    else
-                        sb.append(String.format("x%02x", (int) c));
-                    break;
-            }
-        }
-        sb.append(delimiter);
-
-        return sb.toString();
-    }
-
-    private static boolean isValidStringCharacter(char c, char delimiter)
-    {
-        return Utility.isPrintable(c) && !Utility.isControl(c) && c != delimiter && c != '\\';
     }
 }
