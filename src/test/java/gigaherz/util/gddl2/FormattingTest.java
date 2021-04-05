@@ -28,10 +28,12 @@ public class FormattingTest
         assertEquals("1", formatOneCompact(Value.of(1)));
         assertEquals("10", formatOneCompact(Value.of(10)));
         assertEquals("100", formatOneCompact(Value.of(100)));
+        assertEquals("1000000000000000000", formatOneCompact(Value.of(1000000000000000000L)));
         assertEquals("9223372036854775807", formatOneCompact(Value.of(Long.MAX_VALUE)));
         assertEquals("-1", formatOneCompact(Value.of(-1)));
         assertEquals("-10", formatOneCompact(Value.of(-10)));
         assertEquals("-100", formatOneCompact(Value.of(-100)));
+        assertEquals("-1000000000000000000", formatOneCompact(Value.of(-1000000000000000000L)));
         assertEquals("-9223372036854775808", formatOneCompact(Value.of(Long.MIN_VALUE)));
     }
 
@@ -45,6 +47,7 @@ public class FormattingTest
         assertEquals("1.0e-8", formatOneCompact(Value.of(0.00000001)));
         assertEquals("1.0e10", formatOneCompact(Value.of(10000000000.0)));
         assertEquals("3.0e-50", formatOneCompact(Value.of(3e-50)));
+        assertEquals("1.0e18", formatOneCompact(Value.of(1000000000000000000.0)));
         assertEquals("1.999999999999999e15", formatOneCompact(Value.of(1999999999999999.0)));
         assertEquals("2.0e32", formatOneCompact(Value.of(199999999999999999999999999999999.0)));
         assertEquals(".NaN", formatOneCompact(Value.of(Float.NaN)));

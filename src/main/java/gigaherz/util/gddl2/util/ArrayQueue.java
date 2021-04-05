@@ -3,8 +3,14 @@ package gigaherz.util.gddl2.util;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
-public class QueueList<T> implements Iterable<T>
+/**
+ * Minimal implementation of an array-backed queue.
+ * @param <T>
+ */
+public class ArrayQueue<T>
 {
     private static final int defaultCapacity = 16;
 
@@ -13,12 +19,12 @@ public class QueueList<T> implements Iterable<T>
     private int count;
     private T[] buffer;
 
-    public QueueList()
+    public ArrayQueue()
     {
         this(defaultCapacity);
     }
 
-    public QueueList(int capacity)
+    public ArrayQueue(int capacity)
     {
         if (capacity < 0)
         {
@@ -92,26 +98,9 @@ public class QueueList<T> implements Iterable<T>
         return buffer[toBufferIndex(index)];
     }
 
-    // VERY unsafe iterator!
-    @Override
     @NotNull
-    public Iterator<T> iterator()
+    public Stream<T> elements()
     {
-        return new Iterator<>()
-        {
-            int current = 0;
-
-            @Override
-            public boolean hasNext()
-            {
-                return current < size();
-            }
-
-            @Override
-            public T next()
-            {
-                return get(current++);
-            }
-        };
+        return IntStream.range(0, count).mapToObj(i -> get(i%count));
     }
 }

@@ -3,6 +3,11 @@ package gigaherz.util.gddl2.util;
 import java.util.*;
 import java.util.function.Supplier;
 
+/**
+ * Minimal naive implementation of a map that allows multiple values for the same key.
+ * @param <TKey> The type of the keys
+ * @param <TValue> The type of the values
+ */
 public class MultiMap<TKey, TValue>
 {
     private final Map<TKey, Collection<TValue>> storage;

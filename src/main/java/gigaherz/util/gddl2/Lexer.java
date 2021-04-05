@@ -1,15 +1,14 @@
 package gigaherz.util.gddl2;
 
 import gigaherz.util.gddl2.exceptions.LexerException;
-import gigaherz.util.gddl2.exceptions.ParserException;
-import gigaherz.util.gddl2.util.QueueList;
+import gigaherz.util.gddl2.util.ArrayQueue;
 import gigaherz.util.gddl2.util.Utility;
 
 import java.io.IOException;
 
 public class Lexer implements TokenProvider, AutoCloseable
 {
-    private final QueueList<Token> lookAhead = new QueueList<>();
+    private final ArrayQueue<Token> lookAhead = new ArrayQueue<>();
 
     private final Reader reader;
 
@@ -29,6 +28,7 @@ public class Lexer implements TokenProvider, AutoCloseable
         }
     }
 
+    @Override
     public TokenType peek(int pos) throws LexerException, IOException
     {
         require(pos + 1);
@@ -36,6 +36,7 @@ public class Lexer implements TokenProvider, AutoCloseable
         return lookAhead.get(pos).type;
     }
 
+    @Override
     public TokenType peek() throws LexerException, IOException
     {
         require(1);
@@ -43,6 +44,7 @@ public class Lexer implements TokenProvider, AutoCloseable
         return lookAhead.get(0).type;
     }
 
+    @Override
     public Token pop() throws LexerException, IOException
     {
         require(2);
@@ -127,9 +129,9 @@ public class Lexer implements TokenProvider, AutoCloseable
         switch (ich)
         {
             case '{':
-                return new Token(TokenType.LBRACE, reader.read(1), startContext, comment);
+                return new Token(TokenType.L_BRACE, reader.read(1), startContext, comment);
             case '}':
-                return new Token(TokenType.RBRACE, reader.read(1), startContext, comment);
+                return new Token(TokenType.R_BRACE, reader.read(1), startContext, comment);
             case ',':
                 return new Token(TokenType.COMMA, reader.read(1), startContext, comment);
             case ':':
@@ -157,7 +159,7 @@ public class Lexer implements TokenProvider, AutoCloseable
                 }
             }
 
-            Token id = new Token(TokenType.IDENT, reader.read(number), startContext, comment);
+            Token id = new Token(TokenType.IDENTIFIER, reader.read(number), startContext, comment);
 
             if (id.text.compareToIgnoreCase("nil") == 0) return new Token(TokenType.NIL, id.text, id, comment);
             if (id.text.compareToIgnoreCase("null") == 0) return new Token(TokenType.NULL, id.text, id, comment);
@@ -238,7 +240,7 @@ public class Lexer implements TokenProvider, AutoCloseable
                         ich = reader.peek(number);
                     }
 
-                    return new Token(TokenType.HEXINT, reader.read(number), startContext, comment);
+                    return new Token(TokenType.HEX_INT, reader.read(number), startContext, comment);
                 }
 
                 number = 1;
@@ -391,7 +393,7 @@ public class Lexer implements TokenProvider, AutoCloseable
 
     public String toString()
     {
-        return String.format("{Lexer ahead=%s, reader=%s}", Utility.join(", ", lookAhead), reader);
+        return String.format("{Lexer ahead=%s, reader=%s}", Utility.join(", ", lookAhead.elements()), reader);
     }
 
     public ParsingContext getParsingContext()
@@ -405,17 +407,5 @@ public class Lexer implements TokenProvider, AutoCloseable
     public void close() throws IOException
     {
         reader.close();
-    }
-
-    public static String unescapeString(Token t) throws ParserException
-    {
-        try
-        {
-            return Utility.unescapeString(t.text);
-        }
-        catch (IllegalArgumentException ex)
-        {
-            throw new ParserException(t, "Unescaping string", ex);
-        }
     }
 }

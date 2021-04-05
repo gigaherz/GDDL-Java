@@ -1,27 +1,44 @@
 package gigaherz.util.gddl2.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 
-public class Utility
+public final class Utility
 {
-    // Ooooh... I just got how this works! Clever!
-    // It's causing all the bits to spread downward
-    // until all the bits below the most-significant 1
-    // are also 1, then adds 1 to fill the power of two.
-    public static int upperPower(int x)
-    {
-        x--;
-        x |= (x >> 1);
-        x |= (x >> 2);
-        x |= (x >> 4);
-        x |= (x >> 8);
-        x |= (x >> 16);
-        return (x + 1);
+    private Utility() {
+        throw new IllegalStateException("This class is not instantiable.");
     }
 
+    /**
+     * Calculates the next power of two bigger than the given number
+     * @param n The number to calculate the magnitude of
+     * @return The power of two number
+     */
+    public static int upperPower(int n)
+    {
+        // Ooooh... I just got how this works! Clever!
+        // It's causing all the bits to spread downward
+        // until all the bits below the most-significant 1
+        // are also 1, then adds 1 to fill the power of two.
+
+        n--;
+        n |= (n >> 1);
+        n |= (n >> 2);
+        n |= (n >> 4);
+        n |= (n >> 8);
+        n |= (n >> 16);
+        return (n + 1);
+    }
+
+    /**
+     * Validates if the given string contains a sequence of characters that is a valid identifier in GDDL.
+     * @param text The string to validate
+     * @return True if the string is a valid identifier
+     */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isValidIdentifier(String text)
     {
@@ -43,17 +60,28 @@ public class Utility
         return true;
     }
 
-    public static String escapeString(String p)
+    /**
+     * Replaces any disallowed characters with escape codes, assuming a `"` delimiter.
+     * @param text The string to escape
+     * @return The escaped string
+     */
+    public static String escapeString(String text)
     {
-        return escapeString(p, '"');
+        return escapeString(text, '"');
     }
 
-    public static String escapeString(String p, char delimiter)
+    /**
+     * Replaces any disallowed characters with escape codes, using the given delimiter as a disallowed character.
+     * @param text The string to escape
+     * @param delimiter The delimiter that will surround the string
+     * @return The escaped string
+     */
+    public static String escapeString(String text, char delimiter)
     {
         StringBuilder sb = new StringBuilder();
 
         sb.append(delimiter);
-        for (char c : p.toCharArray())
+        for (char c : text.toCharArray())
         {
             if (isValidStringCharacter(c, delimiter))
             {
@@ -98,6 +126,22 @@ public class Utility
         return sb.toString();
     }
 
+    /**
+     * Validates if a character is valid within a quoted string.
+     * @param c The character
+     * @param delimiter The delimiter used for the string
+     * @return True if the character is valid
+     */
+    public static boolean isValidStringCharacter(char c, char delimiter)
+    {
+        return Utility.isPrintable(c) && !Utility.isControl(c) && c != delimiter && c != '\\';
+    }
+
+    /**
+     * Processes any escape sequences in the string, replacing them with the codepoints those sequences represent.
+     * @param text The text to unescape
+     * @return The unescaped string
+     */
     public static String unescapeString(String text)
     {
         StringBuilder sb = new StringBuilder();
@@ -222,53 +266,103 @@ public class Utility
         throw new IllegalArgumentException("Invalid string literal");
     }
 
-    public static boolean isValidStringCharacter(char c, char delimiter)
-    {
-        return Utility.isPrintable(c) && !Utility.isControl(c) && c != delimiter && c != '\\';
-    }
-
     private static final int NON_PRINTABLE =
             (1 << Character.LINE_SEPARATOR) |
                     (1 << Character.PARAGRAPH_SEPARATOR) |
                     (1 << Character.CONTROL) |
                     (1 << Character.PRIVATE_USE) |
+                    (1 << Character.FORMAT) |
                     (1 << Character.SURROGATE);
 
+    /**
+     * Determines if a character is printable.
+     * A printable character is a character that can be used for display.
+     * Non-printable characters are line separators, paragraph separators, other control characters,
+     *  codepoints representing the (unmatched) halves of a surrogate pair, and private use characters.
+     * @param c The character
+     * @return True if the character is deemed printable
+     */
     public static boolean isPrintable(char c)
     {
         return ((NON_PRINTABLE >> Character.getType(c)) & 1) == 0;
     }
 
+    /**
+     * Determines if a character is a letter, as per the unicode rules.
+     * See {@link Character#isLetter(char)}
+     * @param c The character
+     * @return True if the character is a letter
+     */
     public static boolean isLetter(int c)
     {
         return Character.isLetter(c);
     }
 
+    /**
+     * Determines if a character is a numeric digit, as per the unicode rules.
+     * See {@link Character#isDigit(char)}
+     * @param c The character
+     * @return True if the character is a digit
+     */
     public static boolean isDigit(int c)
     {
         return Character.isDigit(c);
     }
 
+    /**
+     * Determines if a character is a control character, as per the unicode rules.
+     * See {@link Character#isISOControl(char)}
+     * @param c The character
+     * @return True if the character is a control character
+     */
     public static boolean isControl(int c)
     {
         return Character.isISOControl(c);
     }
 
+    /**
+     * Joins the array of objects with the given separator in between elements.
+     * @param separator The text to use between elements
+     * @param elements The array of objects to join
+     * @param <T> The type of object
+     * @return A string with the joined elements
+     */
     public static <T> String join(CharSequence separator, T[] elements)
     {
         return join(separator, Arrays.stream(elements));
     }
 
+    /**
+     * Joins the stream of objects with the given separator in between elements.
+     * @param separator The text to use between elements
+     * @param stream The objects to join
+     * @param <T> The type of object
+     * @return A string with the joined elements
+     */
     public static <T> String join(CharSequence separator, Stream<T> stream)
     {
         return join(separator, stream.iterator());
     }
 
+    /**
+     * Joins the sequence of objects with the given separator in between elements.
+     * @param separator The text to use between elements
+     * @param iterable The objects to join
+     * @param <T> The type of object
+     * @return A string with the joined elements
+     */
     public static <T> String join(CharSequence separator, Iterable<T> iterable)
     {
         return join(separator, iterable.iterator());
     }
 
+    /**
+     * Joins the sequence of objects with the given separator in between elements.
+     * @param separator The text to use between elements
+     * @param iterator The objects to join
+     * @param <T> The type of object
+     * @return A string with the joined elements
+     */
     public static <T> String join(CharSequence separator, Iterator<T> iterator)
     {
         StringJoiner joiner = new StringJoiner(separator);
@@ -280,8 +374,13 @@ public class Utility
         return joiner.toString();
     }
 
-    public static boolean isNullOrEmpty(String comment)
+    /**
+     * Determines whether the given string is null or the empty string
+     * @param string The string
+     * @return True if the string is either null or the empty string
+     */
+    public static boolean isNullOrEmpty(@Nullable String string)
     {
-        return comment == null || comment.equals("");
+        return string == null || string.length() == 0;
     }
 }

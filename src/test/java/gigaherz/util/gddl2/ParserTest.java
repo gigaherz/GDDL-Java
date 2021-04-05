@@ -44,12 +44,12 @@ public class ParserTest
         assertEquals(new Token(TokenType.DOUBLE, ".NaN", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.DOUBLE, ".Inf", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.DOUBLE, "-.Inf", new ParsingContext("TEST", 1, 1), ""), provider.pop());
-        assertEquals(new Token(TokenType.HEXINT, "0x1", new ParsingContext("TEST", 1, 1), ""), provider.pop());
+        assertEquals(new Token(TokenType.HEX_INT, "0x1", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.STRING, "\"1\"", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.TRUE, "true", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.FALSE, "false", new ParsingContext("TEST", 1, 1), ""), provider.pop());
-        assertEquals(new Token(TokenType.LBRACE, "{", new ParsingContext("TEST", 1, 1), ""), provider.pop());
-        assertEquals(new Token(TokenType.RBRACE, "}", new ParsingContext("TEST", 1, 1), ""), provider.pop());
+        assertEquals(new Token(TokenType.L_BRACE, "{", new ParsingContext("TEST", 1, 1), ""), provider.pop());
+        assertEquals(new Token(TokenType.R_BRACE, "}", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.EQUALS, "=", new ParsingContext("TEST", 1, 1), ""), provider.pop());
         assertEquals(new Token(TokenType.COLON, ":", new ParsingContext("TEST", 1, 1), ""), provider.pop());
 
@@ -65,7 +65,7 @@ public class ParserTest
     public void parsesNullAsValue() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addInt().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Value.of(1), parser.parse(false));
     }
 
@@ -73,7 +73,7 @@ public class ParserTest
     public void parsesIntegerAsValue() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addInt().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Value.of(1), parser.parse(false));
     }
 
@@ -81,7 +81,7 @@ public class ParserTest
     public void parsesNegativeIntegerAsValue() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addNInt().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Value.of(-1), parser.parse(false));
     }
 
@@ -89,7 +89,7 @@ public class ParserTest
     public void parsesHexIntegerAsValue() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addHexInt().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Value.of(1), parser.parse(false));
     }
 
@@ -97,7 +97,7 @@ public class ParserTest
     public void parsesDoubleAsValue() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addFloat().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Value.of(1.0), parser.parse(false));
     }
 
@@ -105,7 +105,7 @@ public class ParserTest
     public void parsesNegativeDoubleAsValue() throws IOException, ParserException
     {
         var provider = lexerBuilder().addNFloat().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Value.of(-1.0), parser.parse(false));
     }
 
@@ -113,7 +113,7 @@ public class ParserTest
     public void parsesNaNAsValue() throws IOException, ParserException
     {
         var provider = lexerBuilder().addNaN().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Value.of(Double.NaN), parser.parse(false));
     }
 
@@ -121,7 +121,7 @@ public class ParserTest
     public void parsesInfinityAsValue() throws IOException, ParserException
     {
         var provider = lexerBuilder().addInf().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Value.of(Double.POSITIVE_INFINITY), parser.parse(false));
     }
 
@@ -129,7 +129,7 @@ public class ParserTest
     public void parsesNegativeInfinityAsValue() throws IOException, ParserException
     {
         var provider = lexerBuilder().addNInf().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Value.of(Double.NEGATIVE_INFINITY), parser.parse(false));
     }
 
@@ -137,7 +137,7 @@ public class ParserTest
     public void parsesStringAsValue() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addString().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Value.of("1"), parser.parse(false));
     }
 
@@ -145,7 +145,7 @@ public class ParserTest
     public void parsesBooleanTrueAsValue() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addBooleanTrue().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Value.of(true), parser.parse(false));
     }
 
@@ -153,7 +153,7 @@ public class ParserTest
     public void parsesBooleanFalseAsValue() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addBooleanFalse().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Value.of(false), parser.parse(false));
     }
 
@@ -161,7 +161,7 @@ public class ParserTest
     public void parsesBracesAsCollection() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addRBrace().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Collection.empty(), parser.parse(false));
     }
 
@@ -169,7 +169,7 @@ public class ParserTest
     public void parsesTypedCollection() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addIdentifier("test").addLBrace().addRBrace().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Collection.empty().withTypeName("test"), parser.parse(false));
     }
 
@@ -177,7 +177,7 @@ public class ParserTest
     public void parsesValueInsideCollection() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addInt().addRBrace().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Collection.of(Value.of(1)), parser.parse(false));
     }
 
@@ -185,7 +185,7 @@ public class ParserTest
     public void parsesMultipleValuesInsideCollection() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addInt().addComma().addInt().addRBrace().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Collection.of(Value.of(1), Value.of(1)), parser.parse(false));
     }
 
@@ -193,7 +193,7 @@ public class ParserTest
     public void parsesNestedCollection() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addLBrace().addRBrace().addRBrace().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         Collection expected = Collection.of(Collection.empty());
         Element actual = parser.parse(false);
         assertEquals(expected, actual);
@@ -203,7 +203,7 @@ public class ParserTest
     public void commaIsOptionalAfterNestedCollection() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addLBrace().addRBrace().addInt().addRBrace().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         Collection expected = Collection.of(Collection.empty(), Value.of(1));
         Element actual = parser.parse(false);
         assertEquals(expected, actual);
@@ -213,7 +213,7 @@ public class ParserTest
     public void acceptsTrailingCommaInCollection() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addInt().addComma().addRBrace().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         assertEquals(Collection.of(Value.of(1)), parser.parse(false));
     }
 
@@ -221,7 +221,7 @@ public class ParserTest
     public void parsesNamedValueInsideCollection() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addString("\"a\"").addEquals().addInt().addRBrace().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         Collection expected = Collection.of(Value.of(1).withName("a"));
         Element actual = parser.parse(false);
         assertEquals(expected, actual);
@@ -231,7 +231,7 @@ public class ParserTest
     public void parsesNamedTypedNestedCollection() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addString("\"n\"").addEquals().addIdentifier("a").addLBrace().addRBrace().addRBrace().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         Collection expected = Collection.of(Collection.empty().withTypeName("a").withName("n"));
         Element actual = parser.parse(false);
         assertEquals(expected, actual);
@@ -241,7 +241,7 @@ public class ParserTest
     public void parsesReference() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addIdentifier("a").addColon().addIdentifier("b").addRBrace().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         Collection expected = Collection.of(Reference.relative("a", "b"));
         Element actual = parser.parse(false);
         assertEquals(expected, actual);
@@ -251,7 +251,7 @@ public class ParserTest
     public void parsesRootedReference() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addColon().addIdentifier("a").addColon().addIdentifier("b").addRBrace().build();
-        Parser parser = new Parser(provider);
+        Parser parser = Parser.fromProvider(provider);
         Collection expected = Collection.of(Reference.absolute("a", "b"));
         Element actual = parser.parse(false);
         assertEquals(expected, actual);
@@ -311,7 +311,7 @@ public class ParserTest
 
         public MockLexerBuilder addHexInt()
         {
-            return add(TokenType.HEXINT, "0x1");
+            return add(TokenType.HEX_INT, "0x1");
         }
 
         public MockLexerBuilder addString()
@@ -336,12 +336,12 @@ public class ParserTest
 
         public MockLexerBuilder addLBrace()
         {
-            return add(TokenType.LBRACE, "{");
+            return add(TokenType.L_BRACE, "{");
         }
 
         public MockLexerBuilder addRBrace()
         {
-            return add(TokenType.RBRACE, "}");
+            return add(TokenType.R_BRACE, "}");
         }
 
         public MockLexerBuilder addColon()
@@ -361,12 +361,12 @@ public class ParserTest
 
         public MockLexerBuilder addIdentifier()
         {
-            return add(TokenType.IDENT, "test");
+            return add(TokenType.IDENTIFIER, "test");
         }
 
         public MockLexerBuilder addIdentifier(String text)
         {
-            return add(TokenType.IDENT, text);
+            return add(TokenType.IDENTIFIER, text);
         }
 
         public MockLexerBuilder add(TokenType name, String text)

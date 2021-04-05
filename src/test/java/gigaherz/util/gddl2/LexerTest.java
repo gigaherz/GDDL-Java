@@ -103,7 +103,7 @@ public class LexerTest
     @Test
     public void keepsComments() throws LexerException, IOException
     {
-        Token expected = token(TokenType.LBRACE, "{", new ParsingContext("TEST", 1, 1), "this is a comment\n");
+        Token expected = token(TokenType.L_BRACE, "{", new ParsingContext("TEST", 1, 1), "this is a comment\n");
         Token actual = lexSingle("#this is a comment\n{");
         assertEquals(expected, actual);
     }
@@ -111,7 +111,7 @@ public class LexerTest
     @Test
     public void keepsMultipleCommentLines() throws LexerException, IOException
     {
-        Token expected = token(TokenType.LBRACE, "{", new ParsingContext("TEST", 1, 1), "this\nis\na\ncomment\n");
+        Token expected = token(TokenType.L_BRACE, "{", new ParsingContext("TEST", 1, 1), "this\nis\na\ncomment\n");
         Token actual = lexSingle("#this\n#is\n#a\n#comment\n{");
         assertEquals(expected, actual);
     }
@@ -155,7 +155,7 @@ public class LexerTest
 
     public static Token tokenHexInt(String number)
     {
-        return token(TokenType.HEXINT, number);
+        return token(TokenType.HEX_INT, number);
     }
 
     public static Token tokenString(String text)
@@ -185,12 +185,12 @@ public class LexerTest
 
     public static Token tokenLBrace()
     {
-        return token(TokenType.LBRACE, "{");
+        return token(TokenType.L_BRACE, "{");
     }
 
     public static Token tokenRBrace()
     {
-        return token(TokenType.RBRACE, "}");
+        return token(TokenType.R_BRACE, "}");
     }
 
     public static Token tokenColon()
@@ -210,7 +210,7 @@ public class LexerTest
 
     public static Token tokenIdentifier(String text)
     {
-        return token(TokenType.IDENT, text);
+        return token(TokenType.IDENTIFIER, text);
     }
 
     public static Token token(TokenType name, String text)

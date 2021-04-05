@@ -9,54 +9,223 @@ import gigaherz.util.gddl2.structure.Value;
 import gigaherz.util.gddl2.util.BasicIntStack;
 import gigaherz.util.gddl2.util.Utility;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 @SuppressWarnings("unused")
 public class Parser implements ContextProvider, AutoCloseable
 {
     // Factory Methods
+
+    /**
+     * Constructs a Parser instance that reads from the given filename.
+     * @param filename The filename to read from.
+     * @return A parser ready to process the file.
+     * @throws IOException When accessing the file.
+     */
     public static Parser fromFile(String filename) throws IOException
     {
-        return new Parser(new Lexer(new Reader(new FileReader(filename), filename)));
+        return fromFile(filename, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Constructs a Parser instance that reads from the given filename.
+     * @param filename The filename to read from.
+     * @param charset The charset.
+     * @return A parser ready to process the file.
+     * @throws IOException When accessing the file.
+     */
+    public static Parser fromFile(String filename, Charset charset) throws IOException
+    {
+        return fromReader(new FileReader(filename, charset), filename);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param file The file to read from.
+     * @return A parser ready to process the file.
+     * @throws IOException When accessing the file.
+     */
+    public static Parser fromFile(File file) throws IOException
+    {
+        return fromFile(file, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param file The file to read from.
+     * @param charset The charset.
+     * @return A parser ready to process the file.
+     * @throws IOException When accessing the file.
+     */
+    public static Parser fromFile(File file, Charset charset) throws IOException
+    {
+        return fromReader(new FileReader(file, charset), file.getAbsolutePath());
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param path The file to read from.
+     * @return A parser ready to process the file.
+     * @throws IOException When accessing the file.
+     */
+    public static Parser fromFile(Path path) throws IOException
+    {
+        return fromFile(path, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param path The file to read from.
+     * @param charset The charset.
+     * @return A parser ready to process the file.
+     * @throws IOException When accessing the file.
+     */
+    public static Parser fromFile(Path path, Charset charset) throws IOException
+    {
+        return fromReader(Files.newBufferedReader(path, charset), path.toString());
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param stream The file to read from.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromStream(InputStream stream)
+    {
+        return fromStream(stream, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param stream The file to read from.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromStream(InputStream stream, String sourceName)
+    {
+        return fromStream(stream, StandardCharsets.UTF_8, sourceName);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param stream The file to read from.
+     * @param charset The charset.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromStream(InputStream stream, Charset charset)
+    {
+        return fromStream(stream, charset, "UNKNOWN");
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param stream The file to read from.
+     * @param charset The charset.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromStream(InputStream stream, Charset charset, String sourceName)
+    {
+        return fromReader(new InputStreamReader(stream, charset), sourceName);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given string.
+     * @param text The text to parse.
+     * @return A parser ready to process the file.
+     */
     public static Parser fromString(String text)
     {
-        return new Parser(new Lexer(new Reader(new StringReader(text), "UNKNOWN")));
+        return fromString(text, "UNKNOWN");
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given string.
+     * @param text The text to parse.
+     * @param sourceName The filename to display in parse errors.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromString(String text, String sourceName)
+    {
+        return fromReader(new StringReader(text), sourceName);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given reader.
+     * @param reader The stream to read from.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromReader(java.io.Reader reader)
+    {
+        return new Parser(new Lexer(new Reader(reader, "UNKNOWN")));
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param reader The stream to read from.
+     * @param sourceName The filename to display in parse errors.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromReader(java.io.Reader reader, String sourceName)
+    {
+        return new Parser(new Lexer(new Reader(reader, sourceName)));
+    }
+
+    // For unit test purposes
+    static Parser fromProvider(TokenProvider lexer)
+    {
+        return new Parser(lexer);
     }
 
     // Implementation
     int prefixPos = -1;
     final BasicIntStack prefixStack = new BasicIntStack();
-    private final TokenProvider lex;
     @SuppressWarnings("FieldCanBeLocal")
     private boolean finishedWithRBrace = false;
+    private final TokenProvider lex;
 
-    Parser(TokenProvider lexer)
+    private Parser(TokenProvider lexer)
     {
         lex = lexer;
     }
 
+    /**
+     * @return The lexer used by this parser
+     */
     public TokenProvider getLexer()
     {
         return lex;
     }
 
+    /**
+     * Parses the whole file and returns the resulting root element.
+     * Equivalent to {@link #parse(boolean)} with simplify=true
+     * @return The root element
+     * @throws IOException When accessing the source stream.
+     * @throws ParserException When parsing
+     */
     public Element parse() throws IOException, ParserException
     {
         return parse(true);
     }
 
+    /**
+     * Parses the whole file and returns the resulting root element.
+     * @param simplify If true, the structure
+     * @return The root element
+     * @throws IOException When accessing the source stream.
+     * @throws ParserException When parsing
+     */
     public Element parse(boolean simplify) throws IOException, ParserException
     {
         Element ret = root();
 
         if (simplify)
         {
-            ret.resolve(ret, ret);
+            ret.resolve(ret, null);
             ret = ret.simplify();
         }
 
@@ -75,17 +244,17 @@ public class Parser implements ContextProvider, AutoCloseable
         throw new ParserException(this, String.format("Unexpected token %s. Expected: %s.", current, expected[0]));
     }
 
-    public void beginPrefixScan()
+    private void beginPrefixScan()
     {
         prefixStack.push(prefixPos);
     }
 
-    public TokenType nextPrefix() throws LexerException, IOException
+    private TokenType nextPrefix() throws LexerException, IOException
     {
         return lex.peek(++prefixPos);
     }
 
-    public void endPrefixScan()
+    private void endPrefixScan()
     {
         prefixPos = prefixStack.pop();
     }
@@ -105,7 +274,7 @@ public class Parser implements ContextProvider, AutoCloseable
     {
         beginPrefixScan();
         boolean r = hasAny(TokenType.NIL, TokenType.NULL, TokenType.TRUE, TokenType.FALSE,
-                TokenType.HEXINT, TokenType.INTEGER, TokenType.DOUBLE, TokenType.STRING);
+                TokenType.HEX_INT, TokenType.INTEGER, TokenType.DOUBLE, TokenType.STRING);
         endPrefixScan();
 
         return r || prefixReference() || prefixSet() || prefixTypedSet();
@@ -114,7 +283,7 @@ public class Parser implements ContextProvider, AutoCloseable
     private boolean prefixNamedElement() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(TokenType.IDENT, TokenType.STRING) && hasAny(TokenType.EQUALS);
+        boolean r = hasAny(TokenType.IDENTIFIER, TokenType.STRING) && hasAny(TokenType.EQUALS);
         endPrefixScan();
         return r;
     }
@@ -122,7 +291,7 @@ public class Parser implements ContextProvider, AutoCloseable
     private boolean prefixReference() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(TokenType.COLON) && hasAny(TokenType.IDENT);
+        boolean r = hasAny(TokenType.COLON) && hasAny(TokenType.IDENTIFIER);
         endPrefixScan();
 
         return r || prefixIdentifier();
@@ -131,7 +300,7 @@ public class Parser implements ContextProvider, AutoCloseable
     private boolean prefixSet() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(TokenType.LBRACE);
+        boolean r = hasAny(TokenType.L_BRACE);
         endPrefixScan();
         return r;
     }
@@ -139,7 +308,7 @@ public class Parser implements ContextProvider, AutoCloseable
     private boolean prefixTypedSet() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(TokenType.IDENT) && hasAny(TokenType.LBRACE);
+        boolean r = hasAny(TokenType.IDENTIFIER) && hasAny(TokenType.L_BRACE);
         endPrefixScan();
         return r;
     }
@@ -147,7 +316,7 @@ public class Parser implements ContextProvider, AutoCloseable
     private boolean prefixIdentifier() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(TokenType.IDENT);
+        boolean r = hasAny(TokenType.IDENTIFIER);
         endPrefixScan();
         return r;
     }
@@ -174,7 +343,7 @@ public class Parser implements ContextProvider, AutoCloseable
         if (lex.peek() == TokenType.TRUE) return booleanValue(popExpected(TokenType.TRUE));
         if (lex.peek() == TokenType.FALSE) return booleanValue(popExpected(TokenType.FALSE));
         if (lex.peek() == TokenType.INTEGER) return intValue(popExpected(TokenType.INTEGER));
-        if (lex.peek() == TokenType.HEXINT) return intValue(popExpected(TokenType.HEXINT), 16);
+        if (lex.peek() == TokenType.HEX_INT) return intValue(popExpected(TokenType.HEX_INT), 16);
         if (lex.peek() == TokenType.INTEGER) return intValue(popExpected(TokenType.INTEGER));
         if (lex.peek() == TokenType.DOUBLE) return floatValue(popExpected(TokenType.DOUBLE));
         if (lex.peek() == TokenType.STRING) return stringValue(popExpected(TokenType.STRING));
@@ -187,9 +356,9 @@ public class Parser implements ContextProvider, AutoCloseable
 
     private Element namedElement() throws IOException, ParserException
     {
-        Token name = popExpected(TokenType.IDENT, TokenType.STRING);
+        Token name = popExpected(TokenType.IDENTIFIER, TokenType.STRING);
 
-        String n = name.type == TokenType.IDENT ? name.text : Lexer.unescapeString(name);
+        String n = name.type == TokenType.IDENTIFIER ? name.text : unescapeString(name);
 
         popExpected(TokenType.EQUALS);
 
@@ -234,12 +403,12 @@ public class Parser implements ContextProvider, AutoCloseable
 
     private Collection set() throws ParserException, IOException
     {
-        Token openBrace = popExpected(TokenType.LBRACE);
+        Token openBrace = popExpected(TokenType.L_BRACE);
 
         Collection s = Collection.empty();
         s.setComment(openBrace.comment);
 
-        while (lex.peek() != TokenType.RBRACE)
+        while (lex.peek() != TokenType.R_BRACE)
         {
             finishedWithRBrace = false;
 
@@ -248,7 +417,7 @@ public class Parser implements ContextProvider, AutoCloseable
 
             s.add(element());
 
-            if (lex.peek() != TokenType.RBRACE)
+            if (lex.peek() != TokenType.R_BRACE)
             {
                 if (!finishedWithRBrace || (lex.peek() == TokenType.COMMA))
                 {
@@ -257,7 +426,7 @@ public class Parser implements ContextProvider, AutoCloseable
             }
         }
 
-        popExpected(TokenType.RBRACE);
+        popExpected(TokenType.R_BRACE);
 
         finishedWithRBrace = true;
 
@@ -280,40 +449,40 @@ public class Parser implements ContextProvider, AutoCloseable
 
     private Token identifier() throws ParserException, IOException
     {
-        if (lex.peek() == TokenType.IDENT) return popExpected(TokenType.IDENT);
+        if (lex.peek() == TokenType.IDENTIFIER) return popExpected(TokenType.IDENTIFIER);
 
         throw new ParserException(this, "Internal error");
     }
 
-    public static Value nullValue(Token token)
+    private static Value nullValue(Token token)
     {
         Value e = Value.nullValue();
         e.setComment(token.comment);
         return e;
     }
 
-    public static Value booleanValue(Token token)
+    private static Value booleanValue(Token token)
     {
         Value e = Value.of(token.type == TokenType.TRUE);
         e.setComment(token.comment);
         return e;
     }
 
-    public static Value intValue(Token token)
+    private static Value intValue(Token token)
     {
         Value e = Value.of(Long.parseLong(token.text));
         e.setComment(token.comment);
         return e;
     }
 
-    public static Value intValue(Token token, int _base)
+    private static Value intValue(Token token, int _base)
     {
         Value e = Value.of(Long.parseLong(token.text.substring(2), _base));
         e.setComment(token.comment);
         return e;
     }
 
-    public static Value floatValue(Token token)
+    private static Value floatValue(Token token)
     {
         double value;
         switch (token.text)
@@ -337,11 +506,23 @@ public class Parser implements ContextProvider, AutoCloseable
         return e;
     }
 
-    public static Value stringValue(Token token) throws ParserException
+    private static Value stringValue(Token token) throws ParserException
     {
-        Value e = Value.of(Lexer.unescapeString(token));
+        Value e = Value.of(unescapeString(token));
         e.setComment(token.comment);
         return e;
+    }
+
+    public static String unescapeString(Token t) throws ParserException
+    {
+        try
+        {
+            return Utility.unescapeString(t.text);
+        }
+        catch (IllegalArgumentException ex)
+        {
+            throw new ParserException(t, "Unescaping string", ex);
+        }
     }
 
     @Override

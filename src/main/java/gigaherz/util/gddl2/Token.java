@@ -1,6 +1,7 @@
 package gigaherz.util.gddl2;
 
 import gigaherz.util.gddl2.util.Utility;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -36,7 +37,11 @@ public class Token implements ContextProvider
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Token other = (Token) o;
+        return equals((Token) o);
+    }
+
+    public boolean equals(@NotNull Token other)
+    {
         return type == other.type &&
                 text.equals(other.text) &&
                 context.equals(other.context) &&

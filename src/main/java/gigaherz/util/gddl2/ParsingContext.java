@@ -1,5 +1,7 @@
 package gigaherz.util.gddl2;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 public class ParsingContext implements ContextProvider
@@ -15,15 +17,41 @@ public class ParsingContext implements ContextProvider
         column = c;
     }
 
-    @Override
-    public boolean equals(Object o)
+    public String getFilename()
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ParsingContext that = (ParsingContext) o;
-        return line == that.line &&
-                column == that.column &&
-                filename.equals(that.filename);
+        return filename;
+    }
+
+    public int getLine()
+    {
+        return line;
+    }
+
+    public int getColumn()
+    {
+        return column;
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        return equalsImpl((ParsingContext) other);
+    }
+
+    public boolean equals(ParsingContext other)
+    {
+        if (this == other) return true;
+        if (null == other) return false;
+        return equalsImpl(other);
+    }
+
+    public boolean equalsImpl(@NotNull ParsingContext other)
+    {
+        return line == other.line &&
+                column == other.column &&
+                filename.equals(other.filename);
     }
 
     @Override

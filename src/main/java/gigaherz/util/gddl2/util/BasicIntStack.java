@@ -2,6 +2,9 @@ package gigaherz.util.gddl2.util;
 
 import java.util.Arrays;
 
+/**
+ * Minimal implementation of a stack of integers.
+ */
 public class BasicIntStack
 {
     int[] buffer;

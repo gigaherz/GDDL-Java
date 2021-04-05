@@ -1,23 +1,38 @@
 package gigaherz.util.gddl2.structure;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 
-public class Reference extends Element
+public final class Reference extends Element<Reference>
 {
+    // Factory Methods
+
+    /**
+     * Constructs an absolute reference to the given path.
+     * @param parts The target, as an array of names of each element along the path
+     * @return A Reference set to the given path
+     */
     public static Reference absolute(String... parts)
     {
         return new Reference(true, parts);
     }
 
+    /**
+     * Constructs a relative reference to the given path.
+     * @param parts The target, as an array of names of each element along the path
+     * @return A Reference set to the given path
+     */
     public static Reference relative(String... parts)
     {
         return new Reference(false, parts);
     }
 
-    protected final List<String> nameParts = new ArrayList<>();
+    private final List<String> nameParts = new ArrayList<>();
 
     private boolean resolved;
-    private Element resolvedValue;
+    private Element<?> resolvedValue;
 
     protected final boolean rooted;
 
@@ -27,21 +42,36 @@ public class Reference extends Element
         Collections.addAll(nameParts, parts);
     }
 
+    /**
+     * Adds a new name to the path this Reference represents
+     * @param name The name of a named element
+     */
     public void add(String name)
     {
         nameParts.add(name);
     }
 
+    /**
+     * Appends the given array of names to the path this Reference represents
+     * @param names The array of names
+     */
     public void addAll(String... names)
     {
         nameParts.addAll(Arrays.asList(names));
     }
 
+    /**
+     * Appends the given collection of names to the path this Reference represents
+     * @param names The collection of names
+     */
     public void addAll(java.util.Collection<String> names)
     {
         nameParts.addAll(names);
     }
 
+    /**
+     * @return The current path of this reference
+     */
     public List<String> getNameParts()
     {
         return Collections.unmodifiableList(nameParts);
@@ -54,11 +84,12 @@ public class Reference extends Element
     }
 
     @Override
-    public Element resolvedValue()
+    public Element<?> resolvedValue()
     {
         return resolvedValue;
     }
 
+    @Override
     public Reference withName(String name)
     {
         super.withName(name);
@@ -66,30 +97,22 @@ public class Reference extends Element
     }
 
     @Override
-    protected Reference copy()
+    protected Reference copyInternal()
     {
-        Reference b = new Reference(rooted);
-        copyTo(b);
-        return b;
+        Reference reference = new Reference(rooted);
+        copyTo(reference);
+        return reference;
     }
 
     @Override
-    protected void copyTo(Element other)
+    protected void copyTo(Reference other)
     {
         super.copyTo(other);
-        if (!(other instanceof Reference))
-            throw new IllegalArgumentException("copyTo for invalid type");
-        Reference b = (Reference) other;
-        b.addAll(nameParts);
-        if (resolved)
-        {
-            b.resolved = true;
-            b.resolvedValue = resolvedValue;
-        }
+        other.addAll(nameParts);
     }
 
     @Override
-    public void resolve(Element root, Element parent)
+    public void resolve(Element<?> root, @Nullable Collection parent)
     {
         if (isResolved())
             return;
@@ -103,25 +126,33 @@ public class Reference extends Element
         resolved = tryResolve(root, parent, false);
     }
 
-    private boolean tryResolve(Element root, Element parent, boolean relative)
+    private boolean tryResolve(Element<?> root, @Nullable Collection parent, boolean relative)
     {
-        Element elm = relative ? parent : root;
+        Element<?> target;
+        if (relative)
+        {
+            target = parent != null ? parent : this;
+        }
+        else
+        {
+            target = root;
+        }
 
-        boolean parentRoot = parent.hasName() && nameParts.get(0).equals(parent.getName());
+        boolean parentRoot = target.hasName() && nameParts.get(0).equals(target.getName());
 
         for (int i = parentRoot ? 1 : 0; i < nameParts.size(); i++)
         {
             String part = nameParts.get(i);
 
-            if (!(elm instanceof Collection))
+            if (!(target instanceof Collection))
                 continue;
 
-            Collection s = (Collection) elm;
+            Collection s = (Collection) target;
 
             var ne = s.get(part);
             if (ne.isPresent())
             {
-                elm = ne.get();
+                target = ne.get();
                 continue;
             }
 
@@ -129,20 +160,20 @@ public class Reference extends Element
             return false;
         }
 
-        if (!elm.isResolved())
-            elm.resolve(root, parent);
+        if (!target.isResolved())
+            target.resolve(root, target.getParentInternal());
 
-        resolvedValue = elm.resolvedValue();
+        resolvedValue = target.resolvedValue();
 
         return resolvedValue != null;
     }
 
     @Override
-    public Element simplify()
+    public Element<?> simplify()
     {
         if (resolved && resolvedValue != null)
         {
-            Element resolved = resolvedValue.copy();
+            Element<?> resolved = resolvedValue.copy();
             resolved.setName(getName());
             return resolved;
         }
@@ -151,16 +182,30 @@ public class Reference extends Element
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(Object other)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Reference reference = (Reference) o;
-        return resolved == reference.resolved &&
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        return equalsImpl((Reference) other);
+    }
+
+    @Override
+    public boolean equals(Reference other)
+    {
+        if (this == other) return true;
+        if (null == other) return false;
+        return equalsImpl(other);
+    }
+
+    @Override
+    public boolean equalsImpl(@NotNull Reference reference)
+    {
+        return super.equalsImpl(reference) &&
                 rooted == reference.rooted &&
                 nameParts.equals(reference.nameParts) &&
-                Objects.equals(resolvedValue, reference.resolvedValue);
+                (resolved
+                        ? reference.resolved && Objects.equals(resolvedValue, reference.resolvedValue)
+                        : !reference.resolved);
     }
 
     @Override

@@ -7,14 +7,14 @@ public enum TokenType
     TRUE,
     FALSE,
     COMMA,
-    HEXINT,
+    HEX_INT,
     INTEGER,
     DOUBLE,
     STRING,
     EQUALS,
     COLON,
-    LBRACE,
-    RBRACE,
-    IDENT,
+    L_BRACE,
+    R_BRACE,
+    IDENTIFIER,
     END
 }

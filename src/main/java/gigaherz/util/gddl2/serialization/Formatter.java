@@ -78,7 +78,7 @@ public class Formatter
         {
             if (options.indentUsingTabs)
             {
-                builder.append("\t");
+                builder.append('\t');
             }
             else
             {
@@ -258,7 +258,7 @@ public class Formatter
 
         int nonTrailingDigits = formatDigits(temp, Math.min(exp, options.floatSignificantFigures), value);
 
-        appendMultiple(' ', exp-nonTrailingDigits);
+        appendMultiple('0', exp-nonTrailingDigits);
         return exp;
     }
 

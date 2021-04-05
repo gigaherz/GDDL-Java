@@ -1,13 +1,14 @@
 package gigaherz.util.gddl2;
 
 import gigaherz.util.gddl2.exceptions.ReaderException;
-import gigaherz.util.gddl2.util.QueueList;
+import gigaherz.util.gddl2.util.ArrayQueue;
+import gigaherz.util.gddl2.util.Utility;
 
 import java.io.IOException;
 
 public class Reader implements ContextProvider, AutoCloseable
 {
-    final QueueList<Integer> unreadBuffer = new QueueList<>();
+    final ArrayQueue<Integer> unreadBuffer = new ArrayQueue<>();
 
     private final java.io.Reader dataSource;
     private final String sourceName;
@@ -48,11 +49,24 @@ public class Reader implements ContextProvider, AutoCloseable
         }
     }
 
+    /**
+     * Returns the first character in the lookahead buffer, reading characters from the input reader as needed.
+     * @return The character, or -1 if end of file
+     * @throws ReaderException When trying to read beyond the end of the input
+     * @throws IOException When reading the input
+     */
     public int peek() throws ReaderException, IOException
     {
         return peek(0);
     }
 
+    /**
+     * Returns the Nth character in the lookahead buffer, reading characters from the input reader as needed.
+     * @param index The position in the lookahead buffer, starting at 0.
+     * @return The character, or -1 if end of file
+     * @throws ReaderException When trying to read beyond the end of the input
+     * @throws IOException When reading the input
+     */
     public int peek(int index) throws ReaderException, IOException
     {
         require(index + 1);
@@ -60,6 +74,10 @@ public class Reader implements ContextProvider, AutoCloseable
         return unreadBuffer.get(index);
     }
 
+    /**
+     * Removes the first character in the lookahead buffer, and returns it.
+     * @return The character, or -1 if end of file
+     */
     public int next()
     {
         int ch = unreadBuffer.remove();
@@ -86,6 +104,13 @@ public class Reader implements ContextProvider, AutoCloseable
         return ch;
     }
 
+    /**
+     * Removes N characters from the lookahead buffer, and returns them as a string.
+     * @param count The number of characters to return
+     * @return A string with the character sequence
+     * @throws ReaderException If there are not enough characters reading between the buffer and the input
+     * @throws IOException When accessing the input
+     */
     public String read(int count) throws ReaderException, IOException
     {
         require(count);
@@ -100,6 +125,12 @@ public class Reader implements ContextProvider, AutoCloseable
         return b.toString();
     }
 
+    /**
+     * Removes N characters from the lookahead buffer, advancing the input stream as necessary.
+     * @param count The number of characters to drop
+     * @throws ReaderException If there are not enough characters reading between the buffer and the input
+     * @throws IOException When accessing the input
+     */
     public void skip(int count) throws ReaderException, IOException
     {
         require(count);
@@ -109,12 +140,7 @@ public class Reader implements ContextProvider, AutoCloseable
 
     public String toString()
     {
-        StringBuilder b = new StringBuilder();
-        for (int ch : unreadBuffer)
-        {
-            b.append((char) ch);
-        }
-        return String.format("{Reader ahead=%s}", b.toString());
+        return String.format("{Reader ahead=%s}", Utility.join("", unreadBuffer.elements()));
     }
 
     public ParsingContext getParsingContext()
