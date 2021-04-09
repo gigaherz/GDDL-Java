@@ -1,12 +1,14 @@
-group 'gigaherz.util.gddl'
+group 'dev.gigaherz.util.gddl'
 version '2.0.0'
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
-sourceCompatibility = targetCompatibility = 11.0
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+
+sourceCompatibility = targetCompatibility = 11
 compileJava {
-    sourceCompatibility = targetCompatibility = 11.0
+    sourceCompatibility = targetCompatibility = 11
 }
 
 repositories {
@@ -38,7 +40,7 @@ tasks.build.dependsOn compileDemoJava
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
-    archiveClassifier = 'sources'
+    classifier 'sources'
 }
 
 artifacts {
@@ -50,6 +52,8 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
 
+            artifactId 'gddl'
+
             artifact sourcesJar
         }
     }
@@ -58,5 +62,23 @@ publishing {
         maven {
             url "$buildDir/repo"
         }
+    }
+}
+
+jar {
+    from('/') {
+        include 'LICENSE.txt'
+    }
+
+    manifest {
+        attributes([
+                "Specification-Title": "GDDL",
+                "Specification-Vendor": "gigaherz",
+                "Specification-Version": "2.0", // We are version 1 of ourselves
+                "Implementation-Title": "GDDL",
+                "Implementation-Version": archiveVersion,
+                "Implementation-Vendor" :"gigaherz",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
     }
 }

@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Demo" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="dev.gigaherz.util.gddl2.Program" />
+    <module name="dev.gigaherz.util.gddl.demo" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/samples" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

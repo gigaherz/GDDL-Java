@@ -1,0 +1,169 @@
+package dev.gigaherz.util.gddl2;
+
+import dev.gigaherz.util.gddl2.parser.Lexer;
+import dev.gigaherz.util.gddl2.parser.Parser;
+
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+public class GDDL
+{
+    //region Factory Methods
+    /**
+     * Constructs a Parser instance that reads from the given filename.
+     * @param filename The filename to read from.
+     * @return A parser ready to process the file.
+     * @throws IOException When accessing the file.
+     */
+    public static Parser fromFile(String filename) throws IOException
+    {
+        return fromFile(filename, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given filename.
+     * @param filename The filename to read from.
+     * @param charset The charset.
+     * @return A parser ready to process the file.
+     * @throws IOException When accessing the file.
+     */
+    public static Parser fromFile(String filename, Charset charset) throws IOException
+    {
+        return fromReader(new FileReader(filename, charset), filename);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param file The file to read from.
+     * @return A parser ready to process the file.
+     * @throws IOException When accessing the file.
+     */
+    public static Parser fromFile(File file) throws IOException
+    {
+        return fromFile(file, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param file The file to read from.
+     * @param charset The charset.
+     * @return A parser ready to process the file.
+     * @throws IOException When accessing the file.
+     */
+    public static Parser fromFile(File file, Charset charset) throws IOException
+    {
+        return fromReader(new FileReader(file, charset), file.getAbsolutePath());
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param path The file to read from.
+     * @return A parser ready to process the file.
+     * @throws IOException When accessing the file.
+     */
+    public static Parser fromFile(Path path) throws IOException
+    {
+        return fromFile(path, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param path The file to read from.
+     * @param charset The charset.
+     * @return A parser ready to process the file.
+     * @throws IOException When accessing the file.
+     */
+    public static Parser fromFile(Path path, Charset charset) throws IOException
+    {
+        return fromReader(Files.newBufferedReader(path, charset), path.toString());
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param stream The file to read from.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromStream(InputStream stream)
+    {
+        return fromStream(stream, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param stream The file to read from.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromStream(InputStream stream, String sourceName)
+    {
+        return fromStream(stream, StandardCharsets.UTF_8, sourceName);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param stream The file to read from.
+     * @param charset The charset.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromStream(InputStream stream, Charset charset)
+    {
+        return fromStream(stream, charset, "UNKNOWN");
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param stream The file to read from.
+     * @param charset The charset.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromStream(InputStream stream, Charset charset, String sourceName)
+    {
+        return fromReader(new InputStreamReader(stream, charset), sourceName);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given string.
+     * @param text The text to parse.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromString(String text)
+    {
+        return fromString(text, "UNKNOWN");
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given string.
+     * @param text The text to parse.
+     * @param sourceName The filename to display in parse errors.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromString(String text, String sourceName)
+    {
+        return fromReader(new StringReader(text), sourceName);
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given reader.
+     * @param reader The stream to read from.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromReader(java.io.Reader reader)
+    {
+        return new Parser(new Lexer(new dev.gigaherz.util.gddl2.parser.Reader(reader, "UNKNOWN")));
+    }
+
+    /**
+     * Constructs a Parser instance that reads from the given file.
+     * @param reader The stream to read from.
+     * @param sourceName The filename to display in parse errors.
+     * @return A parser ready to process the file.
+     */
+    public static Parser fromReader(java.io.Reader reader, String sourceName)
+    {
+        return new Parser(new Lexer(new dev.gigaherz.util.gddl2.parser.Reader(reader, sourceName)));
+    }
+    //endregion
+
+}
