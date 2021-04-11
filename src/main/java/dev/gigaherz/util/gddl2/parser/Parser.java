@@ -1,12 +1,12 @@
 package dev.gigaherz.util.gddl2.parser;
 
-import dev.gigaherz.util.gddl2.structure.*;
-import dev.gigaherz.util.gddl2.util.BasicIntStack;
 import dev.gigaherz.util.gddl2.exceptions.LexerException;
 import dev.gigaherz.util.gddl2.exceptions.ParserException;
+import dev.gigaherz.util.gddl2.structure.*;
+import dev.gigaherz.util.gddl2.util.BasicIntStack;
 import dev.gigaherz.util.gddl2.util.Utility;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -21,6 +21,7 @@ public class Parser implements ContextProvider, AutoCloseable
 
     /**
      * Gets the currently set whitespace processing mode.
+     *
      * @return The current mode
      */
     public WhitespaceMode getWhitespaceMode()
@@ -30,6 +31,7 @@ public class Parser implements ContextProvider, AutoCloseable
 
     /**
      * Changes the whitespace processing mode.
+     *
      * @param whitespaceMode The new mode
      */
     public void setWhitespaceMode(WhitespaceMode whitespaceMode)
@@ -45,11 +47,13 @@ public class Parser implements ContextProvider, AutoCloseable
         return lexer;
     }
 
-    /**renderCuboids
+    /**
+     * renderCuboids
      * Parses the whole file and returns the resulting root element.
      * Equivalent to {@link #parse(boolean)} with simplify=true
+     *
      * @return The root element
-     * @throws IOException When accessing the source stream.
+     * @throws IOException     When accessing the source stream.
      * @throws ParserException When parsing
      */
     public Document parse() throws IOException, ParserException
@@ -59,9 +63,10 @@ public class Parser implements ContextProvider, AutoCloseable
 
     /**
      * Parses the whole file and returns the resulting root element.
+     *
      * @param simplify If true, the structure
      * @return The root element
-     * @throws IOException When accessing the source stream.
+     * @throws IOException     When accessing the source stream.
      * @throws ParserException When parsing
      */
     public Document parse(boolean simplify) throws IOException, ParserException

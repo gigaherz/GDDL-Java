@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 /**
  * Minimal implementation of an array-backed queue.
+ *
  * @param <T>
  */
 public class ArrayQueue<T>
@@ -100,6 +101,6 @@ public class ArrayQueue<T>
     @NotNull
     public Stream<T> elements()
     {
-        return IntStream.range(0, count).mapToObj(i -> get(i%count));
+        return IntStream.range(0, count).mapToObj(i -> get(i % count));
     }
 }

@@ -43,7 +43,7 @@ public class ParsingContext implements ContextProvider
     public boolean equals(ParsingContext other)
     {
         if (this == other) return true;
-        if (null == other) return false;
+        if (other == null) return false;
         return equalsImpl(other);
     }
 

@@ -68,7 +68,7 @@ public final class Document
     public boolean equals(Document other)
     {
         if (this == other) return true;
-        if (null == other) return false;
+        if (other == null) return false;
         return equalsImpl(other);
     }
 

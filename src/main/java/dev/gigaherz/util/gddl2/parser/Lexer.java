@@ -1,8 +1,8 @@
 package dev.gigaherz.util.gddl2.parser;
 
+import dev.gigaherz.util.gddl2.exceptions.LexerException;
 import dev.gigaherz.util.gddl2.util.ArrayQueue;
 import dev.gigaherz.util.gddl2.util.Utility;
-import dev.gigaherz.util.gddl2.exceptions.LexerException;
 
 import java.io.IOException;
 
@@ -93,7 +93,7 @@ public class Lexer implements TokenProvider, AutoCloseable
         whitespaceBuilder.setLength(0);
         commentBuilder.setLength(0);
         boolean commentStarted = false;
-commentLoop:
+        commentLoop:
         while (true)
         {
             if (ich < 0) break;
@@ -134,7 +134,7 @@ commentLoop:
                 }
                 case '#':
                 {
-                    char cch = (char)ich;
+                    char cch = (char) ich;
                     whitespaceBuilder.append(cch);
                     if (!commentStarted)
                     {
@@ -156,7 +156,7 @@ commentLoop:
                     }
                     else
                     {
-                        char cch = (char)ich;
+                        char cch = (char) ich;
                         whitespaceBuilder.append(cch);
                         commentBuilder.append(cch);
                         reader.skip(1);
@@ -208,10 +208,14 @@ commentLoop:
 
             Token id = new Token(TokenType.IDENTIFIER, reader.read(number), startContext, comment, whitespace);
 
-            if (id.text.compareToIgnoreCase("nil") == 0) return new Token(TokenType.NIL, id.text, id, comment, whitespace);
-            if (id.text.compareToIgnoreCase("null") == 0) return new Token(TokenType.NULL, id.text, id, comment, whitespace);
-            if (id.text.compareToIgnoreCase("true") == 0) return new Token(TokenType.TRUE, id.text, id, comment, whitespace);
-            if (id.text.compareToIgnoreCase("false") == 0) return new Token(TokenType.FALSE, id.text, id, comment, whitespace);
+            if (id.text.compareToIgnoreCase("nil") == 0)
+                return new Token(TokenType.NIL, id.text, id, comment, whitespace);
+            if (id.text.compareToIgnoreCase("null") == 0)
+                return new Token(TokenType.NULL, id.text, id, comment, whitespace);
+            if (id.text.compareToIgnoreCase("true") == 0)
+                return new Token(TokenType.TRUE, id.text, id, comment, whitespace);
+            if (id.text.compareToIgnoreCase("false") == 0)
+                return new Token(TokenType.FALSE, id.text, id, comment, whitespace);
 
             return id;
         }

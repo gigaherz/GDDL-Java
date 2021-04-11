@@ -28,10 +28,10 @@ public class ValueTest
     {
         Value v = Value.nullValue();
         assertTrue(v.isNull());
-        assertThrows(NullPointerException.class, v::getBoolean);
-        assertThrows(NullPointerException.class, v::getInteger);
-        assertThrows(NullPointerException.class, v::getDouble);
-        assertThrows(NullPointerException.class, v::getString);
+        assertThrows(NullPointerException.class, v::asBoolean);
+        assertThrows(NullPointerException.class, v::asInteger);
+        assertThrows(NullPointerException.class, v::asDouble);
+        assertThrows(NullPointerException.class, v::asString);
     }
 
     @Test
@@ -39,10 +39,10 @@ public class ValueTest
     {
         Value v = Value.of(true);
         assertFalse(v.isNull());
-        assertTrue(v.getBoolean());
-        assertThrows(ClassCastException.class, v::getInteger);
-        assertThrows(ClassCastException.class, v::getDouble);
-        assertThrows(ClassCastException.class, v::getString);
+        assertTrue(v.asBoolean());
+        assertThrows(ClassCastException.class, v::asInteger);
+        assertThrows(ClassCastException.class, v::asDouble);
+        assertThrows(ClassCastException.class, v::asString);
     }
 
     @Test
@@ -50,10 +50,10 @@ public class ValueTest
     {
         Value v = Value.of(false);
         assertFalse(v.isNull());
-        assertFalse(v.getBoolean());
-        assertThrows(ClassCastException.class, v::getInteger);
-        assertThrows(ClassCastException.class, v::getDouble);
-        assertThrows(ClassCastException.class, v::getString);
+        assertFalse(v.asBoolean());
+        assertThrows(ClassCastException.class, v::asInteger);
+        assertThrows(ClassCastException.class, v::asDouble);
+        assertThrows(ClassCastException.class, v::asString);
     }
 
     @Test
@@ -61,10 +61,10 @@ public class ValueTest
     {
         Value v = Value.of(1);
         assertFalse(v.isNull());
-        assertEquals(1L, v.getInteger());
-        assertThrows(ClassCastException.class, v::getBoolean);
-        assertThrows(ClassCastException.class, v::getDouble);
-        assertThrows(ClassCastException.class, v::getString);
+        assertEquals(1L, v.asInteger());
+        assertThrows(ClassCastException.class, v::asBoolean);
+        assertThrows(ClassCastException.class, v::asDouble);
+        assertThrows(ClassCastException.class, v::asString);
     }
 
     @Test
@@ -72,10 +72,10 @@ public class ValueTest
     {
         Value v = Value.of(1.0);
         assertFalse(v.isNull());
-        assertEquals(1L, v.getDouble(), 1E-10);
-        assertThrows(ClassCastException.class, v::getBoolean);
-        assertThrows(ClassCastException.class, v::getInteger);
-        assertThrows(ClassCastException.class, v::getString);
+        assertEquals(1L, v.asDouble(), 1E-10);
+        assertThrows(ClassCastException.class, v::asBoolean);
+        assertThrows(ClassCastException.class, v::asInteger);
+        assertThrows(ClassCastException.class, v::asString);
     }
 
     @Test
@@ -83,10 +83,10 @@ public class ValueTest
     {
         Value v = Value.of("1");
         assertFalse(v.isNull());
-        assertEquals("1", v.getString());
-        assertThrows(ClassCastException.class, v::getBoolean);
-        assertThrows(ClassCastException.class, v::getInteger);
-        assertThrows(ClassCastException.class, v::getDouble);
+        assertEquals("1", v.asString());
+        assertThrows(ClassCastException.class, v::asBoolean);
+        assertThrows(ClassCastException.class, v::asInteger);
+        assertThrows(ClassCastException.class, v::asDouble);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class ValueTest
     {
         Value v = Value.of(true).copy();
         assertFalse(v.isNull());
-        assertTrue(v.getBoolean());
+        assertTrue(v.asBoolean());
     }
 
     @Test
@@ -109,7 +109,7 @@ public class ValueTest
     {
         Value v = Value.of(false).copy();
         assertFalse(v.isNull());
-        assertFalse(v.getBoolean());
+        assertFalse(v.asBoolean());
     }
 
     @Test
@@ -117,7 +117,7 @@ public class ValueTest
     {
         Value v = Value.of(1).copy();
         assertFalse(v.isNull());
-        assertEquals(1L, v.getInteger());
+        assertEquals(1L, v.asInteger());
     }
 
     @Test
@@ -125,7 +125,7 @@ public class ValueTest
     {
         Value v = Value.of(1.0).copy();
         assertFalse(v.isNull());
-        assertEquals(1L, v.getDouble(), 1E-10);
+        assertEquals(1L, v.asDouble(), 1E-10);
     }
 
     @Test
@@ -133,55 +133,6 @@ public class ValueTest
     {
         Value v = Value.of("1").copy();
         assertFalse(v.isNull());
-        assertEquals("1", v.getString());
-    }
-
-    @Test
-    public void setNullWorks()
-    {
-        Value v = Value.of(1);
-        assertFalse(v.isNull());
-        v.setNull();
-        assertTrue(v.isNull());
-    }
-
-    @Test
-    public void setBooleanWorks()
-    {
-        Value v = Value.nullValue();
-        assertTrue(v.isNull());
-        v.setBoolean(false);
-        assertFalse(v.isNull());
-        assertFalse(v.getBoolean());
-    }
-
-    @Test
-    public void setLongWorks()
-    {
-        Value v = Value.nullValue();
-        assertTrue(v.isNull());
-        v.setInteger(1);
-        assertFalse(v.isNull());
-        assertEquals(1, v.getInteger());
-    }
-
-    @Test
-    public void setDoubleWorks()
-    {
-        Value v = Value.nullValue();
-        assertTrue(v.isNull());
-        v.setDouble(1);
-        assertFalse(v.isNull());
-        assertEquals(1, v.getDouble(), 1E-10);
-    }
-
-    @Test
-    public void setStringWorks()
-    {
-        Value v = Value.nullValue();
-        assertTrue(v.isNull());
-        v.setString("a");
-        assertFalse(v.isNull());
-        assertEquals("a", v.getString());
+        assertEquals("1", v.asString());
     }
 }

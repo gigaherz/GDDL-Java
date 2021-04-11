@@ -5,7 +5,8 @@ import java.util.function.Supplier;
 
 /**
  * Minimal naive implementation of a map that allows multiple values for the same key.
- * @param <TKey> The type of the keys
+ *
+ * @param <TKey>   The type of the keys
  * @param <TValue> The type of the values
  */
 public class MultiMap<TKey, TValue>
@@ -76,5 +77,10 @@ public class MultiMap<TKey, TValue>
     public int hashCode()
     {
         return storage.hashCode();
+    }
+
+    public int size()
+    {
+        return storage.size();
     }
 }

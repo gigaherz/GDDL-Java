@@ -17,9 +17,10 @@ public class Reader implements ContextProvider, AutoCloseable
 
     /**
      * Returns the first character in the lookahead buffer, reading characters from the input reader as needed.
+     *
      * @return The character, or -1 if end of file
      * @throws ReaderException When trying to read beyond the end of the input
-     * @throws IOException If an error occurs trying to read from the input
+     * @throws IOException     If an error occurs trying to read from the input
      */
     public int peek() throws ReaderException, IOException
     {
@@ -28,10 +29,11 @@ public class Reader implements ContextProvider, AutoCloseable
 
     /**
      * Returns the Nth character in the lookahead buffer, reading characters from the input reader as needed.
+     *
      * @param index The position in the lookahead buffer, starting at 0.
      * @return The character, or -1 if end of file
      * @throws ReaderException When trying to read beyond the end of the input
-     * @throws IOException If an error occurs trying to read from the input
+     * @throws IOException     If an error occurs trying to read from the input
      */
     public int peek(int index) throws ReaderException, IOException
     {
@@ -42,6 +44,7 @@ public class Reader implements ContextProvider, AutoCloseable
 
     /**
      * Removes the first character in the lookahead buffer, and returns it.
+     *
      * @return The character, or -1 if end of file
      */
     public int next() throws IOException, ReaderException
@@ -53,10 +56,11 @@ public class Reader implements ContextProvider, AutoCloseable
 
     /**
      * Removes N characters from the lookahead buffer, and returns them as a string.
+     *
      * @param count The number of characters to return
      * @return A string with the character sequence
      * @throws ReaderException If there are not enough characters reading between the buffer and the input
-     * @throws IOException When accessing the input
+     * @throws IOException     When accessing the input
      */
     public String read(int count) throws ReaderException, IOException
     {
@@ -75,9 +79,10 @@ public class Reader implements ContextProvider, AutoCloseable
 
     /**
      * Removes N characters from the lookahead buffer, advancing the input stream as necessary.
+     *
      * @param count The number of characters to drop
      * @throws ReaderException If there are not enough characters reading between the buffer and the input
-     * @throws IOException When accessing the input
+     * @throws IOException     When accessing the input
      */
     public void skip(int count) throws ReaderException, IOException
     {

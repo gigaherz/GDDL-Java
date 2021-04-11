@@ -1,6 +1,6 @@
 package dev.gigaherz.util.gddl2.serialization;
 
-public class FormatterOptions
+public final class FormatterOptions
 {
     public static final FormatterOptions COMPACT = new Builder().build(); // Default
     public static final FormatterOptions NICE = new Builder()
@@ -78,7 +78,7 @@ public class FormatterOptions
         trimCommentLines = builder.trimCommentLines;
     }
 
-    public static class Builder
+    public static final class Builder
     {
         // Collections
         private int lineBreaksBeforeOpeningBrace = 0;
@@ -240,6 +240,12 @@ public class FormatterOptions
         public Builder blankLinesBeforeComment(int blankLinesBeforeComment)
         {
             this.blankLinesBeforeComment = blankLinesBeforeComment;
+            return this;
+        }
+
+        public Builder trimCommentLines(boolean trimCommentLines)
+        {
+            this.trimCommentLines = trimCommentLines;
             return this;
         }
 

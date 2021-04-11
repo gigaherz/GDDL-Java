@@ -11,9 +11,11 @@ import java.util.Objects;
 @SuppressWarnings("unused")
 public final class Value extends Element<Value>
 {
-    //region Factory Methods
+    //region API
+
     /**
      * Constructs a Value representing `null`
+     *
      * @return The value
      */
     public static Value nullValue()
@@ -23,6 +25,7 @@ public final class Value extends Element<Value>
 
     /**
      * Constructs a Value representing the given boolean
+     *
      * @return The value
      */
     public static Value of(boolean value)
@@ -32,6 +35,7 @@ public final class Value extends Element<Value>
 
     /**
      * Constructs a Value representing the given long integer
+     *
      * @return The value
      */
     public static Value of(long num)
@@ -41,6 +45,7 @@ public final class Value extends Element<Value>
 
     /**
      * Constructs a Value representing the given floating-point number
+     *
      * @return The value
      */
     public static Value of(double num)
@@ -50,11 +55,66 @@ public final class Value extends Element<Value>
 
     /**
      * Constructs a Value representing the given string
+     *
      * @return The value
      */
     public static Value of(String s)
     {
         return new Value(s);
+    }
+
+    @Override
+    public String asString()
+    {
+        return (String) Objects.requireNonNull(data);
+    }
+
+    @Override
+    public boolean asBoolean()
+    {
+        return (boolean) Objects.requireNonNull(data);
+    }
+
+    @Override
+    public long asInteger()
+    {
+        return (long) Objects.requireNonNull(data);
+    }
+
+    @Override
+    public double asDouble()
+    {
+        return (double) Objects.requireNonNull(data);
+    }
+
+    @Override
+    public boolean isNull()
+    {
+        return data == null;
+    }
+
+    @Override
+    public boolean isBoolean()
+    {
+        return data instanceof Boolean;
+    }
+
+    @Override
+    public boolean isInteger()
+    {
+        return data instanceof Long;
+    }
+
+    @Override
+    public boolean isDouble()
+    {
+        return data instanceof Double;
+    }
+
+    @Override
+    public boolean isString()
+    {
+        return data instanceof String;
     }
     //endregion
 
@@ -84,129 +144,6 @@ public final class Value extends Element<Value>
     private Value(double valueData)
     {
         data = valueData;
-    }
-
-    /**
-     * Changes the contained value to be `null`
-     */
-    public void setNull()
-    {
-        data = null;
-    }
-
-    /**
-     * Gets the string contained in this value.
-     * @throws ClassCastException If the contained value is not actually a string.
-     */
-    public String getString()
-    {
-        return (String) Objects.requireNonNull(data);
-    }
-
-    /**
-     * Changes the contained value to be the given string
-     */
-    public void setString(String value)
-    {
-        data = value;
-    }
-
-    /**
-     * Gets the boolean contained in this value.
-     * @throws ClassCastException If the contained value is not actually a boolean.
-     */
-    public boolean getBoolean()
-    {
-        return (boolean) Objects.requireNonNull(data);
-    }
-
-    /**
-     * Changes the contained value to be the given boolean
-     */
-    public void setBoolean(boolean value)
-    {
-        data = value;
-    }
-
-    /**
-     * Gets the integer contained in this value.
-     * @throws ClassCastException If the contained value is not actually an integer.
-     */
-    public long getInteger()
-    {
-        return (long) Objects.requireNonNull(data);
-    }
-
-    /**
-     * Changes the contained value to be the given long integer
-     */
-    public void setInteger(long value)
-    {
-        data = value;
-    }
-
-    /**
-     * Gets the floating-point number contained in this value.
-     * @throws ClassCastException If the contained value is not actually a floating-point number.
-     */
-    public double getDouble()
-    {
-        return (double) Objects.requireNonNull(data);
-    }
-
-    /**
-     * Changes the contained value to be the given floating-point number
-     */
-    public void setDouble(double value)
-    {
-        data = value;
-    }
-
-    /**
-     * Determines wether the contained value is `null`
-     */
-    public boolean isNull()
-    {
-        return data == null;
-    }
-
-    /**
-     * Determines wether the contained value is a boolean
-     */
-    public boolean isBoolean()
-    {
-        return data instanceof Boolean;
-    }
-
-    /**
-     * Determines wether the contained value is an integer
-     */
-    public boolean isInteger()
-    {
-        return data instanceof Long;
-    }
-
-    /**
-     * Determines wether the contained value is a floating-point number
-     */
-    public boolean isDouble()
-    {
-        return data instanceof Double;
-    }
-
-    /**
-     * Determines wether the contained value is a string
-     */
-    public boolean isString()
-    {
-        return data instanceof String;
-    }
-
-    @Override
-    public Value withName(String name)
-    {
-        super.withName(name);
-        return this;
     }
     //endregion
 
@@ -240,7 +177,7 @@ public final class Value extends Element<Value>
     public boolean equals(Value other)
     {
         if (this == other) return true;
-        if (null == other) return false;
+        if (other == null) return false;
         return equalsImpl(other);
     }
 

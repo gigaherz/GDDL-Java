@@ -100,8 +100,8 @@ public class Formatter
     private void appendMultiple(char c, int n)
     {
         //noinspection StringRepeatCanBeUsed
-        for(int i=0;i<n;i++)
-            builder.append(c);
+        for (int i = 0; i < n; i++)
+        { builder.append(c); }
     }
 
     private void appendIndent()
@@ -135,8 +135,8 @@ public class Formatter
         int count = lines.length;
         if (count > 0 && options.trimCommentLines)
         {
-            while (count > 0 && lines[count-1].length() == 0)
-                count--;
+            while (count > 0 && lines[count - 1].length() == 0)
+            { count--; }
         }
         for (int i = 0; i < count; i++)
         {
@@ -193,19 +193,19 @@ public class Formatter
         }
         else if (v.isBoolean())
         {
-            builder.append(v.getBoolean() ? "true" : "false");
+            builder.append(v.asBoolean() ? "true" : "false");
         }
         else if (v.isInteger())
         {
-            formatInteger(v.getInteger());
+            formatInteger(v.asInteger());
         }
         else if (v.isDouble())
         {
-            formatDoubleCustom(v.getDouble());
+            formatDoubleCustom(v.asDouble());
         }
         else if (v.isString())
         {
-            builder.append(Utility.escapeString(v.getString()));
+            builder.append(Utility.escapeString(v.asString()));
         }
         else
         {
@@ -299,7 +299,7 @@ public class Formatter
 
         int nonTrailingDigits = formatDigits(temp, Math.min(exp, options.floatSignificantFigures), value);
 
-        appendMultiple('0', exp-nonTrailingDigits);
+        appendMultiple('0', exp - nonTrailingDigits);
         return exp;
     }
 

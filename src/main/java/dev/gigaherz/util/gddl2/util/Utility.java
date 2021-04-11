@@ -9,12 +9,14 @@ import java.util.stream.Stream;
 
 public final class Utility
 {
-    private Utility() {
+    private Utility()
+    {
         throw new IllegalStateException("This class is not instantiable.");
     }
 
     /**
      * Calculates the next power of two bigger than the given number
+     *
      * @param n The number to calculate the magnitude of
      * @return The power of two number
      */
@@ -36,6 +38,7 @@ public final class Utility
 
     /**
      * Validates if the given string contains a sequence of characters that is a valid identifier in GDDL.
+     *
      * @param text The string to validate
      * @return True if the string is a valid identifier
      */
@@ -62,6 +65,7 @@ public final class Utility
 
     /**
      * Replaces any disallowed characters with escape codes, assuming a `"` delimiter.
+     *
      * @param text The string to escape
      * @return The escaped string
      */
@@ -72,7 +76,8 @@ public final class Utility
 
     /**
      * Replaces any disallowed characters with escape codes, using the given delimiter as a disallowed character.
-     * @param text The string to escape
+     *
+     * @param text      The string to escape
      * @param delimiter The delimiter that will surround the string
      * @return The escaped string
      */
@@ -128,7 +133,8 @@ public final class Utility
 
     /**
      * Validates if a character is valid within a quoted string.
-     * @param c The character
+     *
+     * @param c         The character
      * @param delimiter The delimiter used for the string
      * @return True if the character is valid
      */
@@ -139,6 +145,7 @@ public final class Utility
 
     /**
      * Processes any escape sequences in the string, replacing them with the codepoints those sequences represent.
+     *
      * @param text The text to unescape
      * @return The unescaped string
      */
@@ -278,7 +285,8 @@ public final class Utility
      * Determines if a character is printable.
      * A printable character is a character that can be used for display.
      * Non-printable characters are line separators, paragraph separators, other control characters,
-     *  codepoints representing the (unmatched) halves of a surrogate pair, and private use characters.
+     * codepoints representing the (unmatched) halves of a surrogate pair, and private use characters.
+     *
      * @param c The character
      * @return True if the character is deemed printable
      */
@@ -290,6 +298,7 @@ public final class Utility
     /**
      * Determines if a character is a letter, as per the unicode rules.
      * See {@link Character#isLetter(char)}
+     *
      * @param c The character
      * @return True if the character is a letter
      */
@@ -301,6 +310,7 @@ public final class Utility
     /**
      * Determines if a character is a numeric digit, as per the unicode rules.
      * See {@link Character#isDigit(char)}
+     *
      * @param c The character
      * @return True if the character is a digit
      */
@@ -312,6 +322,7 @@ public final class Utility
     /**
      * Determines if a character is a control character, as per the unicode rules.
      * See {@link Character#isISOControl(char)}
+     *
      * @param c The character
      * @return True if the character is a control character
      */
@@ -322,9 +333,10 @@ public final class Utility
 
     /**
      * Joins the array of objects with the given separator in between elements.
+     *
      * @param separator The text to use between elements
-     * @param elements The array of objects to join
-     * @param <T> The type of object
+     * @param elements  The array of objects to join
+     * @param <T>       The type of object
      * @return A string with the joined elements
      */
     public static <T> String join(CharSequence separator, T[] elements)
@@ -334,9 +346,10 @@ public final class Utility
 
     /**
      * Joins the stream of objects with the given separator in between elements.
+     *
      * @param separator The text to use between elements
-     * @param stream The objects to join
-     * @param <T> The type of object
+     * @param stream    The objects to join
+     * @param <T>       The type of object
      * @return A string with the joined elements
      */
     public static <T> String join(CharSequence separator, Stream<T> stream)
@@ -346,9 +359,10 @@ public final class Utility
 
     /**
      * Joins the sequence of objects with the given separator in between elements.
+     *
      * @param separator The text to use between elements
-     * @param iterable The objects to join
-     * @param <T> The type of object
+     * @param iterable  The objects to join
+     * @param <T>       The type of object
      * @return A string with the joined elements
      */
     public static <T> String join(CharSequence separator, Iterable<T> iterable)
@@ -358,9 +372,10 @@ public final class Utility
 
     /**
      * Joins the sequence of objects with the given separator in between elements.
+     *
      * @param separator The text to use between elements
-     * @param iterator The objects to join
-     * @param <T> The type of object
+     * @param iterator  The objects to join
+     * @param <T>       The type of object
      * @return A string with the joined elements
      */
     public static <T> String join(CharSequence separator, Iterator<T> iterator)
@@ -376,6 +391,7 @@ public final class Utility
 
     /**
      * Determines whether the given string is null or the empty string
+     *
      * @param string The string
      * @return True if the string is either null or the empty string
      */

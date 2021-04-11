@@ -225,6 +225,12 @@ public final class Collection extends Element<Collection> implements List<Elemen
         }
         return !c.isEmpty();
     }
+
+
+    public boolean hasNames()
+    {
+        return names.size() > 0;
+    }
     //endregion
 
     //region Implementation
@@ -285,19 +291,19 @@ public final class Collection extends Element<Collection> implements List<Elemen
     @Override
     public boolean contains(Object o)
     {
-        return o instanceof Element && contains((Element<?>)o);
+        return o instanceof Element && contains((Element<?>) o);
     }
 
     @Override
     public int indexOf(Object o)
     {
-        return o instanceof Element ? indexOf((Element<?>)o) : -1;
+        return o instanceof Element ? indexOf((Element<?>) o) : -1;
     }
 
     @Override
     public int lastIndexOf(Object o)
     {
-        return o instanceof Element ? lastIndexOf((Element<?>)o) : -1;
+        return o instanceof Element ? lastIndexOf((Element<?>) o) : -1;
     }
     //endregion
 
@@ -354,23 +360,44 @@ public final class Collection extends Element<Collection> implements List<Elemen
     public boolean equals(Collection other)
     {
         if (this == other) return true;
-        if (null == other) return false;
+        if (other == null) return false;
         return equalsImpl(other);
     }
 
     @Override
-    public boolean equalsImpl(@NotNull Collection collection)
+    public boolean equalsImpl(@NotNull Collection other)
     {
-        return super.equalsImpl(collection) &&
-                contents.equals(collection.contents) &&
-                names.equals(collection.names) &&
-                Objects.equals(typeName, collection.typeName);
+        return super.equalsImpl(other) &&
+                contents.equals(other.contents) &&
+                names.equals(other.names) &&
+                Objects.equals(typeName, other.typeName);
     }
 
     @Override
     public int hashCode()
     {
         return Objects.hash(super.hashCode(), contents, names, typeName);
+    }
+
+    public boolean namedEquals(Element<?> other)
+    {
+        if (this == other) return true;
+        if (other == null) return false;
+        return other.isCollection() && namedEqualsImpl(other.asCollection());
+    }
+
+    public boolean namedEquals(Collection other)
+    {
+        if (this == other) return true;
+        if (other == null) return false;
+        return namedEqualsImpl(other);
+    }
+
+    private boolean namedEqualsImpl(@NotNull Collection other)
+    {
+        return super.equalsImpl(other) &&
+                names.equals(other.names) &&
+                Objects.equals(typeName, other.typeName);
     }
     //endregion
 

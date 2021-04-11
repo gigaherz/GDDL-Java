@@ -1,18 +1,19 @@
 package dev.gigaherz.util.gddl2.structure;
 
 import dev.gigaherz.util.gddl2.serialization.Formatter;
+import dev.gigaherz.util.gddl2.util.MappingResult;
 import dev.gigaherz.util.gddl2.util.Utility;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 @SuppressWarnings("unused")
 public abstract class Element<T extends Element<T>>
 {
     //region API
+
     /**
      * @return True if this element has whitespace attached
      */
@@ -23,6 +24,7 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * Gets the current whitespace attached to this element.
+     *
      * @return The whitespace if present, or an empty string
      */
     @NotNull
@@ -33,6 +35,7 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * Sets or removes the comment attached to this element.
+     *
      * @param value The new comment, or null to remove the comment.
      */
     public void setWhitespace(@NotNull String value)
@@ -42,6 +45,7 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * Sets the name and returns itself. Useful for chaining on initialization.
+     *
      * @param whitespace The new whitespace, or null to remove the whitespace.
      * @return The same instance the method was called on.
      */
@@ -49,7 +53,7 @@ public abstract class Element<T extends Element<T>>
     {
         this.setWhitespace(whitespace);
         //noinspection unchecked
-        return (T)this;
+        return (T) this;
     }
 
     /**
@@ -62,6 +66,7 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * Gets the current comment attached to this element.
+     *
      * @return The comment if present, or an empty string
      */
     @NotNull
@@ -72,6 +77,7 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * Sets or removes the comment attached to this element.
+     *
      * @param value The new comment, or null to remove the comment.
      */
     public void setComment(@NotNull String value)
@@ -81,6 +87,7 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * Sets the name and returns itself. Useful for chaining on initialization.
+     *
      * @param comment The new comment, or null to remove the comment.
      * @return The same instance the method was called on.
      */
@@ -88,7 +95,7 @@ public abstract class Element<T extends Element<T>>
     {
         this.setComment(comment);
         //noinspection unchecked
-        return (T)this;
+        return (T) this;
     }
 
     /**
@@ -102,6 +109,7 @@ public abstract class Element<T extends Element<T>>
     /**
      * Gets the current name of this element.
      * Only meaningful for elements contained in a collection.
+     *
      * @return The name
      */
     @Nullable
@@ -112,6 +120,7 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * Sets or removes the name of this element.
+     *
      * @param name The new name, or null to remove the name.
      */
     public void setName(@Nullable String name)
@@ -124,6 +133,7 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * Sets the name and returns itself. Useful for chaining on initialization.
+     *
      * @param name The new name, or null to remove the name.
      * @return The same instance the method was called on.
      */
@@ -131,7 +141,7 @@ public abstract class Element<T extends Element<T>>
     {
         this.setName(name);
         //noinspection unchecked
-        return (T)this;
+        return (T) this;
     }
 
     /**
@@ -144,6 +154,7 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * Casts the instance to Collection.
+     *
      * @return Itself
      * @throws ClassCastException If the object is not a Collection
      */
@@ -154,25 +165,13 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * If this element is a Collection, runs the consumer.
+     *
      * @param consumer The function to apply if the current element
      */
     public void ifCollection(Consumer<Collection> consumer)
     {
         if (isCollection())
             consumer.accept(asCollection());
-    }
-
-    /**
-     * If this element is a Collection, applies a mapping that returns a new Element.
-     * Otherwise, returns itself.
-     * @param mapping The function to apply if the current element
-     * @return The mapped value, or itself.
-     */
-    public Element<?> mapCollection(Function<Collection, Element<?>> mapping)
-    {
-        if (isCollection())
-            return mapping.apply(asCollection());
-        return this;
     }
 
     /**
@@ -185,6 +184,7 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * Casts the instance to Value.
+     *
      * @return Itself
      * @throws ClassCastException If the object is not a Value
      */
@@ -195,25 +195,13 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * If this element is a Value, runs the consumer.
+     *
      * @param consumer The function to apply if the current element
      */
     public void ifValue(Consumer<Value> consumer)
     {
         if (isValue())
             consumer.accept(asValue());
-    }
-
-    /**
-     * If this element is a Collection, applies a mapping that returns a new Element.
-     * Otherwise, returns itself.
-     * @param mapping The function to apply if the current element
-     * @return The mapped value, or itself.
-     */
-    public Element<?> mapValue(Function<Value, Element<?>> mapping)
-    {
-        if (isValue())
-            return mapping.apply(asValue());
-        return this;
     }
 
     /**
@@ -226,6 +214,7 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * Casts the instance to Reference.
+     *
      * @return Itself
      * @throws ClassCastException If the object is not a Reference
      */
@@ -236,6 +225,7 @@ public abstract class Element<T extends Element<T>>
 
     /**
      * If this element is a Value, runs the consumer.
+     *
      * @param consumer The function to apply if the current element
      */
     public void ifReference(Consumer<Value> consumer)
@@ -245,16 +235,95 @@ public abstract class Element<T extends Element<T>>
     }
 
     /**
+     * Determines wether the contained value is `null`
+     */
+    public boolean isNull()
+    {
+        return false;
+    }
+
+    /**
+     * Determines wether the contained value is a string
+     */
+    public boolean isString()
+    {
+        return false;
+    }
+
+    /**
+     * Gets the string contained in this value.
+     *
+     * @throws ClassCastException If the contained value is not actually a string.
+     */
+    public String asString()
+    {
+        throw new IllegalStateException("This element is not a value.");
+    }
+
+    /**
+     * Determines wether the contained value is a boolean
+     */
+    public boolean isBoolean()
+    {
+        return false;
+    }
+
+    /**
+     * Gets the boolean contained in this value.
+     *
+     * @throws ClassCastException If the contained value is not actually a boolean.
+     */
+    public boolean asBoolean()
+    {
+        throw new IllegalStateException("This element is not a value.");
+    }
+
+    /**
+     * Determines wether the contained value is an integer
+     */
+    public boolean isInteger()
+    {
+        return false;
+    }
+
+    /**
+     * Gets the integer contained in this value.
+     *
+     * @throws ClassCastException If the contained value is not actually an integer.
+     */
+    public long asInteger()
+    {
+        throw new IllegalStateException("This element is not a value.");
+    }
+
+    /**
+     * Determines wether the contained value is a floating-point number
+     */
+    public boolean isDouble()
+    {
+        return false;
+    }
+
+    /**
+     * Gets the floating-point number contained in this value.
+     *
+     * @throws ClassCastException If the contained value is not actually a floating-point number.
+     */
+    public double asDouble()
+    {
+        throw new IllegalStateException("This element is not a value.");
+    }
+
+    /**
      * If this element is a Collection, applies a mapping that returns a new Element.
      * Otherwise, returns itself.
+     *
      * @param mapping The function to apply if the current element
      * @return The mapped value, or itself.
      */
-    public Element<?> mapReference(Function<Reference, Element<?>> mapping)
+    public <TResult> MappingResult<TResult> when()
     {
-        if (isReference())
-            return mapping.apply(asReference());
-        return this;
+        return MappingResult.remainder(this);
     }
 
     public Element<?> simplify()
@@ -304,7 +373,9 @@ public abstract class Element<T extends Element<T>>
     String comment = "";
     String name;
 
-    Element() {}
+    Element()
+    {
+    }
 
     void setNameInternal(@Nullable String name)
     {

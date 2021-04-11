@@ -13,6 +13,41 @@ compileJava {
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://libraries.minecraft.net"
+    }
+}
+
+sourceSets {
+    dynamic {
+        java {
+            compileClasspath += main.output
+            runtimeClasspath += main.output
+        }
+    }
+    demo {
+        java {
+            compileClasspath += main.output
+            runtimeClasspath += main.output
+            compileClasspath += dynamic.output
+            runtimeClasspath += dynamic.output
+            compileClasspath += dynamic.compileClasspath
+            runtimeClasspath += dynamic.runtimeClasspath
+        }
+    }
+    test {
+        java {
+            compileClasspath += dynamic.output
+            runtimeClasspath += dynamic.output
+            compileClasspath += dynamic.compileClasspath
+            runtimeClasspath += dynamic.runtimeClasspath
+        }
+    }
+}
+
+configurations {
+    dynamicImplementation.extendsFrom implementation
+    demoImplementation.extendsFrom implementation, dynamicImplementation
 }
 
 dependencies {
@@ -20,41 +55,47 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.13'
     testCompile "com.google.guava:guava:29.0-jre"
-}
 
-sourceSets {
-    demo {
-        java {
-            compileClasspath += main.output
-            runtimeClasspath += main.output
-        }
-    }
+    dynamicImplementation 'com.mojang:datafixerupper:4.0.26'
 }
-
-configurations {
-    demoCompile.extendsFrom compile
-    demoRuntime.extendsFrom runtime
-}
-
-tasks.build.dependsOn compileDemoJava
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
+    baseName "{project.name}-dynamic"
+    classifier 'sources'
+}
+
+task dynamicJar(type: Jar, dependsOn: classes) {
+    from sourceSets.dynamic.output
+    baseName "${project.name}-dynamic"
+    classifier ''
+}
+
+task dynamicSourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.dynamic.allSource
+    baseName "${project.name}-dynamic"
     classifier 'sources'
 }
 
 artifacts {
-    archives sourcesJar
+    archives sourcesJar, dynamicJar, dynamicSourcesJar
 }
+
+tasks.assemble.dependsOn sourcesJar, dynamicJar, dynamicSourcesJar
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            from components.java
-
+        main(MavenPublication) {
             artifactId 'gddl'
 
+            artifact jar
             artifact sourcesJar
+        }
+        dynamic(MavenPublication) {
+            artifactId 'gddl-dynamic'
+
+            artifact dynamicJar
+            artifact dynamicSourcesJar
         }
     }
 

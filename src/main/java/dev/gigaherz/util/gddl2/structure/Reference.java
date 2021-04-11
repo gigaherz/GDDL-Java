@@ -8,8 +8,10 @@ import java.util.*;
 public final class Reference extends Element<Reference>
 {
     //region Factory Methods
+
     /**
      * Constructs an absolute reference to the given path.
+     *
      * @param parts The target, as an array of names of each element along the path
      * @return A Reference set to the given path
      */
@@ -20,6 +22,7 @@ public final class Reference extends Element<Reference>
 
     /**
      * Constructs a relative reference to the given path.
+     *
      * @param parts The target, as an array of names of each element along the path
      * @return A Reference set to the given path
      */
@@ -45,6 +48,7 @@ public final class Reference extends Element<Reference>
 
     /**
      * Adds a new name to the path this Reference represents
+     *
      * @param name The name of a named element
      */
     public void add(String name)
@@ -54,6 +58,7 @@ public final class Reference extends Element<Reference>
 
     /**
      * Appends the given array of names to the path this Reference represents
+     *
      * @param names The array of names
      */
     public void addAll(String... names)
@@ -63,6 +68,7 @@ public final class Reference extends Element<Reference>
 
     /**
      * Appends the given collection of names to the path this Reference represents
+     *
      * @param names The collection of names
      */
     public void addAll(java.util.Collection<String> names)
@@ -198,7 +204,7 @@ public final class Reference extends Element<Reference>
     public boolean equals(Reference other)
     {
         if (this == other) return true;
-        if (null == other) return false;
+        if (other == null) return false;
         return equalsImpl(other);
     }
 
