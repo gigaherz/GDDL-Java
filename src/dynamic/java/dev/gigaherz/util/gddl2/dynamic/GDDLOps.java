@@ -1,6 +1,5 @@
 package dev.gigaherz.util.gddl2.dynamic;
 
-import com.google.common.base.Objects;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
@@ -171,29 +170,41 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     @Override
     public DataResult<GddlElement<?>> mergeToList(GddlElement<?> list, GddlElement<?> value)
     {
-        GddlList c;
-        if (list.isNull())
-            c = GddlList.empty();
-        else if (list.isList())
-            c = list.asList().copy();
-        else return DataResult.error("Not a list");
-        c.add(value.copy());
-        return DataResult.success(c);
+        return asNewList(list).map(c -> {
+            c.add(value.copy());
+            return c;
+        });
+    }
+
+    private DataResult<GddlList> asNewList(GddlElement<?> element)
+    {
+        if (element.isNull())
+            return DataResult.success(GddlList.empty());
+        else if (element.isList())
+            return DataResult.success(element.asList().copy());
+        else
+            return DataResult.error("Not a list");
     }
 
     @Override
     public DataResult<GddlElement<?>> mergeToMap(GddlElement<?> map, GddlElement<?> key, GddlElement<?> value)
     {
-        GddlMap c;
-        if (map.isNull())
-            c = GddlMap.empty();
-        else if (map.isMap())
-            c = map.asMap().copy();
-        else return DataResult.error("Not a map");
         if (!key.isString())
             return DataResult.error("Key is not a string");
-        c.put(key.asString(), value);
-        return DataResult.success(c);
+        return asNewMap(map).map(c -> {
+            c.put(key.asString(), value);
+            return c;
+        });
+    }
+
+    private DataResult<GddlMap> asNewMap(GddlElement<?> element)
+    {
+        if (element.isNull())
+            return DataResult.success(GddlMap.empty());
+        else if (element.isMap())
+            return DataResult.success(element.asMap().copy());
+        else
+            return DataResult.error("Not a map");
     }
 
     @Override
