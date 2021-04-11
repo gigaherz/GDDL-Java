@@ -1,13 +1,12 @@
 package dev.gigaherz.util.gddl2.structure;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public final class Reference extends Element<Reference>
 {
-    //region Factory Methods
+    //region API
 
     /**
      * Constructs an absolute reference to the given path.
@@ -30,20 +29,17 @@ public final class Reference extends Element<Reference>
     {
         return new Reference(false, parts);
     }
-    //endregion
 
-    //region Implementation
-    private final List<String> nameParts = new ArrayList<>();
-
-    private boolean resolved;
-    private Element<?> resolvedValue;
-
-    protected final boolean rooted;
-
-    private Reference(boolean rooted, String... parts)
+    @Override
+    public boolean isReference()
     {
-        this.rooted = rooted;
-        Collections.addAll(nameParts, parts);
+        return true;
+    }
+
+    @Override
+    public Reference asReference()
+    {
+        return this;
     }
 
     /**
@@ -96,11 +92,20 @@ public final class Reference extends Element<Reference>
         return resolvedValue;
     }
 
-    @Override
-    public Reference withName(String name)
+    //endregion
+
+    //region Implementation
+    private final List<String> nameParts = new ArrayList<>();
+
+    private boolean resolved;
+    private Element<?> resolvedValue;
+
+    protected final boolean rooted;
+
+    private Reference(boolean rooted, String... parts)
     {
-        super.withName(name);
-        return this;
+        this.rooted = rooted;
+        Collections.addAll(nameParts, parts);
     }
     //endregion
 
@@ -121,26 +126,30 @@ public final class Reference extends Element<Reference>
     }
 
     @Override
-    public void resolve(Element<?> root, @Nullable dev.gigaherz.util.gddl2.structure.Collection parent)
+    public void resolve(Element<?> root)
     {
         if (isResolved())
             return;
 
-        if (!rooted && tryResolve(root, parent, true))
+        if (!rooted && tryResolve(root, true))
         {
             resolved = true;
             return;
         }
 
-        resolved = tryResolve(root, parent, false);
+        resolved = tryResolve(root, false);
     }
 
-    private boolean tryResolve(Element<?> root, @Nullable dev.gigaherz.util.gddl2.structure.Collection parent, boolean relative)
+    private boolean tryResolve(Element<?> root, boolean relative)
     {
+        var parent = getParent();
+
         Element<?> target;
         if (relative)
         {
-            target = parent != null ? parent : this;
+            target = parent;
+            if (target == null) // In case this element is itself the root.
+                target = this;
         }
         else
         {
@@ -153,10 +162,10 @@ public final class Reference extends Element<Reference>
         {
             String part = nameParts.get(i);
 
-            if (!(target instanceof dev.gigaherz.util.gddl2.structure.Collection))
+            if (!(target instanceof Collection))
                 continue;
 
-            dev.gigaherz.util.gddl2.structure.Collection s = (dev.gigaherz.util.gddl2.structure.Collection) target;
+            Collection s = (Collection) target;
 
             var ne = s.get(part);
             if (ne.isPresent())
@@ -170,9 +179,19 @@ public final class Reference extends Element<Reference>
         }
 
         if (!target.isResolved())
-            target.resolve(root, target.getParentInternal());
+            target.resolve(root);
 
         resolvedValue = target.resolvedValue();
+
+        if (resolvedValue == this)
+            throw new IllegalStateException("Invalid cyclic reference: Reference resolves to itself.");
+
+        while(parent != null)
+        {
+            if (resolvedValue == parent)
+                throw new IllegalStateException("Invalid cyclic reference: Reference resolves to a parent element.");
+            parent = parent.getParent();
+        }
 
         return resolvedValue != null;
     }

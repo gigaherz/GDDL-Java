@@ -180,17 +180,10 @@ public final class GDDLOps implements DynamicOps<Element<?>>
     {
         Collection c;
         if (list.isNull())
-        {
             c = Collection.empty();
-        }
         else if (list.isCollection())
-        {
             c = list.asCollection().copy();
-        }
-        else
-        {
-            return DataResult.error("Not a list");
-        }
+        else return DataResult.error("Not a list");
         c.add(value.copy());
         return DataResult.success(c);
     }
@@ -200,20 +193,10 @@ public final class GDDLOps implements DynamicOps<Element<?>>
     {
         Collection c;
         if (map.isNull())
-        {
             c = Collection.empty();
-        }
         else if (map.isCollection())
-        {
             c = map.asCollection().copy();
-        }
-        else
-        {
-            return DataResult.error("Not a list");
-        }
-        if (!key.isString())
-            return DataResult.error("Key is not a string");
-        c.add(value.withName(key.asString()));
+        else return DataResult.error("Not a map");
         return DataResult.success(c);
     }
 

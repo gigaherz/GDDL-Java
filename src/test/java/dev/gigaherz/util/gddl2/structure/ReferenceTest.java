@@ -11,7 +11,7 @@ public class ReferenceTest
     {
         Collection root = Collection.of(Value.of("child"));
         Reference r = Reference.absolute();
-        r.resolve(root, root);
+        r.resolve(root);
         assertEquals(root, r.resolvedValue());
     }
 
@@ -21,7 +21,7 @@ public class ReferenceTest
         Collection parent = Collection.of(Value.of("parent"));
         Collection root = Collection.of(Value.of("root"), parent);
         Reference r = Reference.absolute();
-        r.resolve(root, parent);
+        r.resolve(root);
         assertEquals(root, r.resolvedValue());
     }
 
@@ -31,7 +31,7 @@ public class ReferenceTest
         Collection parent = Collection.of(Value.of("parent"));
         Collection root = Collection.of(Value.of("root"), parent);
         Reference r = Reference.relative();
-        r.resolve(root, parent);
+        r.resolve(root);
         assertEquals(parent, r.resolvedValue());
     }
 
@@ -43,7 +43,7 @@ public class ReferenceTest
         Collection parent = Collection.of(Value.of("parent"), relativeChild);
         Collection root = Collection.of(Value.of("root"), absoluteChild, parent);
         Reference r = Reference.absolute("child");
-        r.resolve(root, parent);
+        r.resolve(root);
         assertEquals(absoluteChild, r.resolvedValue());
     }
 
@@ -55,7 +55,7 @@ public class ReferenceTest
         Collection parent = Collection.of(Value.of("parent"), relativeChild);
         Collection root = Collection.of(Value.of("root"), absoluteChild, parent);
         Reference r = Reference.relative("child");
-        r.resolve(root, parent);
+        r.resolve(root);
         assertEquals(relativeChild, r.resolvedValue());
     }
 
@@ -66,7 +66,7 @@ public class ReferenceTest
         Collection parent = Collection.of(Value.of("the parent"), relativeChild).withName("parent");
         Collection root = Collection.of(Value.of("root"), parent);
         Reference r = Reference.relative("parent", "child");
-        r.resolve(root, parent);
+        r.resolve(root);
         assertEquals(relativeChild, r.resolvedValue());
     }
 }

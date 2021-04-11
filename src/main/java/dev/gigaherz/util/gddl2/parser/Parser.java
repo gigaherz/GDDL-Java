@@ -76,7 +76,7 @@ public class Parser implements ContextProvider, AutoCloseable
 
         if (simplify)
         {
-            root.resolve(root, null);
+            root.resolve(root);
             root = root.simplify();
         }
 

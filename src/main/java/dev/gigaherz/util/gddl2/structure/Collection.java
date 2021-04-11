@@ -3,7 +3,6 @@ package dev.gigaherz.util.gddl2.structure;
 import dev.gigaherz.util.gddl2.util.MultiMap;
 import dev.gigaherz.util.gddl2.util.Utility;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -28,13 +27,16 @@ public final class Collection extends Element<Collection> implements List<Elemen
         return new Collection(initial);
     }
 
-    public Collection()
+    @Override
+    public boolean isCollection()
     {
+        return true;
     }
 
-    public Collection(java.util.Collection<Element<?>> init)
+    @Override
+    public Collection asCollection()
     {
-        this.addAll(init);
+        return this;
     }
 
     public boolean hasTrailingComment()
@@ -165,7 +167,7 @@ public final class Collection extends Element<Collection> implements List<Elemen
     @Override
     public void clear()
     {
-        contents.forEach(e -> e.setParentInternal(null));
+        contents.forEach(e -> e.setParent(null));
         contents.clear();
         names.clear();
     }
@@ -183,12 +185,6 @@ public final class Collection extends Element<Collection> implements List<Elemen
     public int lastIndexOf(Element<?> o)
     {
         return contents.lastIndexOf(o);
-    }
-
-    public Collection withName(String name)
-    {
-        super.withName(name);
-        return this;
     }
 
     @Override
@@ -240,18 +236,27 @@ public final class Collection extends Element<Collection> implements List<Elemen
 
     private String typeName;
 
+    private Collection()
+    {
+    }
+
+    private Collection(java.util.Collection<Element<?>> init)
+    {
+        this.addAll(init);
+    }
+
     private void onAdd(Element<?> e)
     {
         if (e.hasName())
             names.put(e.getName(), e);
-        e.setParentInternal(this);
+        e.setParent(this);
     }
 
     private void onRemove(Element<?> e)
     {
         if (e.hasName())
             names.remove(e.getName(), e);
-        e.setParentInternal(null);
+        e.setParent(null);
     }
 
     /*package-private*/ void setName(@NotNull Element<?> e, String name)
@@ -327,11 +332,11 @@ public final class Collection extends Element<Collection> implements List<Elemen
     }
 
     @Override
-    public void resolve(Element<?> root, @Nullable Collection parent)
+    public void resolve(Element<?> root)
     {
         for (Element<?> el : contents)
         {
-            el.resolve(root, this);
+            el.resolve(root);
         }
     }
 

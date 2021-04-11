@@ -64,6 +64,18 @@ public final class Value extends Element<Value>
     }
 
     @Override
+    public boolean isValue()
+    {
+        return true;
+    }
+
+    @Override
+    public Value asValue()
+    {
+        return this;
+    }
+
+    @Override
     public String asString()
     {
         return (String) Objects.requireNonNull(data);

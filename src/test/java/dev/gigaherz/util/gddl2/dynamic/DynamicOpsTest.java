@@ -1,10 +1,7 @@
 package dev.gigaherz.util.gddl2.dynamic;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
 import dev.gigaherz.util.gddl2.structure.Collection;
 import dev.gigaherz.util.gddl2.structure.Element;
 import dev.gigaherz.util.gddl2.structure.Value;

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @SuppressWarnings("unused")
 public abstract class Element<T extends Element<T>>
@@ -17,9 +18,9 @@ public abstract class Element<T extends Element<T>>
     /**
      * @return True if this element has whitespace attached
      */
-    public boolean hasWhitespace()
+    public final boolean hasWhitespace()
     {
-        return !Utility.isNullOrEmpty(whitespace);
+        return whitespace.length() > 0;
     }
 
     /**
@@ -28,7 +29,7 @@ public abstract class Element<T extends Element<T>>
      * @return The whitespace if present, or an empty string
      */
     @NotNull
-    public String getWhitespace()
+    public final String getWhitespace()
     {
         return whitespace;
     }
@@ -38,7 +39,7 @@ public abstract class Element<T extends Element<T>>
      *
      * @param value The new comment, or null to remove the comment.
      */
-    public void setWhitespace(@NotNull String value)
+    public final void setWhitespace(@NotNull String value)
     {
         whitespace = Objects.requireNonNull(value);
     }
@@ -49,7 +50,7 @@ public abstract class Element<T extends Element<T>>
      * @param whitespace The new whitespace, or null to remove the whitespace.
      * @return The same instance the method was called on.
      */
-    public T withWhitespace(String whitespace)
+    public final T withWhitespace(String whitespace)
     {
         this.setWhitespace(whitespace);
         //noinspection unchecked
@@ -59,9 +60,9 @@ public abstract class Element<T extends Element<T>>
     /**
      * @return True if this element has a comment attached
      */
-    public boolean hasComment()
+    public final boolean hasComment()
     {
-        return !Utility.isNullOrEmpty(comment);
+        return comment.length() > 0;
     }
 
     /**
@@ -70,7 +71,7 @@ public abstract class Element<T extends Element<T>>
      * @return The comment if present, or an empty string
      */
     @NotNull
-    public String getComment()
+    public final String getComment()
     {
         return comment;
     }
@@ -80,7 +81,7 @@ public abstract class Element<T extends Element<T>>
      *
      * @param value The new comment, or null to remove the comment.
      */
-    public void setComment(@NotNull String value)
+    public final void setComment(@NotNull String value)
     {
         comment = Objects.requireNonNull(value);
     }
@@ -91,7 +92,7 @@ public abstract class Element<T extends Element<T>>
      * @param comment The new comment, or null to remove the comment.
      * @return The same instance the method was called on.
      */
-    public T withComment(String comment)
+    public final T withComment(String comment)
     {
         this.setComment(comment);
         //noinspection unchecked
@@ -101,9 +102,9 @@ public abstract class Element<T extends Element<T>>
     /**
      * @return True of the name is set and not empty.
      */
-    public boolean hasName()
+    public final boolean hasName()
     {
-        return !Utility.isNullOrEmpty(name);
+        return name.length() > 0;
     }
 
     /**
@@ -112,8 +113,8 @@ public abstract class Element<T extends Element<T>>
      *
      * @return The name
      */
-    @Nullable
-    public String getName()
+    @NotNull
+    public final String getName()
     {
         return name;
     }
@@ -123,8 +124,9 @@ public abstract class Element<T extends Element<T>>
      *
      * @param name The new name, or null to remove the name.
      */
-    public void setName(@Nullable String name)
+    public final void setName(@NotNull String name)
     {
+        Objects.requireNonNull(name);
         if (parent != null)
             parent.setName(this, name);
         else
@@ -137,7 +139,7 @@ public abstract class Element<T extends Element<T>>
      * @param name The new name, or null to remove the name.
      * @return The same instance the method was called on.
      */
-    public T withName(String name)
+    public final T withName(@NotNull String name)
     {
         this.setName(name);
         //noinspection unchecked
@@ -149,7 +151,7 @@ public abstract class Element<T extends Element<T>>
      */
     public boolean isCollection()
     {
-        return this instanceof Collection;
+        return false;
     }
 
     /**
@@ -160,7 +162,7 @@ public abstract class Element<T extends Element<T>>
      */
     public Collection asCollection()
     {
-        return (Collection) this;
+        throw new IllegalStateException("This element is not a Collection.");
     }
 
     /**
@@ -179,18 +181,18 @@ public abstract class Element<T extends Element<T>>
      */
     public boolean isValue()
     {
-        return this instanceof Value;
+        return false;
     }
 
     /**
      * Casts the instance to Value.
      *
      * @return Itself
-     * @throws ClassCastException If the object is not a Value
+     * @throws IllegalStateException If the object is not a Value
      */
     public Value asValue()
     {
-        return (Value) this;
+        throw new IllegalStateException("This element is not a Value.");
     }
 
     /**
@@ -205,26 +207,26 @@ public abstract class Element<T extends Element<T>>
     }
 
     /**
-     * @return True if this element is a Value
+     * @return True if this element is a Reference
      */
     public boolean isReference()
     {
-        return this instanceof Reference;
+        return false;
     }
 
     /**
      * Casts the instance to Reference.
      *
      * @return Itself
-     * @throws ClassCastException If the object is not a Reference
+     * @throws IllegalStateException If the object is not a Reference
      */
     public Reference asReference()
     {
-        return (Reference) this;
+        throw new IllegalStateException("This element is not a Reference.");
     }
 
     /**
-     * If this element is a Value, runs the consumer.
+     * If this element is a Reference, runs the consumer.
      *
      * @param consumer The function to apply if the current element
      */
@@ -243,6 +245,17 @@ public abstract class Element<T extends Element<T>>
     }
 
     /**
+     * If this element is a Null value, runs the runnable.
+     *
+     * @param runnable The code to run if the current element is a Null Value
+     */
+    public void ifNull(Runnable runnable)
+    {
+        if (isNull())
+            runnable.run();
+    }
+
+    /**
      * Determines wether the contained value is a string
      */
     public boolean isString()
@@ -253,7 +266,7 @@ public abstract class Element<T extends Element<T>>
     /**
      * Gets the string contained in this value.
      *
-     * @throws ClassCastException If the contained value is not actually a string.
+     * @throws IllegalStateException If the contained value is not actually a string.
      */
     public String asString()
     {
@@ -271,7 +284,7 @@ public abstract class Element<T extends Element<T>>
     /**
      * Gets the boolean contained in this value.
      *
-     * @throws ClassCastException If the contained value is not actually a boolean.
+     * @throws IllegalStateException If the contained value is not actually a boolean.
      */
     public boolean asBoolean()
     {
@@ -289,7 +302,7 @@ public abstract class Element<T extends Element<T>>
     /**
      * Gets the integer contained in this value.
      *
-     * @throws ClassCastException If the contained value is not actually an integer.
+     * @throws IllegalStateException If the contained value is not actually an integer.
      */
     public long asInteger()
     {
@@ -307,20 +320,18 @@ public abstract class Element<T extends Element<T>>
     /**
      * Gets the floating-point number contained in this value.
      *
-     * @throws ClassCastException If the contained value is not actually a floating-point number.
+     * @throws IllegalStateException If the contained value is not actually a floating-point number.
      */
     public double asDouble()
     {
         throw new IllegalStateException("This element is not a value.");
     }
 
-    /**
-     * If this element is a Collection, applies a mapping that returns a new Element.
-     * Otherwise, returns itself.
-     *
-     * @param mapping The function to apply if the current element
-     * @return The mapped value, or itself.
-     */
+    public <TResult> TResult when(Function<MappingResult<Element<?>>, TResult> mapping)
+    {
+        return mapping.apply(MappingResult.remainder(this));
+    }
+
     public <TResult> MappingResult<TResult> when()
     {
         return MappingResult.remainder(this);
@@ -331,7 +342,7 @@ public abstract class Element<T extends Element<T>>
         return this;
     }
 
-    public void resolve(Element<?> root, @Nullable Collection parent)
+    public void resolve(Element<?> root)
     {
     }
 
@@ -360,8 +371,14 @@ public abstract class Element<T extends Element<T>>
     public final T copy()
     {
         T c = copyInternal();
-        c.resolve(this, null);
+        c.resolve(this);
         return c;
+    }
+
+    @Nullable
+    public Collection getParent()
+    {
+        return parent;
     }
 
     //endregion
@@ -371,13 +388,13 @@ public abstract class Element<T extends Element<T>>
 
     String whitespace = "";
     String comment = "";
-    String name;
+    String name = "";
 
     Element()
     {
     }
 
-    void setNameInternal(@Nullable String name)
+    void setNameInternal(@NotNull String name)
     {
         this.name = name;
     }
@@ -390,13 +407,7 @@ public abstract class Element<T extends Element<T>>
             other.setName(getName());
     }
 
-    @Nullable
-    Collection getParentInternal()
-    {
-        return parent;
-    }
-
-    void setParentInternal(@Nullable Collection parent)
+    void setParent(@Nullable Collection parent)
     {
         this.parent = parent;
     }
