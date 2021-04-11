@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @SuppressWarnings("unused")
-public abstract class Element<T extends Element<T>>
+public abstract class GddlElement<T extends GddlElement<T>>
 {
     //region API
 
@@ -100,56 +100,9 @@ public abstract class Element<T extends Element<T>>
     }
 
     /**
-     * @return True of the name is set and not empty.
-     */
-    public final boolean hasName()
-    {
-        return name.length() > 0;
-    }
-
-    /**
-     * Gets the current name of this element.
-     * Only meaningful for elements contained in a collection.
-     *
-     * @return The name
-     */
-    @NotNull
-    public final String getName()
-    {
-        return name;
-    }
-
-    /**
-     * Sets or removes the name of this element.
-     *
-     * @param name The new name, or null to remove the name.
-     */
-    public final void setName(@NotNull String name)
-    {
-        Objects.requireNonNull(name);
-        if (parent != null)
-            parent.setName(this, name);
-        else
-            setNameInternal(name);
-    }
-
-    /**
-     * Sets the name and returns itself. Useful for chaining on initialization.
-     *
-     * @param name The new name, or null to remove the name.
-     * @return The same instance the method was called on.
-     */
-    public final T withName(@NotNull String name)
-    {
-        this.setName(name);
-        //noinspection unchecked
-        return (T) this;
-    }
-
-    /**
      * @return True if this element is a Collection
      */
-    public boolean isCollection()
+    public boolean isMap()
     {
         return false;
     }
@@ -158,9 +111,9 @@ public abstract class Element<T extends Element<T>>
      * Casts the instance to Collection.
      *
      * @return Itself
-     * @throws ClassCastException If the object is not a Collection
+     * @throws IllegalStateException If the object is not a Collection
      */
-    public Collection asCollection()
+    public GddlMap asMap()
     {
         throw new IllegalStateException("This element is not a Collection.");
     }
@@ -170,10 +123,40 @@ public abstract class Element<T extends Element<T>>
      *
      * @param consumer The function to apply if the current element
      */
-    public void ifCollection(Consumer<Collection> consumer)
+    public void ifMap(Consumer<GddlMap> consumer)
     {
-        if (isCollection())
-            consumer.accept(asCollection());
+        if (isMap())
+            consumer.accept(asMap());
+    }
+
+    /**
+     * @return True if this element is a Collection
+     */
+    public boolean isList()
+    {
+        return false;
+    }
+
+    /**
+     * Casts the instance to Collection.
+     *
+     * @return Itself
+     * @throws IllegalStateException If the object is not a Collection
+     */
+    public GddlList asList()
+    {
+        throw new IllegalStateException("This element is not a Collection.");
+    }
+
+    /**
+     * If this element is a Collection, runs the consumer.
+     *
+     * @param consumer The function to apply if the current element
+     */
+    public void ifList(Consumer<GddlList> consumer)
+    {
+        if (isList())
+            consumer.accept(asList());
     }
 
     /**
@@ -190,7 +173,7 @@ public abstract class Element<T extends Element<T>>
      * @return Itself
      * @throws IllegalStateException If the object is not a Value
      */
-    public Value asValue()
+    public GddlValue asValue()
     {
         throw new IllegalStateException("This element is not a Value.");
     }
@@ -200,7 +183,7 @@ public abstract class Element<T extends Element<T>>
      *
      * @param consumer The function to apply if the current element
      */
-    public void ifValue(Consumer<Value> consumer)
+    public void ifValue(Consumer<GddlValue> consumer)
     {
         if (isValue())
             consumer.accept(asValue());
@@ -220,7 +203,7 @@ public abstract class Element<T extends Element<T>>
      * @return Itself
      * @throws IllegalStateException If the object is not a Reference
      */
-    public Reference asReference()
+    public GddlReference asReference()
     {
         throw new IllegalStateException("This element is not a Reference.");
     }
@@ -230,7 +213,7 @@ public abstract class Element<T extends Element<T>>
      *
      * @param consumer The function to apply if the current element
      */
-    public void ifReference(Consumer<Value> consumer)
+    public void ifReference(Consumer<GddlValue> consumer)
     {
         if (isValue())
             consumer.accept(asValue());
@@ -327,7 +310,7 @@ public abstract class Element<T extends Element<T>>
         throw new IllegalStateException("This element is not a value.");
     }
 
-    public <TResult> TResult when(Function<MappingResult<Element<?>>, TResult> mapping)
+    public <TResult> TResult when(Function<MappingResult<GddlElement<?>>, TResult> mapping)
     {
         return mapping.apply(MappingResult.remainder(this));
     }
@@ -337,12 +320,12 @@ public abstract class Element<T extends Element<T>>
         return MappingResult.remainder(this);
     }
 
-    public Element<?> simplify()
+    public GddlElement<?> simplify()
     {
         return this;
     }
 
-    public void resolve(Element<?> root)
+    public void resolve(GddlElement<?> root)
     {
     }
 
@@ -357,7 +340,7 @@ public abstract class Element<T extends Element<T>>
     /**
      * @return The actual element this element represents, accounting for references
      */
-    public Element<?> resolvedValue()
+    public GddlElement<?> resolvedValue()
     {
         return this;
     }
@@ -376,7 +359,7 @@ public abstract class Element<T extends Element<T>>
     }
 
     @Nullable
-    public Collection getParent()
+    public GddlElement<?> getParent()
     {
         return parent;
     }
@@ -384,30 +367,26 @@ public abstract class Element<T extends Element<T>>
     //endregion
 
     //region Implementation
-    private Collection parent;
+    private GddlElement<?> parent;
 
     String whitespace = "";
     String comment = "";
-    String name = "";
 
-    Element()
+    GddlElement()
     {
-    }
-
-    void setNameInternal(@NotNull String name)
-    {
-        this.name = name;
     }
 
     protected abstract T copyInternal();
 
     protected void copyTo(T other)
     {
-        if (hasName())
-            other.setName(getName());
+        if (hasWhitespace())
+            other.setWhitespace(getWhitespace());
+        if (hasComment())
+            other.setComment(getComment());
     }
 
-    void setParent(@Nullable Collection parent)
+    void setParent(@Nullable GddlElement<?> parent)
     {
         this.parent = parent;
     }
@@ -419,17 +398,15 @@ public abstract class Element<T extends Element<T>>
 
     public abstract boolean equals(T other);
 
-    protected boolean equalsImpl(T other)
-    {
-        return ((Utility.isNullOrEmpty(whitespace) && Utility.isNullOrEmpty(other.whitespace)) || Objects.equals(whitespace, other.whitespace)) &&
-                ((Utility.isNullOrEmpty(comment) && Utility.isNullOrEmpty(other.comment)) || Objects.equals(comment, other.comment)) &&
-                Objects.equals(name, other.name);
-    }
-
     @Override
     public int hashCode()
     {
-        return Objects.hash(comment, name);
+        return Objects.hash(whitespace, comment);
+    }
+
+    public int getFormattingComplexity()
+    {
+        return 1;
     }
     //endregion
 }

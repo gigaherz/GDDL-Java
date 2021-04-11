@@ -31,6 +31,8 @@ public class ParserTest
                 .addBooleanFalse()
                 .addLBrace()
                 .addRBrace()
+                .addLBracket()
+                .addRBracket()
                 .addEquals()
                 .addColon()
                 .build();
@@ -48,6 +50,8 @@ public class ParserTest
         assertEquals(new Token(TokenType.FALSE, "false", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.L_BRACE, "{", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.R_BRACE, "}", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.L_BRACKET, "[", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.R_BRACKET, "]", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.EQUALS, "=", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.COLON, ":", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
 
@@ -64,7 +68,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addInt().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.of(1), parser.parse(false).getRoot());
+        assertEquals(GddlValue.of(1), parser.parse(false).getRoot());
     }
 
     @Test
@@ -72,7 +76,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addInt().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.of(1), parser.parse(false).getRoot());
+        assertEquals(GddlValue.of(1), parser.parse(false).getRoot());
     }
 
     @Test
@@ -80,7 +84,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addNInt().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.of(-1), parser.parse(false).getRoot());
+        assertEquals(GddlValue.of(-1), parser.parse(false).getRoot());
     }
 
     @Test
@@ -88,7 +92,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addHexInt().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.of(1), parser.parse(false).getRoot());
+        assertEquals(GddlValue.of(1), parser.parse(false).getRoot());
     }
 
     @Test
@@ -96,7 +100,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addFloat().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.of(1.0), parser.parse(false).getRoot());
+        assertEquals(GddlValue.of(1.0), parser.parse(false).getRoot());
     }
 
     @Test
@@ -104,7 +108,7 @@ public class ParserTest
     {
         var provider = lexerBuilder().addNFloat().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.of(-1.0), parser.parse(false).getRoot());
+        assertEquals(GddlValue.of(-1.0), parser.parse(false).getRoot());
     }
 
     @Test
@@ -112,7 +116,7 @@ public class ParserTest
     {
         var provider = lexerBuilder().addNaN().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.of(Double.NaN), parser.parse(false).getRoot());
+        assertEquals(GddlValue.of(Double.NaN), parser.parse(false).getRoot());
     }
 
     @Test
@@ -120,7 +124,7 @@ public class ParserTest
     {
         var provider = lexerBuilder().addInf().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.of(Double.POSITIVE_INFINITY), parser.parse(false).getRoot());
+        assertEquals(GddlValue.of(Double.POSITIVE_INFINITY), parser.parse(false).getRoot());
     }
 
     @Test
@@ -128,7 +132,7 @@ public class ParserTest
     {
         var provider = lexerBuilder().addNInf().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.of(Double.NEGATIVE_INFINITY), parser.parse(false).getRoot());
+        assertEquals(GddlValue.of(Double.NEGATIVE_INFINITY), parser.parse(false).getRoot());
     }
 
     @Test
@@ -136,7 +140,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addString().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.of("1"), parser.parse(false).getRoot());
+        assertEquals(GddlValue.of("1"), parser.parse(false).getRoot());
     }
 
     @Test
@@ -144,7 +148,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addBooleanTrue().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.of(true), parser.parse(false).getRoot());
+        assertEquals(GddlValue.of(true), parser.parse(false).getRoot());
     }
 
     @Test
@@ -152,91 +156,83 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addBooleanFalse().build();
         Parser parser = new Parser(provider);
-        assertEquals(Value.of(false), parser.parse(false).getRoot());
+        assertEquals(GddlValue.of(false), parser.parse(false).getRoot());
     }
 
     @Test
-    public void parsesBracesAsCollection() throws IOException, ParserException
+    public void parsesBracesAsList() throws IOException, ParserException
     {
-        TokenProvider provider = lexerBuilder().addLBrace().addRBrace().build();
+        TokenProvider provider = lexerBuilder().addLBracket().addRBracket().build();
         Parser parser = new Parser(provider);
-        assertEquals(Collection.empty(), parser.parse(false).getRoot());
+        assertEquals(GddlList.empty(), parser.parse(false).getRoot());
     }
 
     @Test
-    public void parsesTypedCollection() throws IOException, ParserException
+    public void parsesValueInsideList() throws IOException, ParserException
     {
-        TokenProvider provider = lexerBuilder().addIdentifier("test").addLBrace().addRBrace().build();
+        TokenProvider provider = lexerBuilder().addLBracket().addInt().addRBracket().build();
         Parser parser = new Parser(provider);
-        assertEquals(Collection.empty().withTypeName("test"), parser.parse(false).getRoot());
+        assertEquals(GddlList.of(GddlValue.of(1)), parser.parse(false).getRoot());
     }
 
     @Test
-    public void parsesValueInsideCollection() throws IOException, ParserException
+    public void parsesMultipleValuesInsideList() throws IOException, ParserException
     {
-        TokenProvider provider = lexerBuilder().addLBrace().addInt().addRBrace().build();
+        TokenProvider provider = lexerBuilder().addLBracket().addInt().addComma().addInt().addRBracket().build();
         Parser parser = new Parser(provider);
-        assertEquals(Collection.of(Value.of(1)), parser.parse(false).getRoot());
+        assertEquals(GddlList.of(GddlValue.of(1), GddlValue.of(1)), parser.parse(false).getRoot());
     }
 
     @Test
-    public void parsesMultipleValuesInsideCollection() throws IOException, ParserException
+    public void parsesNestedList() throws IOException, ParserException
     {
-        TokenProvider provider = lexerBuilder().addLBrace().addInt().addComma().addInt().addRBrace().build();
+        TokenProvider provider = lexerBuilder().addLBracket().addLBracket().addRBracket().addRBracket().build();
         Parser parser = new Parser(provider);
-        assertEquals(Collection.of(Value.of(1), Value.of(1)), parser.parse(false).getRoot());
-    }
-
-    @Test
-    public void parsesNestedCollection() throws IOException, ParserException
-    {
-        TokenProvider provider = lexerBuilder().addLBrace().addLBrace().addRBrace().addRBrace().build();
-        Parser parser = new Parser(provider);
-        Collection expected = Collection.of(Collection.empty());
-        Document doc = parser.parse(false);
+        GddlList expected = GddlList.of(GddlList.empty());
+        GddlDocument doc = parser.parse(false);
         var actual = doc.getRoot();
         assertEquals(expected, actual);
     }
 
     @Test
-    public void commaIsOptionalAfterNestedCollection() throws IOException, ParserException
+    public void commaIsOptionalAfterNestedList() throws IOException, ParserException
     {
-        TokenProvider provider = lexerBuilder().addLBrace().addLBrace().addRBrace().addInt().addRBrace().build();
+        TokenProvider provider = lexerBuilder().addLBracket().addLBracket().addRBracket().addInt().addRBracket().build();
         Parser parser = new Parser(provider);
-        Collection expected = Collection.of(Collection.empty(), Value.of(1));
-        Document doc = parser.parse(false);
+        GddlList expected = GddlList.of(GddlList.empty(), GddlValue.of(1));
+        GddlDocument doc = parser.parse(false);
         var actual = doc.getRoot();
         assertEquals(expected, actual);
     }
 
     @Test
-    public void acceptsTrailingCommaInCollection() throws IOException, ParserException
+    public void acceptsTrailingCommaInList() throws IOException, ParserException
     {
-        TokenProvider provider = lexerBuilder().addLBrace().addInt().addComma().addRBrace().build();
+        TokenProvider provider = lexerBuilder().addLBracket().addInt().addComma().addRBracket().build();
         Parser parser = new Parser(provider);
-        Document doc = parser.parse(false);
+        GddlDocument doc = parser.parse(false);
         var actual = doc.getRoot();
-        assertEquals(Collection.of(Value.of(1)), actual);
+        assertEquals(GddlList.of(GddlValue.of(1)), actual);
     }
 
     @Test
-    public void parsesNamedValueInsideCollection() throws IOException, ParserException
+    public void parsesNamedValueInsideMap() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBrace().addString("\"a\"").addEquals().addInt().addRBrace().build();
         Parser parser = new Parser(provider);
-        Collection expected = Collection.of(Value.of(1).withName("a"));
-        Document doc = parser.parse(false);
+        GddlMap expected = GddlMap.of("a", GddlValue.of(1));
+        GddlDocument doc = parser.parse(false);
         var actual = doc.getRoot();
         assertEquals(expected, actual);
     }
 
     @Test
-    public void parsesNamedTypedNestedCollection() throws IOException, ParserException
+    public void parsesNamedTypedNestedMap() throws IOException, ParserException
     {
-        TokenProvider provider = lexerBuilder().addLBrace().addString("\"n\"").addEquals().addIdentifier("a").addLBrace().addRBrace().addRBrace().build();
+        TokenProvider provider = lexerBuilder().addLBrace().addString("\"n\"").addEquals().addIdentifier("t").addLBrace().addRBrace().addRBrace().build();
         Parser parser = new Parser(provider);
-        Collection expected = Collection.of(Collection.empty().withTypeName("a").withName("n"));
-        Document doc = parser.parse(false);
+        GddlMap expected = GddlMap.of("n", GddlMap.empty().withTypeName("t"));
+        GddlDocument doc = parser.parse(false);
         var actual = doc.getRoot();
         assertEquals(expected, actual);
     }
@@ -244,10 +240,10 @@ public class ParserTest
     @Test
     public void parsesReference() throws IOException, ParserException
     {
-        TokenProvider provider = lexerBuilder().addLBrace().addIdentifier("a").addColon().addIdentifier("b").addRBrace().build();
+        TokenProvider provider = lexerBuilder().addLBracket().addIdentifier("a").addColon().addIdentifier("b").addRBracket().build();
         Parser parser = new Parser(provider);
-        Collection expected = Collection.of(Reference.relative("a", "b"));
-        Document doc = parser.parse(false);
+        GddlList expected = GddlList.of(GddlReference.relative("a", "b"));
+        GddlDocument doc = parser.parse(false);
         var actual = doc.getRoot();
         assertEquals(expected, actual);
     }
@@ -255,10 +251,10 @@ public class ParserTest
     @Test
     public void parsesRootedReference() throws IOException, ParserException
     {
-        TokenProvider provider = lexerBuilder().addLBrace().addColon().addIdentifier("a").addColon().addIdentifier("b").addRBrace().build();
+        TokenProvider provider = lexerBuilder().addLBracket().addColon().addIdentifier("a").addColon().addIdentifier("b").addRBracket().build();
         Parser parser = new Parser(provider);
-        Collection expected = Collection.of(Reference.absolute("a", "b"));
-        Document doc = parser.parse(false);
+        GddlList expected = GddlList.of(GddlReference.absolute("a", "b"));
+        GddlDocument doc = parser.parse(false);
         var actual = doc.getRoot();
         assertEquals(expected, actual);
     }
@@ -348,6 +344,16 @@ public class ParserTest
         public MockLexerBuilder addRBrace()
         {
             return add(TokenType.R_BRACE, "}");
+        }
+
+        public MockLexerBuilder addLBracket()
+        {
+            return add(TokenType.L_BRACKET, "[");
+        }
+
+        public MockLexerBuilder addRBracket()
+        {
+            return add(TokenType.R_BRACKET, "]");
         }
 
         public MockLexerBuilder addColon()

@@ -179,6 +179,10 @@ public class Lexer implements TokenProvider, AutoCloseable
                 return new Token(TokenType.L_BRACE, reader.read(1), startContext, comment, whitespace);
             case '}':
                 return new Token(TokenType.R_BRACE, reader.read(1), startContext, comment, whitespace);
+            case '[':
+                return new Token(TokenType.L_BRACKET, reader.read(1), startContext, comment, whitespace);
+            case ']':
+                return new Token(TokenType.R_BRACKET, reader.read(1), startContext, comment, whitespace);
             case ',':
                 return new Token(TokenType.COMMA, reader.read(1), startContext, comment, whitespace);
             case ':':

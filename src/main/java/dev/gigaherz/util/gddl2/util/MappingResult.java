@@ -1,9 +1,6 @@
 package dev.gigaherz.util.gddl2.util;
 
-import dev.gigaherz.util.gddl2.structure.Collection;
-import dev.gigaherz.util.gddl2.structure.Element;
-import dev.gigaherz.util.gddl2.structure.Reference;
-import dev.gigaherz.util.gddl2.structure.Value;
+import dev.gigaherz.util.gddl2.structure.*;
 
 import java.util.Optional;
 import java.util.function.DoubleFunction;
@@ -18,19 +15,28 @@ public abstract class MappingResult<T>
         return new WithValue(value);
     }
 
-    public static <T> MappingResult<T> remainder(Element<?> remainder)
+    public static <T> MappingResult<T> remainder(GddlElement<?> remainder)
     {
         return new WithRemainder(remainder);
     }
 
     /**
-     * If this element is a Collection, applies a mapping that returns a new Element.
+     * If this element is a Map, applies a mapping that returns a new Element.
      * Otherwise, returns itself.
      *
      * @param mapping The function to apply if the current element
      * @return The mapped value, or itself.
      */
-    public abstract MappingResult<T> mapCollection(Function<Collection, T> mapping);
+    public abstract MappingResult<T> mapMap(Function<GddlMap, T> mapping);
+
+    /**
+     * If this element is a List, applies a mapping that returns a new Element.
+     * Otherwise, returns itself.
+     *
+     * @param mapping The function to apply if the current element
+     * @return The mapped value, or itself.
+     */
+    public abstract MappingResult<T> mapList(Function<GddlList, T> mapping);
 
     /**
      * If this element is a Collection, applies a mapping that returns a new Element.
@@ -39,7 +45,7 @@ public abstract class MappingResult<T>
      * @param mapping The function to apply if the current element
      * @return The mapped value, or itself.
      */
-    public abstract MappingResult<T> mapValue(Function<Value, T> mapping);
+    public abstract MappingResult<T> mapValue(Function<GddlValue, T> mapping);
 
     /**
      * If this element is a Collection, applies a mapping that returns a new Element.
@@ -48,7 +54,7 @@ public abstract class MappingResult<T>
      * @param mapping The function to apply if the current element
      * @return The mapped value, or itself.
      */
-    public abstract MappingResult<T> mapReference(Function<Reference, T> mapping);
+    public abstract MappingResult<T> mapReference(Function<GddlReference, T> mapping);
 
     public abstract MappingResult<T> mapNull(Supplier<T> mapping);
 
@@ -68,7 +74,7 @@ public abstract class MappingResult<T>
 
     public abstract T orElseGet(Supplier<T> supplier);
 
-    public abstract T orElseMap(Function<Element<?>, T> mapping);
+    public abstract T orElseMap(Function<GddlElement<?>, T> mapping);
 
     public abstract <E extends Throwable> T orElseThrow(Supplier<E> exceptionFactory) throws E;
 
@@ -84,19 +90,25 @@ public abstract class MappingResult<T>
         }
 
         @Override
-        public MappingResult<T> mapCollection(Function<Collection, T> mapping)
+        public MappingResult<T> mapMap(Function<GddlMap, T> mapping)
         {
             return this;
         }
 
         @Override
-        public MappingResult<T> mapValue(Function<Value, T> mapping)
+        public MappingResult<T> mapList(Function<GddlList, T> mapping)
         {
             return this;
         }
 
         @Override
-        public MappingResult<T> mapReference(Function<Reference, T> mapping)
+        public MappingResult<T> mapValue(Function<GddlValue, T> mapping)
+        {
+            return this;
+        }
+
+        @Override
+        public MappingResult<T> mapReference(Function<GddlReference, T> mapping)
         {
             return this;
         }
@@ -156,13 +168,13 @@ public abstract class MappingResult<T>
         }
 
         @Override
-        public T orElseMap(Function<Element<?>, T> mapping)
+        public T orElseMap(Function<GddlElement<?>, T> mapping)
         {
             return value;
         }
 
         @Override
-        public <E extends Throwable> T orElseThrow(Supplier<E> exceptionFactory) throws E
+        public <E extends Throwable> T orElseThrow(Supplier<E> exceptionFactory)
         {
             return this.value;
         }
@@ -176,23 +188,31 @@ public abstract class MappingResult<T>
 
     private static class WithRemainder<T> extends MappingResult<T>
     {
-        private final Element<?> remainder;
+        private final GddlElement<?> remainder;
 
-        public WithRemainder(Element<?> remainder)
+        public WithRemainder(GddlElement<?> remainder)
         {
             this.remainder = remainder;
         }
 
         @Override
-        public MappingResult<T> mapCollection(Function<Collection, T> mapping)
+        public MappingResult<T> mapMap(Function<GddlMap, T> mapping)
         {
-            if (remainder.isCollection())
-                return of(mapping.apply(remainder.asCollection()));
+            if (remainder.isMap())
+                return of(mapping.apply(remainder.asMap()));
             return this;
         }
 
         @Override
-        public MappingResult<T> mapValue(Function<Value, T> mapping)
+        public MappingResult<T> mapList(Function<GddlList, T> mapping)
+        {
+            if (remainder.isList())
+                return of(mapping.apply(remainder.asList()));
+            return this;
+        }
+
+        @Override
+        public MappingResult<T> mapValue(Function<GddlValue, T> mapping)
         {
             if (remainder.isValue())
                 return of(mapping.apply(remainder.asValue()));
@@ -200,7 +220,7 @@ public abstract class MappingResult<T>
         }
 
         @Override
-        public MappingResult<T> mapReference(Function<Reference, T> mapping)
+        public MappingResult<T> mapReference(Function<GddlReference, T> mapping)
         {
             if (remainder.isReference())
                 return of(mapping.apply(remainder.asReference()));
@@ -273,7 +293,7 @@ public abstract class MappingResult<T>
         }
 
         @Override
-        public T orElseMap(Function<Element<?>, T> mapping)
+        public T orElseMap(Function<GddlElement<?>, T> mapping)
         {
             return mapping.apply(remainder);
         }

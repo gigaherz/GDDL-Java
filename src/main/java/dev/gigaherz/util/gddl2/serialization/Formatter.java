@@ -4,6 +4,7 @@ import dev.gigaherz.util.gddl2.structure.*;
 import dev.gigaherz.util.gddl2.util.BasicIntStack;
 import dev.gigaherz.util.gddl2.util.Utility;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -12,27 +13,27 @@ import java.util.regex.Pattern;
 public class Formatter
 {
     //region API
-    public static String formatCompact(Document doc)
+    public static String formatCompact(GddlDocument doc)
     {
         return format(doc, FormatterOptions.COMPACT);
     }
 
-    public static String formatCompact(Element<?> element)
+    public static String formatCompact(GddlElement<?> element)
     {
         return format(element, FormatterOptions.COMPACT);
     }
 
-    public static String formatNice(Document doc)
+    public static String formatNice(GddlDocument doc)
     {
         return format(doc, FormatterOptions.NICE);
     }
 
-    public static String formatNice(Element<?> element)
+    public static String formatNice(GddlElement<?> element)
     {
         return format(element, FormatterOptions.NICE);
     }
 
-    public static String format(Document doc, FormatterOptions options)
+    public static String format(GddlDocument doc, FormatterOptions options)
     {
         StringBuilder b = new StringBuilder();
         Formatter f = new Formatter(b, options);
@@ -40,7 +41,7 @@ public class Formatter
         return b.toString();
     }
 
-    public static String format(Element<?> element, FormatterOptions options)
+    public static String format(GddlElement<?> element, FormatterOptions options)
     {
         StringBuilder b = new StringBuilder();
         Formatter f = new Formatter(b, options);
@@ -54,7 +55,7 @@ public class Formatter
         this.options = options;
     }
 
-    public void formatDocument(Document d)
+    public void formatDocument(GddlDocument d)
     {
         formatElement(d.getRoot());
 
@@ -62,8 +63,10 @@ public class Formatter
             formatComment(d.getDanglingComment());
     }
 
-    public void formatElement(Element<?> e)
+    public void formatElement(GddlElement<?> e)
     {
+        formatComment(e);
+        appendIndent();
         formatElement(e, false);
     }
     //endregion 
@@ -120,7 +123,7 @@ public class Formatter
         }
     }
 
-    private void formatComment(Element<?> e)
+    private void formatComment(GddlElement<?> e)
     {
         if (e.hasComment() && options.writeComments)
         {
@@ -140,44 +143,31 @@ public class Formatter
         }
         for (int i = 0; i < count; i++)
         {
-            String s = lines[i];
             appendIndent();
+            String s = lines[i];
             builder.append('#');
             builder.append(s);
             builder.append('\n');
         }
     }
 
-    private void formatName(Element<?> e)
+    private void formatElement(GddlElement<?> e, boolean hasNext)
     {
-        appendIndent();
-        if (e.hasName())
+        if (e.isValue())
         {
-            String name = e.getName();
-            //noinspection ConstantConditions
-            if (!Utility.isValidIdentifier(name))
-                name = Utility.escapeString(name);
-            builder.append(name);
-            builder.append(" = ");
+            formatValue(e.asValue());
         }
-    }
-
-    private void formatElement(Element<?> e, boolean hasNext)
-    {
-        formatComment(e);
-        formatName(e);
-
-        if (e instanceof Value)
+        else if (e.isReference())
         {
-            formatValue((Value) e);
+            formatReference(e.asReference());
         }
-        else if (e instanceof Reference)
+        else if (e.isMap())
         {
-            formatReference((Reference) e);
+            formatMap(e.asMap(), hasNext);
         }
-        else if (e instanceof Collection)
+        else if (e.isList())
         {
-            formatCollection((Collection) e, hasNext);
+            formatList(e.asList(), hasNext);
         }
         else
         {
@@ -185,7 +175,7 @@ public class Formatter
         }
     }
 
-    private void formatValue(Value v)
+    private void formatValue(GddlValue v)
     {
         if (v.isNull())
         {
@@ -396,7 +386,7 @@ public class Formatter
         builder.append(l < 0 ? "-" : "+");
     }
 
-    private void formatReference(Reference r)
+    private void formatReference(GddlReference r)
     {
         int count = 0;
         for (String it : r.getNameParts())
@@ -406,21 +396,21 @@ public class Formatter
             builder.append(it);
         }
 
-        if (r.isResolved())
+        /*if (r.isResolved())
         {
             builder.append('=');
             if (r.resolvedValue() == null)
                 builder.append("NULL");
             else
                 builder.append(r.resolvedValue());
-        }
+        }*/
     }
 
-    private void formatCollection(Collection c, boolean hasNext0)
+    private void formatMap(GddlMap c, boolean hasNext0)
     {
         pushIndent();
 
-        boolean oneElementPerLine = !c.isSimple() || c.size() > options.oneElementPerLineThreshold;
+        boolean oneElementPerLine = c.getFormattingComplexity() > options.oneElementPerLineThreshold;
 
         if (c.hasTypeName())
         {
@@ -428,35 +418,38 @@ public class Formatter
             if (options.lineBreaksBeforeOpeningBrace == 0)
                 builder.append(' ');
         }
-        boolean addBraces = indentLevel > 0 || c.hasTypeName();
-        if (addBraces)
+        if (oneElementPerLine && options.lineBreaksBeforeOpeningBrace > 0)
         {
-            if (oneElementPerLine && options.lineBreaksBeforeOpeningBrace > 0)
-            {
-                appendMultiple('\n', options.lineBreaksBeforeOpeningBrace);
-                appendIndent();
-            }
-            else if (options.spacesBeforeOpeningBrace > 0)
-            {
-                appendMultiple(' ', options.spacesBeforeOpeningBrace);
-            }
-            builder.append('{');
-            if (oneElementPerLine && options.lineBreaksAfterOpeningBrace > 0)
-            {
-                appendMultiple('\n', options.lineBreaksAfterOpeningBrace);
-            }
-            else if (options.spacesAfterOpeningBrace > 0)
-            {
-                appendMultiple(' ', options.spacesAfterOpeningBrace);
-            }
-            pushIndent();
-            incIndent();
+            appendMultiple('\n', options.lineBreaksBeforeOpeningBrace);
+            appendIndent();
         }
+        else if (options.spacesBeforeOpeningBrace > 0)
+        {
+            appendMultiple(' ', options.spacesBeforeOpeningBrace);
+        }
+        builder.append('{');
+        if (c.size() == 0 && !oneElementPerLine)
+        {
+            appendMultiple(' ', options.spacesInEmptyCollection);
+        }
+        else if (oneElementPerLine && options.lineBreaksAfterOpeningBrace > 0)
+        {
+            appendMultiple('\n', options.lineBreaksAfterOpeningBrace);
+        }
+        else if (options.spacesAfterOpeningBrace > 0)
+        {
+            appendMultiple(' ', options.spacesAfterOpeningBrace);
+        }
+        pushIndent();
+        incIndent();
 
         boolean first = true;
-        for (int i = 0; i < c.size(); i++)
+        List<String> keys = new ArrayList<>(c.keySet());
+        keys.sort(String::compareTo);
+        for (int i = 0; i < keys.size(); i++)
         {
-            final Element<?> e = c.get(i);
+            String key = keys.get(i);
+            final GddlElement<?> e = c.get(key);
             pushIndent();
 
             if (first && (!oneElementPerLine || options.lineBreaksAfterOpeningBrace == 0))
@@ -469,9 +462,9 @@ public class Formatter
                 {
                     builder.append("\n");
                 }
-                else if (options.spacesBetweenElements > 0)
+                else
                 {
-                    appendMultiple(' ', options.spacesBetweenElements);
+                    appendMultiple(' ', options.spacesAfterComma);
                 }
 
                 if (!oneElementPerLine)
@@ -480,9 +473,21 @@ public class Formatter
 
             boolean hasNext1 = (i + 1) < c.size();
 
+            formatComment(e);
+            appendIndent();
+            if (!Utility.isValidIdentifier(key))
+                key = Utility.escapeString(key);
+            builder.append(key);
+            appendMultiple(' ',options.spacesBeforeEquals);
+            builder.append('=');
+            appendMultiple(' ',options.spacesAfterEquals);
             formatElement(e, hasNext1);
 
-            if (hasNext1 && (!e.isCollection() || !options.omitCommaAfterClosingBrace)) builder.append(',');
+            if (hasNext1 && ((!e.isMap() && !e.isList()) || !options.omitCommaAfterClosingBrace))
+            {
+                appendMultiple(' ', options.spacesBeforeComma);
+                builder.append(',');
+            }
 
             first = false;
             popIndent();
@@ -491,29 +496,127 @@ public class Formatter
         if (c.hasTrailingComment() && options.writeComments)
             formatComment(c.getTrailingComment());
 
-        if (addBraces)
+        popIndent();
+        if (c.size() == 0 && !oneElementPerLine)
         {
+            // Done on the open side
+        }
+        else if (oneElementPerLine && options.lineBreaksBeforeClosingBrace > 0)
+        {
+            appendMultiple('\n', options.lineBreaksBeforeClosingBrace);
+            appendIndent();
+        }
+        else if (options.spacesBeforeClosingBrace > 0)
+        {
+            appendMultiple(' ', options.spacesBeforeClosingBrace);
+        }
+        builder.append('}');
+        if (!hasNext0 || options.omitCommaAfterClosingBrace)
+        {
+            if (oneElementPerLine && options.lineBreaksAfterClosingBrace > 0)
+            {
+                appendMultiple('\n', options.lineBreaksAfterClosingBrace);
+            }
+            else if (options.spacesAfterClosingBrace > 0)
+            {
+                appendMultiple(' ', options.spacesAfterClosingBrace);
+            }
+        }
+
+        popIndent();
+    }
+
+    private void formatList(GddlList c, boolean hasNext0)
+    {
+        pushIndent();
+
+        boolean oneElementPerLine = c.getFormattingComplexity() > options.oneElementPerLineThreshold;
+
+        if (oneElementPerLine && options.lineBreaksBeforeOpeningBrace > 0)
+        {
+            appendMultiple('\n', options.lineBreaksBeforeOpeningBrace);
+            appendIndent();
+        }
+        else if (options.spacesBeforeOpeningBrace > 0)
+        {
+            appendMultiple(' ', options.spacesBeforeOpeningBrace);
+        }
+        builder.append('[');
+        if (oneElementPerLine && options.lineBreaksAfterOpeningBrace > 0)
+        {
+            appendMultiple('\n', options.lineBreaksAfterOpeningBrace);
+        }
+        else if (options.spacesAfterOpeningBrace > 0)
+        {
+            appendMultiple(' ', options.spacesAfterOpeningBrace);
+        }
+        pushIndent();
+        incIndent();
+
+        boolean first = true;
+        for (int i = 0; i < c.size(); i++)
+        {
+            final GddlElement<?> e = c.get(i);
+            pushIndent();
+
+            if (first && (!oneElementPerLine || options.lineBreaksAfterOpeningBrace == 0))
+            {
+                clearIndent();
+            }
+            else if (!first)
+            {
+                if (oneElementPerLine)
+                {
+                    builder.append("\n");
+                }
+                else if (options.spacesAfterComma > 0)
+                {
+                    appendMultiple(' ', options.spacesAfterComma);
+                }
+
+                if (!oneElementPerLine)
+                    clearIndent();
+            }
+
+            boolean hasNext1 = (i + 1) < c.size();
+
+            formatComment(e);
+            appendIndent();
+            formatElement(e, hasNext1);
+
+            if (hasNext1 && ((!e.isMap() && !e.isList()) || !options.omitCommaAfterClosingBrace))
+            {
+                appendMultiple(' ', options.spacesBeforeComma);
+                builder.append(',');
+            }
+
+            first = false;
             popIndent();
-            if (oneElementPerLine && options.lineBreaksBeforeClosingBrace > 0)
+        }
+
+        if (c.hasTrailingComment() && options.writeComments)
+            formatComment(c.getTrailingComment());
+
+        popIndent();
+        if (oneElementPerLine && options.lineBreaksBeforeClosingBrace > 0)
+        {
+            appendMultiple('\n', options.lineBreaksBeforeClosingBrace);
+            appendIndent();
+        }
+        else if (options.spacesBeforeClosingBrace > 0)
+        {
+            appendMultiple(' ', options.spacesBeforeClosingBrace);
+        }
+        builder.append(']');
+        if (!hasNext0 || options.omitCommaAfterClosingBrace)
+        {
+            if (oneElementPerLine && options.lineBreaksAfterClosingBrace > 0)
             {
-                appendMultiple('\n', options.lineBreaksBeforeClosingBrace);
-                appendIndent();
+                appendMultiple('\n', options.lineBreaksAfterClosingBrace);
             }
-            else if (options.spacesBeforeClosingBrace > 0)
+            else if (options.spacesAfterClosingBrace > 0)
             {
-                appendMultiple(' ', options.spacesBeforeClosingBrace);
-            }
-            builder.append('}');
-            if (!hasNext0 || options.omitCommaAfterClosingBrace)
-            {
-                if (oneElementPerLine && options.lineBreaksAfterClosingBrace > 0)
-                {
-                    appendMultiple('\n', options.lineBreaksAfterClosingBrace);
-                }
-                else if (options.spacesAfterClosingBrace > 0)
-                {
-                    appendMultiple(' ', options.spacesAfterClosingBrace);
-                }
+                appendMultiple(' ', options.spacesAfterClosingBrace);
             }
         }
 

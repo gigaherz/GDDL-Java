@@ -46,9 +46,7 @@ public class Token implements ContextProvider
     {
         return type == other.type &&
                 text.equals(other.text) &&
-                context.equals(other.context) &&
-                ((Utility.isNullOrEmpty(comment) && Utility.isNullOrEmpty(other.comment)) || Objects.equals(comment, other.comment)) &&
-                ((Utility.isNullOrEmpty(whitespace) && Utility.isNullOrEmpty(other.whitespace)) || Objects.equals(whitespace, other.whitespace));
+                context.equals(other.context);
     }
 
     @Override

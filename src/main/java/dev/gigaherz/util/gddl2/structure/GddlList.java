@@ -1,6 +1,5 @@
 package dev.gigaherz.util.gddl2.structure;
 
-import dev.gigaherz.util.gddl2.util.MultiMap;
 import dev.gigaherz.util.gddl2.util.Utility;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,32 +8,32 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
-public final class Collection extends Element<Collection> implements List<Element<?>>
+public final class GddlList extends GddlElement<GddlList> implements List<GddlElement<?>>
 {
     //region API
-    public static Collection empty()
+    public static GddlList empty()
     {
-        return new Collection();
+        return new GddlList();
     }
 
-    public static Collection of(Element<?>... initial)
+    public static GddlList of(GddlElement<?>... initial)
     {
-        return new Collection(Arrays.asList(initial));
+        return new GddlList(Arrays.asList(initial));
     }
 
-    public static Collection copyOf(java.util.Collection<Element<?>> initial)
+    public static GddlList copyOf(java.util.Collection<GddlElement<?>> initial)
     {
-        return new Collection(initial);
+        return new GddlList(initial);
     }
 
     @Override
-    public boolean isCollection()
+    public boolean isList()
     {
         return true;
     }
 
     @Override
-    public Collection asCollection()
+    public GddlList asList()
     {
         return this;
     }
@@ -54,45 +53,14 @@ public final class Collection extends Element<Collection> implements List<Elemen
         this.trailingComment = trailingComment;
     }
 
-    public boolean hasTypeName()
-    {
-        return !Utility.isNullOrEmpty(typeName);
-    }
-
-    public String getTypeName()
-    {
-        return typeName;
-    }
-
     @NotNull
-    public Collection withTypeName(String value)
+    public Stream<GddlMap> byType(String typeName)
     {
-        if (!Utility.isValidIdentifier(value))
-            throw new IllegalArgumentException("Type value must be a valid identifier");
-        typeName = value;
-        return this;
-    }
-
-    @NotNull
-    public Optional<Element<?>> get(String name)
-    {
-        return names.get(name).stream().findFirst();
-    }
-
-    @NotNull
-    public Stream<Element<?>> byName(String elementName)
-    {
-        return names.get(elementName).stream();
-    }
-
-    @NotNull
-    public Stream<Collection> byType(String typeName)
-    {
-        return contents.stream().filter(t -> t instanceof Collection).map(t -> (Collection) t).filter(e -> e.typeName.equals(typeName));
+        return contents.stream().filter(GddlElement::isMap).map(GddlElement::asMap).filter(e -> e.hasTypeName() && e.getTypeName().equals(typeName));
     }
 
     @Override
-    public boolean add(Element<?> e)
+    public boolean add(GddlElement<?> e)
     {
         Objects.requireNonNull(e);
 
@@ -102,7 +70,7 @@ public final class Collection extends Element<Collection> implements List<Elemen
     }
 
     @Override
-    public void add(int before, @NotNull Element<?> e)
+    public void add(int before, @NotNull GddlElement<?> e)
     {
         Objects.requireNonNull(e);
 
@@ -110,7 +78,7 @@ public final class Collection extends Element<Collection> implements List<Elemen
         onAdd(e);
     }
 
-    public boolean remove(Element<?> e)
+    public boolean remove(GddlElement<?> e)
     {
         boolean r = contents.remove(e);
         onRemove(e);
@@ -118,31 +86,31 @@ public final class Collection extends Element<Collection> implements List<Elemen
     }
 
     @Override
-    public Element<?> remove(int index)
+    public GddlElement<?> remove(int index)
     {
-        Element<?> e = contents.get(index);
+        GddlElement<?> e = contents.get(index);
         contents.remove(index);
         onRemove(e);
         return e;
     }
 
-    public boolean contains(Element<?> element)
+    public boolean contains(GddlElement<?> element)
     {
         return contents.contains(element);
     }
 
     @Override
-    public Element<?> get(int index)
+    public GddlElement<?> get(int index)
     {
         return contents.get(index);
     }
 
     @Override
-    public Element<?> set(int index, @NotNull Element<?> e)
+    public GddlElement<?> set(int index, @NotNull GddlElement<?> e)
     {
         Objects.requireNonNull(e);
 
-        Element<?> old = contents.get(index);
+        GddlElement<?> old = contents.get(index);
         if (old == e)
             return old;
 
@@ -169,20 +137,19 @@ public final class Collection extends Element<Collection> implements List<Elemen
     {
         contents.forEach(e -> e.setParent(null));
         contents.clear();
-        names.clear();
     }
 
-    public boolean isSimple()
+    public int getFormattingComplexity()
     {
-        return contents.stream().noneMatch(a -> a instanceof Collection || a.hasName());
+        return 2 + contents.stream().mapToInt(GddlElement::getFormattingComplexity).sum();
     }
 
-    public int indexOf(Element<?> o)
+    public int indexOf(GddlElement<?> o)
     {
         return contents.indexOf(o);
     }
 
-    public int lastIndexOf(Element<?> o)
+    public int lastIndexOf(GddlElement<?> o)
     {
         return contents.lastIndexOf(o);
     }
@@ -206,68 +173,44 @@ public final class Collection extends Element<Collection> implements List<Elemen
     }
 
     @Override
-    public boolean addAll(java.util.Collection<? extends Element<?>> c)
+    public boolean addAll(java.util.Collection<? extends GddlElement<?>> c)
     {
         c.forEach(this::add);
         return !c.isEmpty();
     }
 
     @Override
-    public boolean addAll(int index, java.util.Collection<? extends Element<?>> c)
+    public boolean addAll(int index, java.util.Collection<? extends GddlElement<?>> c)
     {
-        for (Element<?> e : c)
+        for (GddlElement<?> e : c)
         {
             add(index++, e);
         }
         return !c.isEmpty();
     }
-
-
-    public boolean hasNames()
-    {
-        return names.size() > 0;
-    }
     //endregion
 
     //region Implementation
-    private final List<Element<?>> contents = new ArrayList<>();
-    private final MultiMap<String, Element<?>> names = new MultiMap<>();
+    private final List<GddlElement<?>> contents = new ArrayList<>();
     private String trailingComment;
 
-    private String typeName;
-
-    private Collection()
+    private GddlList()
     {
     }
 
-    private Collection(java.util.Collection<Element<?>> init)
+    private GddlList(java.util.Collection<GddlElement<?>> init)
     {
         this.addAll(init);
     }
 
-    private void onAdd(Element<?> e)
+    private void onAdd(GddlElement<?> e)
     {
-        if (e.hasName())
-            names.put(e.getName(), e);
         e.setParent(this);
     }
 
-    private void onRemove(Element<?> e)
+    private void onRemove(GddlElement<?> e)
     {
-        if (e.hasName())
-            names.remove(e.getName(), e);
         e.setParent(null);
-    }
-
-    /*package-private*/ void setName(@NotNull Element<?> e, String name)
-    {
-        String currentName = e.getName();
-        if (!Objects.equals(currentName, name))
-        {
-            onRemove(e);
-            e.setName(name);
-            onAdd(e);
-        }
     }
     //endregion
 
@@ -290,58 +233,58 @@ public final class Collection extends Element<Collection> implements List<Elemen
     @Override
     public boolean remove(Object o)
     {
-        return o instanceof Element && remove((Element<?>) o);
+        return o instanceof GddlElement && remove((GddlElement<?>) o);
     }
 
     @Override
     public boolean contains(Object o)
     {
-        return o instanceof Element && contains((Element<?>) o);
+        return o instanceof GddlElement && contains((GddlElement<?>) o);
     }
 
     @Override
     public int indexOf(Object o)
     {
-        return o instanceof Element ? indexOf((Element<?>) o) : -1;
+        return o instanceof GddlElement ? indexOf((GddlElement<?>) o) : -1;
     }
 
     @Override
     public int lastIndexOf(Object o)
     {
-        return o instanceof Element ? lastIndexOf((Element<?>) o) : -1;
+        return o instanceof GddlElement ? lastIndexOf((GddlElement<?>) o) : -1;
     }
     //endregion
 
     //region Element
     @Override
-    protected Collection copyInternal()
+    protected GddlList copyInternal()
     {
-        var collection = new Collection();
+        var collection = new GddlList();
         copyTo(collection);
         return collection;
     }
 
     @Override
-    protected void copyTo(Collection other)
+    protected void copyTo(GddlList other)
     {
         super.copyTo(other);
-        for (Element<?> e : contents)
+        for (GddlElement<?> e : contents)
         {
-            other.add(e.copyInternal());
+            other.add(e.copy());
         }
     }
 
     @Override
-    public void resolve(Element<?> root)
+    public void resolve(GddlElement<?> root)
     {
-        for (Element<?> el : contents)
+        for (GddlElement<?> el : contents)
         {
             el.resolve(root);
         }
     }
 
     @Override
-    public Collection simplify()
+    public GddlList simplify()
     {
         for (int i = 0; i < contents.size(); i++)
         {
@@ -358,63 +301,39 @@ public final class Collection extends Element<Collection> implements List<Elemen
     {
         if (this == other) return true;
         if (other == null || getClass() != other.getClass()) return false;
-        return equalsImpl((Collection) other);
+        return equalsImpl((GddlList) other);
     }
 
     @Override
-    public boolean equals(Collection other)
+    public boolean equals(GddlList other)
     {
         if (this == other) return true;
         if (other == null) return false;
         return equalsImpl(other);
     }
 
-    @Override
-    public boolean equalsImpl(@NotNull Collection other)
+    public boolean equalsImpl(@NotNull GddlList other)
     {
-        return super.equalsImpl(other) &&
-                contents.equals(other.contents) &&
-                names.equals(other.names) &&
-                Objects.equals(typeName, other.typeName);
+        return contents.equals(other.contents);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(super.hashCode(), contents, names, typeName);
+        return Objects.hash(super.hashCode(), contents);
     }
 
-    public boolean namedEquals(Element<?> other)
-    {
-        if (this == other) return true;
-        if (other == null) return false;
-        return other.isCollection() && namedEqualsImpl(other.asCollection());
-    }
-
-    public boolean namedEquals(Collection other)
-    {
-        if (this == other) return true;
-        if (other == null) return false;
-        return namedEqualsImpl(other);
-    }
-
-    private boolean namedEqualsImpl(@NotNull Collection other)
-    {
-        return super.equalsImpl(other) &&
-                names.equals(other.names) &&
-                Objects.equals(typeName, other.typeName);
-    }
     //endregion
 
     //region Iterators
     @Override
     @NotNull
-    public Iterator<Element<?>> iterator()
+    public Iterator<GddlElement<?>> iterator()
     {
         return new Iterator<>()
         {
-            private Element<?> current;
-            private final Iterator<Element<?>> it = contents.iterator();
+            private GddlElement<?> current;
+            private final Iterator<GddlElement<?>> it = contents.iterator();
 
             @Override
             public boolean hasNext()
@@ -423,7 +342,7 @@ public final class Collection extends Element<Collection> implements List<Elemen
             }
 
             @Override
-            public Element<?> next()
+            public GddlElement<?> next()
             {
                 current = it.next();
                 return current;
@@ -439,19 +358,19 @@ public final class Collection extends Element<Collection> implements List<Elemen
 
     @Override
     @NotNull
-    public ListIterator<Element<?>> listIterator()
+    public ListIterator<GddlElement<?>> listIterator()
     {
         return listIterator(0);
     }
 
     @Override
     @NotNull
-    public ListIterator<Element<?>> listIterator(int index)
+    public ListIterator<GddlElement<?>> listIterator(int index)
     {
         return new ListIterator<>()
         {
-            private final ListIterator<Element<?>> lit = contents.listIterator(index);
-            private Element<?> current = contents.get(index);
+            private final ListIterator<GddlElement<?>> lit = contents.listIterator(index);
+            private GddlElement<?> current = contents.get(index);
 
             @Override
             public boolean hasNext()
@@ -460,7 +379,7 @@ public final class Collection extends Element<Collection> implements List<Elemen
             }
 
             @Override
-            public Element<?> next()
+            public GddlElement<?> next()
             {
                 current = lit.next();
                 return current;
@@ -473,7 +392,7 @@ public final class Collection extends Element<Collection> implements List<Elemen
             }
 
             @Override
-            public Element<?> previous()
+            public GddlElement<?> previous()
             {
                 current = lit.previous();
                 return current;
@@ -499,7 +418,7 @@ public final class Collection extends Element<Collection> implements List<Elemen
             }
 
             @Override
-            public void set(Element<?> e)
+            public void set(GddlElement<?> e)
             {
                 Objects.requireNonNull(e);
 
@@ -509,7 +428,7 @@ public final class Collection extends Element<Collection> implements List<Elemen
             }
 
             @Override
-            public void add(Element<?> e)
+            public void add(GddlElement<?> e)
             {
                 Objects.requireNonNull(e);
 
@@ -521,7 +440,7 @@ public final class Collection extends Element<Collection> implements List<Elemen
 
     @Override
     @NotNull
-    public List<Element<?>> subList(int fromIndex, int toIndex)
+    public List<GddlElement<?>> subList(int fromIndex, int toIndex)
     {
         return Collections.unmodifiableList(contents.subList(fromIndex, toIndex));
     }

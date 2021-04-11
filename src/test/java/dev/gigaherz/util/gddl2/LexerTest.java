@@ -107,6 +107,7 @@ public class LexerTest
         Token expected = token(TokenType.L_BRACE, "{", new ParsingContext("TEST", 1, 1), "this is a comment\n");
         Token actual = lexSingle("#this is a comment\n{");
         assertEquals(expected, actual);
+        assertEquals(expected.comment, actual.comment);
     }
 
     @Test
@@ -115,6 +116,7 @@ public class LexerTest
         Token expected = token(TokenType.L_BRACE, "{", new ParsingContext("TEST", 1, 1), "this\nis\na\ncomment\n");
         Token actual = lexSingle("#this\n#is\n#a\n#comment\n{");
         assertEquals(expected, actual);
+        assertEquals(expected.comment, actual.comment);
     }
 
     @Test

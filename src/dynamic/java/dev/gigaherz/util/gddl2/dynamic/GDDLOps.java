@@ -4,9 +4,10 @@ import com.google.common.base.Objects;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
-import dev.gigaherz.util.gddl2.structure.Collection;
-import dev.gigaherz.util.gddl2.structure.Element;
-import dev.gigaherz.util.gddl2.structure.Value;
+import dev.gigaherz.util.gddl2.structure.GddlList;
+import dev.gigaherz.util.gddl2.structure.GddlElement;
+import dev.gigaherz.util.gddl2.structure.GddlMap;
+import dev.gigaherz.util.gddl2.structure.GddlValue;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -20,7 +21,7 @@ import java.util.stream.Stream;
  * This is not an automatic serializer, it does not enumerate fields via reflection, and does not automatically generate
  * Codecs from objects.
  */
-public final class GDDLOps implements DynamicOps<Element<?>>
+public final class GDDLOps implements DynamicOps<GddlElement<?>>
 {
     public static final GDDLOps INSTANCE = new GDDLOps();
 
@@ -29,37 +30,29 @@ public final class GDDLOps implements DynamicOps<Element<?>>
     }
 
     @Override
-    public Element<?> empty()
+    public GddlElement<?> empty()
     {
-        return Value.nullValue();
+        return GddlValue.nullValue();
     }
 
     @Override
-    public Element<?> emptyMap()
+    public GddlElement<?> emptyMap()
     {
-        return Collection.empty();
+        return GddlList.empty();
     }
 
     @Override
-    public Element<?> emptyList()
+    public GddlElement<?> emptyList()
     {
-        return Collection.empty();
+        return GddlList.empty();
     }
 
     @Override
-    public <U> U convertTo(DynamicOps<U> outOps, Element<?> input)
+    public <U> U convertTo(DynamicOps<U> outOps, GddlElement<?> input)
     {
         return input.resolvedValue().<U>when()
-                .mapCollection(c -> {
-                    if (c.hasNames())
-                    {
-                        return convertMap(outOps, c);
-                    }
-                    else
-                    {
-                        return convertList(outOps, c);
-                    }
-                })
+                .mapMap(c -> convertMap(outOps, c))
+                .mapList(c -> convertList(outOps, c))
                 .mapNull(outOps::empty)
                 .mapString(outOps::createString)
                 .mapBoolean(outOps::createBoolean)
@@ -89,7 +82,7 @@ public final class GDDLOps implements DynamicOps<Element<?>>
     }
 
     @Override
-    public DataResult<Number> getNumberValue(Element<?> input)
+    public DataResult<Number> getNumberValue(GddlElement<?> input)
     {
         if (input.isInteger())
             return DataResult.success(input.asInteger());
@@ -99,43 +92,43 @@ public final class GDDLOps implements DynamicOps<Element<?>>
     }
 
     @Override
-    public Element<?> createByte(byte value)
+    public GddlElement<?> createByte(byte value)
     {
-        return Value.of(value);
+        return GddlValue.of(value);
     }
 
     @Override
-    public Element<?> createShort(short value)
+    public GddlElement<?> createShort(short value)
     {
-        return Value.of(value);
+        return GddlValue.of(value);
     }
 
     @Override
-    public Element<?> createInt(int value)
+    public GddlElement<?> createInt(int value)
     {
-        return Value.of(value);
+        return GddlValue.of(value);
     }
 
     @Override
-    public Element<?> createLong(long value)
+    public GddlElement<?> createLong(long value)
     {
-        return Value.of(value);
+        return GddlValue.of(value);
     }
 
     @Override
-    public Element<?> createFloat(float value)
+    public GddlElement<?> createFloat(float value)
     {
-        return Value.of(value);
+        return GddlValue.of(value);
     }
 
     @Override
-    public Element<?> createDouble(double value)
+    public GddlElement<?> createDouble(double value)
     {
-        return Value.of(value);
+        return GddlValue.of(value);
     }
 
     @Override
-    public DataResult<Boolean> getBooleanValue(Element<?> input)
+    public DataResult<Boolean> getBooleanValue(GddlElement<?> input)
     {
         if (input.isBoolean())
             return DataResult.success(input.asBoolean());
@@ -143,26 +136,26 @@ public final class GDDLOps implements DynamicOps<Element<?>>
     }
 
     @Override
-    public Element<?> createBoolean(boolean value)
+    public GddlElement<?> createBoolean(boolean value)
     {
-        return Value.of(value);
+        return GddlValue.of(value);
     }
 
     @Override
-    public Element<?> createNumeric(Number i)
+    public GddlElement<?> createNumeric(Number i)
     {
         if (i instanceof Double || i instanceof Float || i instanceof BigDecimal)
         {
             double d = i.doubleValue();
-            return Value.of(d);
+            return GddlValue.of(d);
         }
 
         long l = i.longValue();
-        return Value.of(l);
+        return GddlValue.of(l);
     }
 
     @Override
-    public DataResult<String> getStringValue(Element<?> input)
+    public DataResult<String> getStringValue(GddlElement<?> input)
     {
         if (input.isString())
             return DataResult.success(input.asString());
@@ -170,100 +163,95 @@ public final class GDDLOps implements DynamicOps<Element<?>>
     }
 
     @Override
-    public Element<?> createString(String value)
+    public GddlElement<?> createString(String value)
     {
-        return Value.of(value);
+        return GddlValue.of(value);
     }
 
     @Override
-    public DataResult<Element<?>> mergeToList(Element<?> list, Element<?> value)
+    public DataResult<GddlElement<?>> mergeToList(GddlElement<?> list, GddlElement<?> value)
     {
-        Collection c;
+        GddlList c;
         if (list.isNull())
-            c = Collection.empty();
-        else if (list.isCollection())
-            c = list.asCollection().copy();
+            c = GddlList.empty();
+        else if (list.isList())
+            c = list.asList().copy();
         else return DataResult.error("Not a list");
         c.add(value.copy());
         return DataResult.success(c);
     }
 
     @Override
-    public DataResult<Element<?>> mergeToMap(Element<?> map, Element<?> key, Element<?> value)
+    public DataResult<GddlElement<?>> mergeToMap(GddlElement<?> map, GddlElement<?> key, GddlElement<?> value)
     {
-        Collection c;
+        GddlMap c;
         if (map.isNull())
-            c = Collection.empty();
-        else if (map.isCollection())
-            c = map.asCollection().copy();
+            c = GddlMap.empty();
+        else if (map.isMap())
+            c = map.asMap().copy();
         else return DataResult.error("Not a map");
+        if (!key.isString())
+            return DataResult.error("Key is not a string");
+        c.put(key.asString(), value);
         return DataResult.success(c);
     }
 
     @Override
-    public DataResult<Stream<Pair<Element<?>, Element<?>>>> getMapValues(Element<?> input)
+    public DataResult<Stream<Pair<GddlElement<?>, GddlElement<?>>>> getMapValues(GddlElement<?> input)
     {
-        if (!input.isCollection())
+        if (!input.isMap())
             return DataResult.error("Not a map");
 
         return DataResult.success(
-                input.asCollection().stream()
-                        .filter(Element::hasName)
+                input.asMap().entrySet().stream()
                         .map(
-                            e -> Pair.of(Value.of(e.getName()), e)
+                            e -> Pair.of(GddlValue.of(e.getKey()), e.getValue())
                         )
         );
     }
 
     @Override
-    public Element<?> createMap(Stream<Pair<Element<?>, Element<?>>> map)
+    public GddlElement<?> createMap(Stream<Pair<GddlElement<?>, GddlElement<?>>> map)
     {
-        Collection c = Collection.empty();
-        map.forEach(kv -> {
-            String value = kv.getFirst().asString();
-            c.add(kv.getSecond().withName(value));
-        });
+        var c = GddlMap.empty();
+        map.forEach(kv -> c.put(kv.getFirst().asString(), kv.getSecond()));
         return c;
     }
 
     @Override
-    public Element<?> createMap(Map<Element<?>, Element<?>> map)
+    public GddlElement<?> createMap(Map<GddlElement<?>, GddlElement<?>> map)
     {
-        Collection c = Collection.empty();
-        for (Map.Entry<Element<?>, Element<?>> entry : map.entrySet())
-        {
-            String value = entry.getKey().asString();
-            c.add(entry.getValue().withName(value));
-        }
+        var c = GddlMap.empty();
+        map.forEach((k,v) -> c.put(k.asString(), v));
         return c;
     }
 
     @Override
-    public DataResult<Stream<Element<?>>> getStream(Element<?> input)
+    public DataResult<Stream<GddlElement<?>>> getStream(GddlElement<?> input)
     {
-        if (input.isCollection())
-            return DataResult.success(input.asCollection().stream());
+        if (input.isList())
+            return DataResult.success(input.asList().stream());
         return DataResult.error("Not a list");
     }
 
     @Override
-    public Element<?> createList(Stream<Element<?>> input)
+    public GddlElement<?> createList(Stream<GddlElement<?>> input)
     {
-        Collection c = Collection.empty();
+        GddlList c = GddlList.empty();
         input.forEach(c::add);
         return c;
     }
 
     @Override
-    public Element<?> remove(Element<?> input, String key)
+    public GddlElement<?> remove(GddlElement<?> input, String key)
     {
-        if (input.isCollection())
+        if (input.isMap())
         {
-            Collection c = input.asCollection();
-            if (c.byName(key).count() > 0)
+            GddlMap c = input.asMap();
+            if (c.containsKey(key))
             {
                 c = c.copy();
-                c.removeIf(e -> Objects.equal(e.getName(), key));
+                c.remove(key);
                 return c;
             }
         }

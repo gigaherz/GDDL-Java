@@ -9,7 +9,7 @@ import java.util.Objects;
  * Simple values are: null, boolean false and true, strings, integers (long), and floats (double).
  */
 @SuppressWarnings("unused")
-public final class Value extends Element<Value>
+public final class GddlValue extends GddlElement<GddlValue>
 {
     //region API
 
@@ -18,9 +18,9 @@ public final class Value extends Element<Value>
      *
      * @return The value
      */
-    public static Value nullValue()
+    public static GddlValue nullValue()
     {
-        return new Value();
+        return new GddlValue();
     }
 
     /**
@@ -28,9 +28,9 @@ public final class Value extends Element<Value>
      *
      * @return The value
      */
-    public static Value of(boolean value)
+    public static GddlValue of(boolean value)
     {
-        return new Value(value);
+        return new GddlValue(value);
     }
 
     /**
@@ -38,9 +38,9 @@ public final class Value extends Element<Value>
      *
      * @return The value
      */
-    public static Value of(long num)
+    public static GddlValue of(long num)
     {
-        return new Value(num);
+        return new GddlValue(num);
     }
 
     /**
@@ -48,9 +48,9 @@ public final class Value extends Element<Value>
      *
      * @return The value
      */
-    public static Value of(double num)
+    public static GddlValue of(double num)
     {
-        return new Value(num);
+        return new GddlValue(num);
     }
 
     /**
@@ -58,9 +58,9 @@ public final class Value extends Element<Value>
      *
      * @return The value
      */
-    public static Value of(String s)
+    public static GddlValue of(String s)
     {
-        return new Value(s);
+        return new GddlValue(s);
     }
 
     @Override
@@ -70,7 +70,7 @@ public final class Value extends Element<Value>
     }
 
     @Override
-    public Value asValue()
+    public GddlValue asValue()
     {
         return this;
     }
@@ -133,27 +133,27 @@ public final class Value extends Element<Value>
     //region Implementation
     private Object data;
 
-    private Value()
+    private GddlValue()
     {
         data = null;
     }
 
-    private Value(boolean valueData)
+    private GddlValue(boolean valueData)
     {
         data = valueData;
     }
 
-    private Value(String valueData)
+    private GddlValue(String valueData)
     {
         data = valueData;
     }
 
-    private Value(long valueData)
+    private GddlValue(long valueData)
     {
         data = valueData;
     }
 
-    private Value(double valueData)
+    private GddlValue(double valueData)
     {
         data = valueData;
     }
@@ -161,15 +161,15 @@ public final class Value extends Element<Value>
 
     //region Element
     @Override
-    protected Value copyInternal()
+    protected GddlValue copyInternal()
     {
-        Value value = new Value();
+        GddlValue value = new GddlValue();
         copyTo(value);
         return value;
     }
 
     @Override
-    protected void copyTo(Value other)
+    protected void copyTo(GddlValue other)
     {
         super.copyTo(other);
         other.data = data;
@@ -182,21 +182,20 @@ public final class Value extends Element<Value>
     {
         if (this == other) return true;
         if (other == null || getClass() != other.getClass()) return false;
-        return equalsImpl((Value) other);
+        return equalsImpl((GddlValue) other);
     }
 
     @Override
-    public boolean equals(Value other)
+    public boolean equals(GddlValue other)
     {
         if (this == other) return true;
         if (other == null) return false;
         return equalsImpl(other);
     }
 
-    @Override
-    protected boolean equalsImpl(@NotNull Value value)
+    protected boolean equalsImpl(@NotNull GddlValue value)
     {
-        return super.equalsImpl(value) && Objects.equals(data, value.data);
+        return Objects.equals(data, value.data);
     }
 
     @Override

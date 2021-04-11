@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public final class Reference extends Element<Reference>
+public final class GddlReference extends GddlElement<GddlReference>
 {
     //region API
 
@@ -14,9 +14,9 @@ public final class Reference extends Element<Reference>
      * @param parts The target, as an array of names of each element along the path
      * @return A Reference set to the given path
      */
-    public static Reference absolute(String... parts)
+    public static GddlReference absolute(String... parts)
     {
-        return new Reference(true, parts);
+        return new GddlReference(true, parts);
     }
 
     /**
@@ -25,9 +25,9 @@ public final class Reference extends Element<Reference>
      * @param parts The target, as an array of names of each element along the path
      * @return A Reference set to the given path
      */
-    public static Reference relative(String... parts)
+    public static GddlReference relative(String... parts)
     {
-        return new Reference(false, parts);
+        return new GddlReference(false, parts);
     }
 
     @Override
@@ -37,7 +37,7 @@ public final class Reference extends Element<Reference>
     }
 
     @Override
-    public Reference asReference()
+    public GddlReference asReference()
     {
         return this;
     }
@@ -87,7 +87,7 @@ public final class Reference extends Element<Reference>
     }
 
     @Override
-    public Element<?> resolvedValue()
+    public GddlElement<?> resolvedValue()
     {
         return resolvedValue;
     }
@@ -98,11 +98,11 @@ public final class Reference extends Element<Reference>
     private final List<String> nameParts = new ArrayList<>();
 
     private boolean resolved;
-    private Element<?> resolvedValue;
+    private GddlElement<?> resolvedValue;
 
     protected final boolean rooted;
 
-    private Reference(boolean rooted, String... parts)
+    private GddlReference(boolean rooted, String... parts)
     {
         this.rooted = rooted;
         Collections.addAll(nameParts, parts);
@@ -111,22 +111,22 @@ public final class Reference extends Element<Reference>
 
     //region Element
     @Override
-    protected Reference copyInternal()
+    protected GddlReference copyInternal()
     {
-        Reference reference = new Reference(rooted);
+        GddlReference reference = new GddlReference(rooted);
         copyTo(reference);
         return reference;
     }
 
     @Override
-    protected void copyTo(Reference other)
+    protected void copyTo(GddlReference other)
     {
         super.copyTo(other);
         other.addAll(nameParts);
     }
 
     @Override
-    public void resolve(Element<?> root)
+    public void resolve(GddlElement<?> root)
     {
         if (isResolved())
             return;
@@ -140,11 +140,11 @@ public final class Reference extends Element<Reference>
         resolved = tryResolve(root, false);
     }
 
-    private boolean tryResolve(Element<?> root, boolean relative)
+    private boolean tryResolve(GddlElement<?> root, boolean relative)
     {
         var parent = getParent();
 
-        Element<?> target;
+        GddlElement<?> target;
         if (relative)
         {
             target = parent;
@@ -156,21 +156,30 @@ public final class Reference extends Element<Reference>
             target = root;
         }
 
-        boolean parentRoot = target.hasName() && nameParts.get(0).equals(target.getName());
+        boolean parentRoot = false;
+
+        if (target.getParent() != null)
+        {
+            var targetParent = target.getParent();
+            if (targetParent.isMap())
+            {
+                parentRoot = targetParent.asMap().getKeys(target).anyMatch(key -> key.equals(nameParts.get(0)));
+            }
+        }
 
         for (int i = parentRoot ? 1 : 0; i < nameParts.size(); i++)
         {
             String part = nameParts.get(i);
 
-            if (!(target instanceof Collection))
+            if (!target.isMap())
                 continue;
 
-            Collection s = (Collection) target;
+            GddlMap s = target.asMap();
 
             var ne = s.get(part);
-            if (ne.isPresent())
+            if (ne != null)
             {
-                target = ne.get();
+                target = ne;
                 continue;
             }
 
@@ -178,7 +187,7 @@ public final class Reference extends Element<Reference>
             return false;
         }
 
-        if (!target.isResolved())
+        if (target != this && !target.isResolved())
             target.resolve(root);
 
         resolvedValue = target.resolvedValue();
@@ -197,13 +206,11 @@ public final class Reference extends Element<Reference>
     }
 
     @Override
-    public Element<?> simplify()
+    public GddlElement<?> simplify()
     {
         if (resolved && resolvedValue != null)
         {
-            Element<?> resolved = resolvedValue.copy();
-            resolved.setName(getName());
-            return resolved;
+            return resolvedValue.copy();
         }
 
         return this;
@@ -216,22 +223,20 @@ public final class Reference extends Element<Reference>
     {
         if (this == other) return true;
         if (other == null || getClass() != other.getClass()) return false;
-        return equalsImpl((Reference) other);
+        return equalsImpl((GddlReference) other);
     }
 
     @Override
-    public boolean equals(Reference other)
+    public boolean equals(GddlReference other)
     {
         if (this == other) return true;
         if (other == null) return false;
         return equalsImpl(other);
     }
 
-    @Override
-    public boolean equalsImpl(@NotNull Reference reference)
+    public boolean equalsImpl(@NotNull GddlReference reference)
     {
-        return super.equalsImpl(reference) &&
-                rooted == reference.rooted &&
+        return rooted == reference.rooted &&
                 nameParts.equals(reference.nameParts) &&
                 (resolved
                         ? reference.resolved && Objects.equals(resolvedValue, reference.resolvedValue)

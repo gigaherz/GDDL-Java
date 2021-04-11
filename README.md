@@ -12,38 +12,37 @@ A complete example
 ```
 RootSetName = typeNameHere {
 
-    # Basic elements
+    "Basic elements" = [    
+        null, nil,
+        false, true,
+        12345,
+        0x12345,
+        123.45,
+        123e+45,
+        .23,
+        .23e45,
+        12.34e-5,
+        "This is a string literal",
+        "Testing \t\f\b\r\n escape\x20codes\u1234",
+        'Strings can also be single-quoted.'
+    ],
 
-    null, nil,
-    false, true,
-    12345,
-    0x12345,
-    123.45,
-    123e+45,
-    .23,
-    .23e45,
-    12.34e-5,
-    "This is a string literal",
-    "Testing \t\f\b\r\n escape\x20codes\u1234",
-    'Strings can also be single-quoted.',
+    [ 1,2,3,4,5 ] # the comma is optional after a closing brace/bracket
 
-    { 1,2,3,4,5 } # the comma is optional after a closing brace
+    "Named elements" = [    
+        namedNumber = 12345,
+        namedString = "12345",
+    
+        # Named sets
+    
+        "named collection" = [ "a", { 1 }, 0x345 ],
+        namedTypedSet = set_with_a_type { a = "\u0001" }
+    
+        # References
 
-    # Named elements
-
-    namedNumber = 12345,
-    namedString = "12345",
-
-    # Named sets
-
-    "named collection" = { "a", { 1 }, 0x345 },
-    namedTypedSet = set_with_a_type { "\u0001" }
-
-    # References
-
-    replace_this_with = RootSetName:namedNumber,
-
-    # The comma in the last element is optional but allowed.
+        # The comma in the last element is optional but allowed.
+        replace_this_with = RootSetName:namedNumber,
+    }
 }
 
 ```

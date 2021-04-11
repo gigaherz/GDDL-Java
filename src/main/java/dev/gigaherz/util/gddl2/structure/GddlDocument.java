@@ -5,14 +5,14 @@ import dev.gigaherz.util.gddl2.util.Utility;
 
 import java.util.Objects;
 
-public final class Document
+public final class GddlDocument
 {
     //region API
-    public Document()
+    public GddlDocument()
     {
     }
 
-    public Document(Element<?> root)
+    public GddlDocument(GddlElement<?> root)
     {
         this.root = root;
     }
@@ -32,19 +32,19 @@ public final class Document
         this.danglingComment = danglingComment;
     }
 
-    public Element<?> getRoot()
+    public GddlElement<?> getRoot()
     {
         return root;
     }
 
-    public void setRoot(Element<?> root)
+    public void setRoot(GddlElement<?> root)
     {
         this.root = root;
     }
     //endregion
 
     //region Implementation
-    private Element<?> root;
+    private GddlElement<?> root;
     private String danglingComment;
     //endregion
 
@@ -62,17 +62,17 @@ public final class Document
     {
         if (this == other) return true;
         if (other == null || getClass() != other.getClass()) return false;
-        return equalsImpl((Document) other);
+        return equalsImpl((GddlDocument) other);
     }
 
-    public boolean equals(Document other)
+    public boolean equals(GddlDocument other)
     {
         if (this == other) return true;
         if (other == null) return false;
         return equalsImpl(other);
     }
 
-    private boolean equalsImpl(Document other)
+    private boolean equalsImpl(GddlDocument other)
     {
         return Objects.equals(root, other.root) && Objects.equals(danglingComment, other.danglingComment);
     }

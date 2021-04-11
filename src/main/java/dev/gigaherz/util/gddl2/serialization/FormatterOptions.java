@@ -13,7 +13,11 @@ public final class FormatterOptions
             .spacesAfterOpeningBrace(1)
             .spacesBeforeClosingBrace(1)
             .spacesAfterClosingBrace(0)
-            .spacesBetweenElements(1)
+            .spacesInEmptyCollection(1)
+            .spacesAfterComma(1)
+            .spacesBeforeEquals(1)
+            .spacesAfterEquals(1)
+            .spacesInEmptyCollection(1)
             .oneElementPerLineThreshold(10)
             .spacesPerIndent(4)
             .blankLinesBeforeComment(1)
@@ -28,8 +32,12 @@ public final class FormatterOptions
     public final int spacesAfterOpeningBrace;
     public final int spacesBeforeClosingBrace;
     public final int spacesAfterClosingBrace;
+    public final int spacesBeforeComma;
+    public final int spacesAfterComma;
+    public final int spacesBeforeEquals;
+    public final int spacesAfterEquals;
+    public final int spacesInEmptyCollection;
     public final int oneElementPerLineThreshold;
-    public final int spacesBetweenElements;
     public final boolean omitCommaAfterClosingBrace;
 
     // Values
@@ -61,8 +69,12 @@ public final class FormatterOptions
         spacesAfterOpeningBrace = builder.spacesAfterOpeningBrace;
         spacesBeforeClosingBrace = builder.spacesBeforeClosingBrace;
         spacesAfterClosingBrace = builder.spacesAfterClosingBrace;
+        spacesBeforeComma = builder.spacesBeforeComma;
+        spacesAfterComma = builder.spacesAfterComma;
+        spacesBeforeEquals = builder.spacesBeforeEquals;
+        spacesAfterEquals = builder.spacesAfterEquals;
+        spacesInEmptyCollection = builder.spacesInEmptyCollection;
         oneElementPerLineThreshold = builder.oneElementPerLineThreshold;
-        spacesBetweenElements = builder.spacesBetweenElements;
         omitCommaAfterClosingBrace = builder.omitCommaAfterClosingBrace;
         lineBreaksAfterValues = builder.lineBreaksAfterValues;
         floatFormattingStyle = builder.floatFormattingStyle;
@@ -89,8 +101,12 @@ public final class FormatterOptions
         private int spacesAfterOpeningBrace = 0;
         private int spacesBeforeClosingBrace = 0;
         private int spacesAfterClosingBrace = 0;
+        private int spacesBeforeComma = 0;
+        private int spacesAfterComma = 0;
+        private int spacesBeforeEquals = 0;
+        private int spacesAfterEquals = 0;
+        private int spacesInEmptyCollection = 0;
         private int oneElementPerLineThreshold = Integer.MAX_VALUE;
-        private int spacesBetweenElements = 1;
         private boolean omitCommaAfterClosingBrace = false;
 
         // Values
@@ -159,15 +175,39 @@ public final class FormatterOptions
             return this;
         }
 
-        public Builder oneElementPerLineThreshold(int oneElementPerLineThreshold)
+        public Builder spacesBeforeComma(int spacesBeforeComma)
         {
-            this.oneElementPerLineThreshold = oneElementPerLineThreshold;
+            this.spacesBeforeComma = spacesBeforeComma;
             return this;
         }
 
-        public Builder spacesBetweenElements(int spacesBetweenElements)
+        public Builder spacesAfterComma(int spacesAfterComma)
         {
-            this.spacesBetweenElements = spacesBetweenElements;
+            this.spacesAfterComma = spacesAfterComma;
+            return this;
+        }
+
+        public Builder spacesBeforeEquals(int spacesBeforeEquals)
+        {
+            this.spacesBeforeEquals = spacesBeforeEquals;
+            return this;
+        }
+
+        public Builder spacesAfterEquals(int spacesAfterEquals)
+        {
+            this.spacesAfterEquals = spacesAfterEquals;
+            return this;
+        }
+
+        public Builder spacesInEmptyCollection(int spacesInEmptyCollection)
+        {
+            this.spacesInEmptyCollection = spacesInEmptyCollection;
+            return this;
+        }
+
+        public Builder oneElementPerLineThreshold(int oneElementPerLineThreshold)
+        {
+            this.oneElementPerLineThreshold = oneElementPerLineThreshold;
             return this;
         }
 
