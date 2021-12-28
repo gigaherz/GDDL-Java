@@ -187,8 +187,27 @@ public class Lexer implements TokenProvider, AutoCloseable
                 return new Token(TokenType.COMMA, reader.read(1), startContext, comment, whitespace);
             case ':':
                 return new Token(TokenType.COLON, reader.read(1), startContext, comment, whitespace);
+            case '/':
+                return new Token(TokenType.SLASH, reader.read(1), startContext, comment, whitespace);
             case '=':
                 return new Token(TokenType.EQUALS, reader.read(1), startContext, comment, whitespace);
+            case '%':
+                return new Token(TokenType.PERCENT, reader.read(1), startContext, comment, whitespace);
+        }
+
+        if (ich == '.')
+        {
+            ich = reader.peek(1);
+            if (ich == '.')
+            {
+                return new Token(TokenType.DOT, reader.read(2), startContext, comment, whitespace);
+            }
+            else if (!Utility.isDigit(ich))
+            {
+                return new Token(TokenType.DOUBLE_DOT, reader.read(1), startContext, comment, whitespace);
+            }
+
+            ich = reader.peek();
         }
 
         if (Utility.isLetter(ich) || ich == '_')
@@ -220,6 +239,14 @@ public class Lexer implements TokenProvider, AutoCloseable
                 return new Token(TokenType.TRUE, id.text, id, comment, whitespace);
             if (id.text.compareToIgnoreCase("false") == 0)
                 return new Token(TokenType.FALSE, id.text, id, comment, whitespace);
+            if (id.text.compareToIgnoreCase("boolean") == 0)
+                return new Token(TokenType.BOOLEAN, id.text, id, comment, whitespace);
+            if (id.text.compareToIgnoreCase("string") == 0)
+                return new Token(TokenType.STRING, id.text, id, comment, whitespace);
+            if (id.text.compareToIgnoreCase("integer") == 0)
+                return new Token(TokenType.INTEGER, id.text, id, comment, whitespace);
+            if (id.text.compareToIgnoreCase("decimal") == 0)
+                return new Token(TokenType.DECIMAL, id.text, id, comment, whitespace);
 
             return id;
         }
@@ -232,19 +259,26 @@ public class Lexer implements TokenProvider, AutoCloseable
             ich = reader.peek(number);
             while (ich != startedWith && ich >= 0)
             {
-                if (ich == '\\')
+                switch(ich)
                 {
-                    number = countEscapeSeq(number);
+                    case '\\':
+                        number = countEscapeSeq(number);
+                        break;
+                    case '\n':
+                        number++;
+                        break;
+                    case '\r':
+                        number++;
+                        ich = reader.peek(number);
+                        if (ich == '\n')
+                        {
+                            number++;
+                        }
+                        break;
+                    default:
+                        number++;
+                        break;
                 }
-                else
-                {
-                    if (ich == '\r')
-                    {
-                        throw new LexerException(this, String.format("Expected '\\r', found %s", debugChar(ich)));
-                    }
-                    number++;
-                }
-
                 ich = reader.peek(number);
             }
 
@@ -255,7 +289,7 @@ public class Lexer implements TokenProvider, AutoCloseable
 
             number++;
 
-            return new Token(TokenType.STRING, reader.read(number), startContext, comment, whitespace);
+            return new Token(TokenType.STRING_LITERAL, reader.read(number), startContext, comment, whitespace);
         }
 
         if (Utility.isDigit(ich) || ich == '.' || ich == '+' || ich == '-')
@@ -266,7 +300,7 @@ public class Lexer implements TokenProvider, AutoCloseable
 
             if (ich == '.' && reader.peek(number + 1) == 'N' && reader.peek(number + 2) == 'a' && reader.peek(number + 3) == 'N')
             {
-                return new Token(TokenType.DOUBLE, reader.read(number + 4), startContext, comment, whitespace);
+                return new Token(TokenType.DECIMAL_LITERAL, reader.read(number + 4), startContext, comment, whitespace);
             }
 
             if (ich == '-' || ich == '+')
@@ -278,7 +312,7 @@ public class Lexer implements TokenProvider, AutoCloseable
 
             if (ich == '.' && reader.peek(number + 1) == 'I' && reader.peek(number + 2) == 'n' && reader.peek(number + 3) == 'f')
             {
-                return new Token(TokenType.DOUBLE, reader.read(number + 4), startContext, comment, whitespace);
+                return new Token(TokenType.DECIMAL_LITERAL, reader.read(number + 4), startContext, comment, whitespace);
             }
 
             if (Utility.isDigit(ich))
@@ -295,7 +329,7 @@ public class Lexer implements TokenProvider, AutoCloseable
                         ich = reader.peek(number);
                     }
 
-                    return new Token(TokenType.HEX_INT, reader.read(number), startContext, comment, whitespace);
+                    return new Token(TokenType.HEX_INT_LITERAL, reader.read(number), startContext, comment, whitespace);
                 }
 
                 number = 1;
@@ -352,9 +386,9 @@ public class Lexer implements TokenProvider, AutoCloseable
             }
 
             if (fractional)
-                return new Token(TokenType.DOUBLE, reader.read(number), startContext, comment, whitespace);
+                return new Token(TokenType.DECIMAL_LITERAL, reader.read(number), startContext, comment, whitespace);
 
-            return new Token(TokenType.INTEGER, reader.read(number), startContext, comment, whitespace);
+            return new Token(TokenType.INTEGER_LITERAL, reader.read(number), startContext, comment, whitespace);
         }
 
         throw new LexerException(this, String.format("Unexpected character: %c", reader.peek()));
@@ -410,6 +444,7 @@ public class Lexer implements TokenProvider, AutoCloseable
             case '"':
             case '\'':
             case '\\':
+            case '\n':
                 return ++number;
         }
 
@@ -439,6 +474,18 @@ public class Lexer implements TokenProvider, AutoCloseable
                         }
                     }
                 }
+            }
+            return number;
+        }
+
+        if (ich == '\r')
+        {
+            number++;
+
+            ich = reader.peek(number);
+            if (ich == '\n')
+            {
+                number++;
             }
             return number;
         }

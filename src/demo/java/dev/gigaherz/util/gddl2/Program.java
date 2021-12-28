@@ -16,7 +16,7 @@ public class Program
     {
         try
         {
-            var doc = GDDL.fromFile("Test.txt");
+            var doc = GDDL.fromFile("sample.json");
             var e = doc.getRoot();
             var result = Formatter.formatNice(e);
             System.out.println(result);

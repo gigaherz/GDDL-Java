@@ -107,7 +107,10 @@ typeNameHere {
     
     # References
     
-    replace_this_with = RootSetName:namedNumber,
+    replace_this_with = stringLiteral,
+    slash_reference = /namedTypedMap/value,
+    array_reference = /"named list"/[1..2],
+    slash_reference = /namedTypedMap/value,
 
     # The comma in the last element is optional but allowed.
 }

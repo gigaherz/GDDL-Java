@@ -76,6 +76,10 @@ public class LexerTest
         assertEquals(tokenString("'\\u000F'"), lexSingle("'\\u000F'"));
         assertEquals(tokenString("'\\uF000'"), lexSingle("'\\uF000'"));
         assertEquals(tokenString("'\\uF00F'"), lexSingle("'\\uF00F'"));
+        assertEquals(tokenString("'\\\n'"), lexSingle("'\\\n'"));
+
+        // Line breaks
+        assertEquals(tokenString("'\r\n'"), lexSingle("'\r\n'"));
 
         // Unicode
         assertEquals(tokenString("'\uD800\uDF3C\uD800\uDF30\uD800\uDF32 \uD800\uDF32\uD800\uDF3B\uD800\uDF34\uD800\uDF43 \uD800\uDF39̈\uD800\uDF44\uD800\uDF30\uD800\uDF3D, \uD800\uDF3D\uD800\uDF39 \uD800\uDF3C\uD800\uDF39\uD800\uDF43 \uD800\uDF45\uD800\uDF3F \uD800\uDF3D\uD800\uDF33\uD800\uDF30\uD800\uDF3D \uD800\uDF31\uD800\uDF42\uD800\uDF39\uD800\uDF32\uD800\uDF32\uD800\uDF39\uD800\uDF38.'"),
@@ -148,22 +152,22 @@ public class LexerTest
 
     public static Token tokenInt(String number)
     {
-        return token(TokenType.INTEGER, number);
+        return token(TokenType.INTEGER_LITERAL, number);
     }
 
     public static Token tokenFloat(String number)
     {
-        return token(TokenType.DOUBLE, number);
+        return token(TokenType.DECIMAL_LITERAL, number);
     }
 
     public static Token tokenHexInt(String number)
     {
-        return token(TokenType.HEX_INT, number);
+        return token(TokenType.HEX_INT_LITERAL, number);
     }
 
     public static Token tokenString(String text)
     {
-        return token(TokenType.STRING, text);
+        return token(TokenType.STRING_LITERAL, text);
     }
 
     public static Token tokenBooleanTrue()

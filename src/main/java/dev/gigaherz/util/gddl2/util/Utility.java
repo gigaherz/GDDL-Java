@@ -143,6 +143,12 @@ public final class Utility
         return Utility.isPrintable(c) && !Utility.isControl(c) && c != delimiter && c != '\\';
     }
 
+    private static final int UE_QUOTE = 1;
+    private static final int UE_ESCAPE = 2;
+    private static final int UE_ESCAPE_LB = 3;
+    private static final int UE_ESCAPE_HEX = 5;
+    private static final int UE_ESCAPE_END = 6;
+
     /**
      * Processes any escape sequences in the string, replacing them with the codepoints those sequences represent.
      *
@@ -155,9 +161,7 @@ public final class Utility
 
         char startQuote = (char) 0;
 
-        boolean inEscape = false;
-
-        boolean inHexEscape = false;
+        int state = UE_QUOTE;
         int escapeAcc = 0;
         int escapeDigits = 0;
         int escapeMax = 0;
@@ -166,12 +170,12 @@ public final class Utility
         {
             if (startQuote != 0)
             {
-                if (inHexEscape)
+                if (state == UE_ESCAPE_HEX)
                 {
                     if (escapeDigits == escapeMax)
                     {
                         sb.append((char) escapeAcc);
-                        inHexEscape = false;
+                        state = UE_QUOTE;
                     }
                     else if (Utility.isDigit(c))
                     {
@@ -188,64 +192,93 @@ public final class Utility
                     else
                     {
                         sb.append((char) escapeAcc);
-                        inHexEscape = false;
+                        state = UE_QUOTE;
                     }
                     escapeDigits++;
                 }
 
-                if (inEscape)
+                if (state == UE_ESCAPE_LB)
+                {
+                    if (c == '\n')
+                    {
+                        sb.append('\n');
+                        state = UE_ESCAPE_END;
+                    }
+                    else
+                        state = UE_QUOTE;
+                }
+                else if (state == UE_ESCAPE_END)
+                {
+                    state = UE_QUOTE;
+                }
+
+                if (state == UE_ESCAPE)
                 {
                     switch (c)
                     {
                         case '"':
                             sb.append('"');
+                            state = UE_ESCAPE_END;
                             break;
                         case '\'':
                             sb.append('\'');
+                            state = UE_ESCAPE_END;
                             break;
                         case '\\':
                             sb.append('\\');
+                            state = UE_ESCAPE_END;
                             break;
                         case '0':
                             sb.append('\0');
+                            state = UE_ESCAPE_END;
                             break;
                         case 'b':
                             sb.append('\b');
+                            state = UE_ESCAPE_END;
                             break;
                         case 't':
                             sb.append('\t');
-                            break;
-                        case 'n':
-                            sb.append('\n');
+                            state = UE_ESCAPE_END;
                             break;
                         case 'f':
                             sb.append('\f');
+                            state = UE_ESCAPE_END;
                             break;
                         case 'r':
                             sb.append('\r');
+                            state = UE_ESCAPE_END;
+                            break;
+                        case 'n':
+                        case '\n':
+                            sb.append('\n');
+                            state = UE_ESCAPE_END;
+                            break;
+                        case '\r':
+                            sb.append('\r');
+                            state = UE_ESCAPE_LB;
                             break;
                         case 'x':
-                            inHexEscape = true;
+                            state = UE_ESCAPE_HEX;
                             escapeAcc = 0;
                             escapeDigits = 0;
                             escapeMax = 2;
                             break;
                         case 'u':
-                            inHexEscape = true;
+                            state = UE_ESCAPE_HEX;
                             escapeAcc = 0;
                             escapeDigits = 0;
                             escapeMax = 4;
                             break;
                     }
-                    inEscape = false;
                 }
-                else if (!inHexEscape)
+
+                if (state == UE_QUOTE)
                 {
                     if (c == startQuote)
                         return sb.toString();
                     if (c == '\\')
                     {
-                        inEscape = true;
+                        state = UE_ESCAPE;
                     }
                     else
                     {

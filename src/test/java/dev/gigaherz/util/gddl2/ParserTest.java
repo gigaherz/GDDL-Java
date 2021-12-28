@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class ParserTest
 {
@@ -35,17 +36,18 @@ public class ParserTest
                 .addRBracket()
                 .addEquals()
                 .addColon()
+                .addSlash()
                 .build();
 
-        assertEquals(new Token(TokenType.INTEGER, "1", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
-        assertEquals(new Token(TokenType.INTEGER, "-1", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
-        assertEquals(new Token(TokenType.DOUBLE, "1.0", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
-        assertEquals(new Token(TokenType.DOUBLE, "-1.0", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
-        assertEquals(new Token(TokenType.DOUBLE, ".NaN", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
-        assertEquals(new Token(TokenType.DOUBLE, ".Inf", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
-        assertEquals(new Token(TokenType.DOUBLE, "-.Inf", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
-        assertEquals(new Token(TokenType.HEX_INT, "0x1", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
-        assertEquals(new Token(TokenType.STRING, "\"1\"", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.INTEGER_LITERAL, "1", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.INTEGER_LITERAL, "-1", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.DECIMAL_LITERAL, "1.0", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.DECIMAL_LITERAL, "-1.0", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.DECIMAL_LITERAL, ".NaN", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.DECIMAL_LITERAL, ".Inf", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.DECIMAL_LITERAL, "-.Inf", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.HEX_INT_LITERAL, "0x1", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.STRING_LITERAL, "\"1\"", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.TRUE, "true", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.FALSE, "false", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.L_BRACE, "{", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
@@ -54,6 +56,7 @@ public class ParserTest
         assertEquals(new Token(TokenType.R_BRACKET, "]", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.EQUALS, "=", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.COLON, ":", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.SLASH, "/", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
 
         // Test that it automatically returns an END token at the end.
         assertEquals(new Token(TokenType.END, "", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
@@ -259,6 +262,36 @@ public class ParserTest
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void parsesSlashReference() throws IOException, ParserException
+    {
+        TokenProvider provider = lexerBuilder().addLBracket().addIdentifier("a").addSlash().addIdentifier("b").addRBracket().build();
+        Parser parser = new Parser(provider);
+        GddlList expected = GddlList.of(GddlReference.relative("a", "b"));
+        GddlDocument doc = parser.parse(false);
+        var actual = doc.getRoot();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void parsesRootedSlashReference() throws IOException, ParserException
+    {
+        TokenProvider provider = lexerBuilder().addLBracket().addSlash().addIdentifier("a").addSlash().addIdentifier("b").addRBracket().build();
+        Parser parser = new Parser(provider);
+        GddlList expected = GddlList.of(GddlReference.absolute("a", "b"));
+        GddlDocument doc = parser.parse(false);
+        var actual = doc.getRoot();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void rejectsMixedDelimiterReference() throws IOException, ParserException
+    {
+        TokenProvider provider = lexerBuilder().addLBracket().addSlash().addIdentifier("a").addColon().addIdentifier("b").addRBracket().build();
+        Parser parser = new Parser(provider);
+        assertThrows(ParserException.class, () -> parser.parse(false));
+    }
+
     // HARNESS BELOW
     // -------------
 
@@ -278,52 +311,52 @@ public class ParserTest
 
         public MockLexerBuilder addInt()
         {
-            return add(TokenType.INTEGER, "1");
+            return add(TokenType.INTEGER_LITERAL, "1");
         }
 
         public MockLexerBuilder addNInt()
         {
-            return add(TokenType.INTEGER, "-1");
+            return add(TokenType.INTEGER_LITERAL, "-1");
         }
 
         public MockLexerBuilder addFloat()
         {
-            return add(TokenType.DOUBLE, "1.0");
+            return add(TokenType.DECIMAL_LITERAL, "1.0");
         }
 
         public MockLexerBuilder addNFloat()
         {
-            return add(TokenType.DOUBLE, "-1.0");
+            return add(TokenType.DECIMAL_LITERAL, "-1.0");
         }
 
         public MockLexerBuilder addNaN()
         {
-            return add(TokenType.DOUBLE, ".NaN");
+            return add(TokenType.DECIMAL_LITERAL, ".NaN");
         }
 
         public MockLexerBuilder addInf()
         {
-            return add(TokenType.DOUBLE, ".Inf");
+            return add(TokenType.DECIMAL_LITERAL, ".Inf");
         }
 
         public MockLexerBuilder addNInf()
         {
-            return add(TokenType.DOUBLE, "-.Inf");
+            return add(TokenType.DECIMAL_LITERAL, "-.Inf");
         }
 
         public MockLexerBuilder addHexInt()
         {
-            return add(TokenType.HEX_INT, "0x1");
+            return add(TokenType.HEX_INT_LITERAL, "0x1");
         }
 
         public MockLexerBuilder addString()
         {
-            return add(TokenType.STRING, "\"1\"");
+            return add(TokenType.STRING_LITERAL, "\"1\"");
         }
 
         public MockLexerBuilder addString(String text)
         {
-            return add(TokenType.STRING, text);
+            return add(TokenType.STRING_LITERAL, text);
         }
 
         public MockLexerBuilder addBooleanTrue()
@@ -369,6 +402,11 @@ public class ParserTest
         public MockLexerBuilder addEquals()
         {
             return add(TokenType.EQUALS, "=");
+        }
+
+        public MockLexerBuilder addSlash()
+        {
+            return add(TokenType.SLASH, "/");
         }
 
         public MockLexerBuilder addIdentifier()

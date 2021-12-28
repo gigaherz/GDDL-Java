@@ -91,11 +91,11 @@ element_list    = element [ "," ]
                 | map element_list
                 ;
 
-reference       = identifier_list
-                | ":" identifier_list
-                ;
-
-identifier_list = identifier { ":" identifier } ;
+reference       = nonstring_part | colon_path | slash_path ;
+colon_path      = [ path_part ] ":" path_part { ":" path_part } ;
+slash_path      = [ path_part ] "/" path_part { "/" path_part } ;
+path_part       = nonstring_part | string;
+nonstring_part  = "." | ".." | identifier | string;
 
 # Terminals
 nil             = "nil" | "null" ;

@@ -15,12 +15,13 @@ public final class FormatterOptions
             .spacesAfterClosingBrace(0)
             .spacesInEmptyCollection(1)
             .spacesAfterComma(1)
-            .spacesBeforeEquals(1)
+            .spacesBeforeEquals(0)
             .spacesAfterEquals(1)
             .spacesInEmptyCollection(1)
             .oneElementPerLineThreshold(10)
             .spacesPerIndent(4)
             .blankLinesBeforeComment(1)
+            .preferJsonStyle(true)
             .build();
 
     // Collections
@@ -58,6 +59,9 @@ public final class FormatterOptions
     public final int blankLinesBeforeComment;
     public final boolean trimCommentLines;
 
+    // Other
+    public final boolean preferJsonStyle;
+
     // Internal Constructor
     private FormatterOptions(Builder builder)
     {
@@ -88,6 +92,7 @@ public final class FormatterOptions
         writeComments = builder.writeComments;
         blankLinesBeforeComment = builder.blankLinesBeforeComment;
         trimCommentLines = builder.trimCommentLines;
+        preferJsonStyle = builder.preferJsonStyle;
     }
 
     public static final class Builder
@@ -126,6 +131,9 @@ public final class FormatterOptions
         private boolean writeComments = false;
         private int blankLinesBeforeComment = 0;
         private boolean trimCommentLines = true;
+
+        // Other
+        private boolean preferJsonStyle = false;
 
         public Builder lineBreaksBeforeOpeningBrace(int lineBreaksBeforeOpeningBrace)
         {
@@ -292,6 +300,12 @@ public final class FormatterOptions
         public FormatterOptions build()
         {
             return new FormatterOptions(this);
+        }
+
+        public Builder preferJsonStyle(boolean prefer)
+        {
+            this.preferJsonStyle = prefer;
+            return this;
         }
     }
 }
