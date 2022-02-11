@@ -1,15 +1,12 @@
 group 'dev.gigaherz.util.gddl'
-version '2.0.0'
+version '2.0.0-alpha.1'
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
-sourceCompatibility = targetCompatibility = 11
-compileJava {
-    sourceCompatibility = targetCompatibility = 11
-}
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 repositories {
     mavenCentral()
@@ -53,28 +50,69 @@ configurations {
 dependencies {
     compileOnly 'org.jetbrains:annotations:20.1.0'
 
-    testCompile group: 'junit', name: 'junit', version: '4.13'
-    testCompile "com.google.guava:guava:29.0-jre"
+    testImplementation group: 'junit', name: 'junit', version: '4.13'
+    testImplementation "com.google.guava:guava:29.0-jre"
 
     dynamicImplementation 'com.mojang:datafixerupper:4.0.26'
 }
 
+jar {
+    from('/') {
+        include 'LICENSE.txt'
+    }
+
+    manifest {
+        attributes([
+                "Specification-Title": "GDDL",
+                "Specification-Vendor": "gigaherz",
+                "Specification-Version": "2.0", // We are version 1 of ourselves
+                "Implementation-Title": "GDDL",
+                "Implementation-Version": archiveVersion,
+                "Implementation-Vendor" :"gigaherz",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
 task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
-    baseName "{project.name}-dynamic"
     classifier 'sources'
+
+    from('/') {
+        include 'LICENSE.txt'
+    }
 }
 
 task dynamicJar(type: Jar, dependsOn: classes) {
     from sourceSets.dynamic.output
     baseName "${project.name}-dynamic"
     classifier ''
+
+    from('/') {
+        include 'LICENSE.txt'
+    }
+
+    manifest {
+        attributes([
+                "Specification-Title": "GDDL Dynamic",
+                "Specification-Vendor": "gigaherz",
+                "Specification-Version": "2.0", // We are version 1 of ourselves
+                "Implementation-Title": "GDDL Dynamic",
+                "Implementation-Version": archiveVersion,
+                "Implementation-Vendor" :"gigaherz",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
 }
 
 task dynamicSourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.dynamic.allSource
     baseName "${project.name}-dynamic"
     classifier 'sources'
+
+    from('/') {
+        include 'LICENSE.txt'
+    }
 }
 
 artifacts {
@@ -103,23 +141,5 @@ publishing {
         maven {
             url "$buildDir/repo"
         }
-    }
-}
-
-jar {
-    from('/') {
-        include 'LICENSE.txt'
-    }
-
-    manifest {
-        attributes([
-                "Specification-Title": "GDDL",
-                "Specification-Vendor": "gigaherz",
-                "Specification-Version": "2.0", // We are version 1 of ourselves
-                "Implementation-Title": "GDDL",
-                "Implementation-Version": archiveVersion,
-                "Implementation-Vendor" :"gigaherz",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
     }
 }

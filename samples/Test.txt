@@ -36,7 +36,7 @@ typeNameHere {
         [ .23 ],
         [ .23e45 ],
         [ 12.34e-5 ],
-        [ "This is a string literal" ],
+        [ "This is a string literal" ],f
         [ "Testing \t\f\b\r\n escape\x20codes\u1234" ],
         [ 'Strings can also be single-quoted.' ],
     

@@ -1,7 +1,7 @@
 package dev.gigaherz.util.gddl2;
 
 import dev.gigaherz.util.gddl2.exceptions.LexerException;
-import dev.gigaherz.util.gddl2.parser.*;
+import dev.gigaherz.util.gddl2.parsing.*;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -212,7 +212,7 @@ public class LexerTest
 
     public static Token tokenEquals()
     {
-        return token(TokenType.EQUALS, "=");
+        return token(TokenType.EQUAL_SIGN, "=");
     }
 
     public static Token tokenIdentifier(String text)

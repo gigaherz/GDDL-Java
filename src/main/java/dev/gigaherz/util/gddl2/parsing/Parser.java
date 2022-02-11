@@ -1,4 +1,4 @@
-package dev.gigaherz.util.gddl2.parser;
+package dev.gigaherz.util.gddl2.parsing;
 
 import dev.gigaherz.util.gddl2.exceptions.LexerException;
 import dev.gigaherz.util.gddl2.exceptions.ParserException;
@@ -237,7 +237,7 @@ public class Parser implements ContextProvider, AutoCloseable
 
             String n = name.type == TokenType.IDENTIFIER ? name.text : unescapeString(name);
 
-            popExpected(TokenType.EQUALS, TokenType.COLON);
+            popExpected(TokenType.EQUAL_SIGN, TokenType.COLON);
 
             GddlElement<?> b = element();
 

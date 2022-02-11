@@ -1,4 +1,4 @@
-package dev.gigaherz.util.gddl2.parser;
+package dev.gigaherz.util.gddl2.parsing;
 
 import org.jetbrains.annotations.NotNull;
 

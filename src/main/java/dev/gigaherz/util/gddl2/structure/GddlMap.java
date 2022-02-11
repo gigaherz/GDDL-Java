@@ -35,6 +35,17 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
         return new GddlMap(List.of(Map.entry(key, value), Map.entry(key2, value2), Map.entry(key3, value3), Map.entry(key4, value4)));
     }
 
+    @SafeVarargs
+    public static GddlMap of(Map.Entry<String, GddlElement<?>>... values)
+    {
+        return new GddlMap(Arrays.asList(values));
+    }
+
+    public static GddlMap of(Collection<Map.Entry<String, GddlElement<?>>> values)
+    {
+        return new GddlMap(values);
+    }
+
     @Override
     public boolean isMap()
     {
@@ -87,15 +98,6 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
         return Optional.ofNullable(names.get(name));
     }
 
-    @NotNull
-    public Stream<Map.Entry<String, GddlMap>> byType(String typeName)
-    {
-        return names.entrySet().stream()
-                .filter(e -> e.getValue().isMap())
-                .map(e -> Map.entry(e.getKey(), e.getValue().asMap()))
-                .filter(e -> e.getValue().hasTypeName() && e.getValue().getTypeName().equals(typeName));
-    }
-
     @Override
     public GddlElement<?> put(String key, GddlElement<?> value)
     {
@@ -112,7 +114,10 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     @Override
     public void putAll(@NotNull Map<? extends String, ? extends GddlElement<?>> m)
     {
-
+        for(var entry : m.entrySet())
+        {
+            put(entry.getKey(), entry.getValue());
+        }
     }
 
     public GddlElement<?> remove(String key)
@@ -206,7 +211,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     {
     }
 
-    private GddlMap(List<Map.Entry<String, GddlElement<?>>> entries)
+    private GddlMap(Collection<Map.Entry<String, GddlElement<?>>> entries)
     {
         for(Map.Entry<String, GddlElement<?>> entry : entries)
             names.put(entry.getKey(), entry.getValue());

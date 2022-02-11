@@ -1,8 +1,8 @@
 package dev.gigaherz.util.gddl2;
 
 import dev.gigaherz.util.gddl2.exceptions.ReaderException;
-import dev.gigaherz.util.gddl2.parser.ParsingContext;
-import dev.gigaherz.util.gddl2.parser.Reader;
+import dev.gigaherz.util.gddl2.parsing.ParsingContext;
+import dev.gigaherz.util.gddl2.parsing.Reader;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -3,7 +3,7 @@ package dev.gigaherz.util.gddl2;
 import com.google.common.collect.ImmutableList;
 import dev.gigaherz.util.gddl2.exceptions.LexerException;
 import dev.gigaherz.util.gddl2.exceptions.ParserException;
-import dev.gigaherz.util.gddl2.parser.*;
+import dev.gigaherz.util.gddl2.parsing.*;
 import dev.gigaherz.util.gddl2.structure.*;
 import org.junit.Test;
 
@@ -54,7 +54,7 @@ public class ParserTest
         assertEquals(new Token(TokenType.R_BRACE, "}", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.L_BRACKET, "[", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.R_BRACKET, "]", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
-        assertEquals(new Token(TokenType.EQUALS, "=", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
+        assertEquals(new Token(TokenType.EQUAL_SIGN, "=", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.COLON, ":", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
         assertEquals(new Token(TokenType.SLASH, "/", new ParsingContext("TEST", 1, 1), "", ""), provider.pop());
 
@@ -401,7 +401,7 @@ public class ParserTest
 
         public MockLexerBuilder addEquals()
         {
-            return add(TokenType.EQUALS, "=");
+            return add(TokenType.EQUAL_SIGN, "=");
         }
 
         public MockLexerBuilder addSlash()

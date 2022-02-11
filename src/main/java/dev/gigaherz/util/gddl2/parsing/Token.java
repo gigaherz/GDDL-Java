@@ -1,6 +1,5 @@
-package dev.gigaherz.util.gddl2.parser;
+package dev.gigaherz.util.gddl2.parsing;
 
-import dev.gigaherz.util.gddl2.util.Utility;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;

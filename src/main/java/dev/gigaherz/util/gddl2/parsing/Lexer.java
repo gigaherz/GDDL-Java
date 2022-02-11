@@ -1,6 +1,7 @@
-package dev.gigaherz.util.gddl2.parser;
+package dev.gigaherz.util.gddl2.parsing;
 
 import dev.gigaherz.util.gddl2.exceptions.LexerException;
+import dev.gigaherz.util.gddl2.exceptions.ReaderException;
 import dev.gigaherz.util.gddl2.util.ArrayQueue;
 import dev.gigaherz.util.gddl2.util.Utility;
 
@@ -88,87 +89,11 @@ public class Lexer implements TokenProvider, AutoCloseable
             return makeEndToken(startContext, "", "");
         }
 
+        whitespaceAndComments();
+        String comment = getComment();
+        String whitespace = getWhitespace();
+
         int ich = reader.peek();
-
-        whitespaceBuilder.setLength(0);
-        commentBuilder.setLength(0);
-        boolean commentStarted = false;
-        commentLoop:
-        while (true)
-        {
-            if (ich < 0) break;
-
-            switch (ich)
-            {
-                case ' ':
-                case '\t':
-                {
-                    char cch = (char) ich;
-                    whitespaceBuilder.append(cch);
-                    if (commentStarted)
-                        commentBuilder.append(cch);
-                    reader.skip(1);
-                    ich = reader.peek();
-                    break;
-                }
-                case '\r':
-                case '\n':
-                {
-                    char cch = (char) ich;
-                    whitespaceBuilder.append(cch);
-                    if (commentStarted)
-                        commentBuilder.append(cch);
-                    reader.skip(1);
-                    ich = reader.peek();
-                    if (cch == '\r' && ich == '\n')
-                    {
-                        cch = (char) ich;
-                        whitespaceBuilder.append(cch);
-                        if (commentStarted)
-                            commentBuilder.append(cch);
-                        reader.skip(1);
-                        ich = reader.peek();
-                    }
-                    commentStarted = false;
-                    break;
-                }
-                case '#':
-                {
-                    char cch = (char) ich;
-                    whitespaceBuilder.append(cch);
-                    if (!commentStarted)
-                    {
-                        commentStarted = true;
-                    }
-                    else
-                    {
-                        commentBuilder.append(cch);
-                    }
-                    reader.skip(1);
-                    ich = reader.peek();
-                    break;
-                }
-                default:
-                {
-                    if (!commentStarted)
-                    {
-                        break commentLoop;
-                    }
-                    else
-                    {
-                        char cch = (char) ich;
-                        whitespaceBuilder.append(cch);
-                        commentBuilder.append(cch);
-                        reader.skip(1);
-                        ich = reader.peek();
-                    }
-                    break;
-                }
-            }
-        }
-
-        String comment = commentBuilder.length() > 0 ? commentBuilder.toString() : "";
-        String whitespace = whitespaceBuilder.length() > 0 ? whitespaceBuilder.toString() : "";
 
         if (ich < 0)
             return makeEndToken(startContext, comment, whitespace);
@@ -190,7 +115,7 @@ public class Lexer implements TokenProvider, AutoCloseable
             case '/':
                 return new Token(TokenType.SLASH, reader.read(1), startContext, comment, whitespace);
             case '=':
-                return new Token(TokenType.EQUALS, reader.read(1), startContext, comment, whitespace);
+                return new Token(TokenType.EQUAL_SIGN, reader.read(1), startContext, comment, whitespace);
             case '%':
                 return new Token(TokenType.PERCENT, reader.read(1), startContext, comment, whitespace);
         }
@@ -200,11 +125,11 @@ public class Lexer implements TokenProvider, AutoCloseable
             ich = reader.peek(1);
             if (ich == '.')
             {
-                return new Token(TokenType.DOT, reader.read(2), startContext, comment, whitespace);
-            }
-            else if (!Utility.isDigit(ich))
-            {
                 return new Token(TokenType.DOUBLE_DOT, reader.read(1), startContext, comment, whitespace);
+            }
+            else if (!Utility.isDigit(ich) && (ich != 'I') && (ich != 'N'))
+            {
+                return new Token(TokenType.DOT, reader.read(2), startContext, comment, whitespace);
             }
 
             ich = reader.peek();
@@ -259,25 +184,18 @@ public class Lexer implements TokenProvider, AutoCloseable
             ich = reader.peek(number);
             while (ich != startedWith && ich >= 0)
             {
-                switch(ich)
+                switch (ich)
                 {
-                    case '\\':
-                        number = countEscapeSeq(number);
-                        break;
-                    case '\n':
-                        number++;
-                        break;
-                    case '\r':
+                    case '\\' -> number = countEscapeSeq(number);
+                    case '\r' -> {
                         number++;
                         ich = reader.peek(number);
                         if (ich == '\n')
                         {
                             number++;
                         }
-                        break;
-                    default:
-                        number++;
-                        break;
+                    }
+                    default -> number++;
                 }
                 ich = reader.peek(number);
             }
@@ -392,6 +310,98 @@ public class Lexer implements TokenProvider, AutoCloseable
         }
 
         throw new LexerException(this, String.format("Unexpected character: %c", reader.peek()));
+    }
+
+    private void whitespaceAndComments() throws ReaderException, IOException
+    {
+        int ich = reader.peek();
+
+        whitespaceBuilder.setLength(0);
+        commentBuilder.setLength(0);
+        boolean commentStarted = false;
+        commentLoop:
+        while (true)
+        {
+            if (ich < 0) break;
+
+            switch (ich)
+            {
+                case ' ':
+                case '\t':
+                {
+                    char cch = (char) ich;
+                    whitespaceBuilder.append(cch);
+                    if (commentStarted)
+                        commentBuilder.append(cch);
+                    reader.skip(1);
+                    ich = reader.peek();
+                    break;
+                }
+                case '\r':
+                case '\n':
+                {
+                    char cch = (char) ich;
+                    whitespaceBuilder.append(cch);
+                    if (commentStarted)
+                        commentBuilder.append(cch);
+                    reader.skip(1);
+                    ich = reader.peek();
+                    if (cch == '\r' && ich == '\n')
+                    {
+                        cch = (char) ich;
+                        whitespaceBuilder.append(cch);
+                        if (commentStarted)
+                            commentBuilder.append(cch);
+                        reader.skip(1);
+                        ich = reader.peek();
+                    }
+                    commentStarted = false;
+                    break;
+                }
+                case '#':
+                {
+                    char cch = (char) ich;
+                    whitespaceBuilder.append(cch);
+                    if (!commentStarted)
+                    {
+                        commentStarted = true;
+                    }
+                    else
+                    {
+                        commentBuilder.append(cch);
+                    }
+                    reader.skip(1);
+                    ich = reader.peek();
+                    break;
+                }
+                default:
+                {
+                    if (!commentStarted)
+                    {
+                        break commentLoop;
+                    }
+                    else
+                    {
+                        char cch = (char) ich;
+                        whitespaceBuilder.append(cch);
+                        commentBuilder.append(cch);
+                        reader.skip(1);
+                        ich = reader.peek();
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    private String getComment()
+    {
+        return commentBuilder.length() > 0 ? commentBuilder.toString() : "";
+    }
+
+    private String getWhitespace()
+    {
+        return whitespaceBuilder.length() > 0 ? whitespaceBuilder.toString() : "";
     }
 
     private Token makeEndToken(ParsingContext startContext, String comment, String whitespace)

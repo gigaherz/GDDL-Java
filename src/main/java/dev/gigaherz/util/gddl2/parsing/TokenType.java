@@ -1,9 +1,9 @@
-package dev.gigaherz.util.gddl2.parser;
+package dev.gigaherz.util.gddl2.parsing;
 
 public enum TokenType
 {
     COMMA,
-    EQUALS,
+    EQUAL_SIGN,
     COLON,
     SLASH,
     DOT,
@@ -33,5 +33,6 @@ public enum TokenType
     INTEGER,
     DECIMAL,
 
+    // end
     END
 }

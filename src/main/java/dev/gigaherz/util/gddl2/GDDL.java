@@ -1,8 +1,8 @@
 package dev.gigaherz.util.gddl2;
 
 import dev.gigaherz.util.gddl2.exceptions.ParserException;
-import dev.gigaherz.util.gddl2.parser.Lexer;
-import dev.gigaherz.util.gddl2.parser.Parser;
+import dev.gigaherz.util.gddl2.parsing.Lexer;
+import dev.gigaherz.util.gddl2.parsing.Parser;
 import dev.gigaherz.util.gddl2.structure.GddlDocument;
 
 import java.io.*;
@@ -179,7 +179,7 @@ public class GDDL
      */
     public static GddlDocument fromReader(java.io.Reader reader, String sourceName) throws ParserException, IOException
     {
-        var parser = new Parser(new Lexer(new dev.gigaherz.util.gddl2.parser.Reader(reader, sourceName)));
+        var parser = new Parser(new Lexer(new dev.gigaherz.util.gddl2.parsing.Reader(reader, sourceName)));
         return parser.parse();
     }
     //endregion
