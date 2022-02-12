@@ -84,9 +84,9 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     public DataResult<Number> getNumberValue(GddlElement<?> input)
     {
         if (input.isInteger())
-            return DataResult.success(input.asInteger());
+            return DataResult.success(input.intValue());
         else if (input.isDouble())
-            return DataResult.success(input.asDouble());
+            return DataResult.success(input.doubleValue());
         return DataResult.error("Not a number");
     }
 
@@ -130,7 +130,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     public DataResult<Boolean> getBooleanValue(GddlElement<?> input)
     {
         if (input.isBoolean())
-            return DataResult.success(input.asBoolean());
+            return DataResult.success(input.booleanValue());
         return DataResult.error("Not a boolean");
     }
 
@@ -157,7 +157,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     public DataResult<String> getStringValue(GddlElement<?> input)
     {
         if (input.isString())
-            return DataResult.success(input.asString());
+            return DataResult.success(input.stringValue());
         return DataResult.error("Not a string");
     }
 
@@ -192,7 +192,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
         if (!key.isString())
             return DataResult.error("Key is not a string");
         return asNewMap(map).map(c -> {
-            c.put(key.asString(), value);
+            c.put(key.stringValue(), value);
             return c;
         });
     }
@@ -225,7 +225,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     public GddlElement<?> createMap(Stream<Pair<GddlElement<?>, GddlElement<?>>> map)
     {
         var c = GddlMap.empty();
-        map.forEach(kv -> c.put(kv.getFirst().asString(), kv.getSecond()));
+        map.forEach(kv -> c.put(kv.getFirst().stringValue(), kv.getSecond()));
         return c;
     }
 
@@ -233,7 +233,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     public GddlElement<?> createMap(Map<GddlElement<?>, GddlElement<?>> map)
     {
         var c = GddlMap.empty();
-        map.forEach((k,v) -> c.put(k.asString(), v));
+        map.forEach((k,v) -> c.put(k.stringValue(), v));
         return c;
     }
 

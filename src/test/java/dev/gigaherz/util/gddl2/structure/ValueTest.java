@@ -1,6 +1,10 @@
 package dev.gigaherz.util.gddl2.structure;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
+
+import java.util.concurrent.Callable;
 
 import static org.junit.Assert.*;
 
@@ -28,10 +32,10 @@ public class ValueTest
     {
         GddlValue v = GddlValue.nullValue();
         assertTrue(v.isNull());
-        assertThrows(NullPointerException.class, v::asBoolean);
-        assertThrows(NullPointerException.class, v::asInteger);
-        assertThrows(NullPointerException.class, v::asDouble);
-        assertThrows(NullPointerException.class, v::asString);
+        assertThrows(NullPointerException.class, v::booleanValue);
+        assertThrows(NullPointerException.class, v::intValue);
+        assertThrows(NullPointerException.class, v::doubleValue);
+        assertThrows(NullPointerException.class, v::stringValue);
     }
 
     @Test
@@ -39,10 +43,10 @@ public class ValueTest
     {
         GddlValue v = GddlValue.of(true);
         assertFalse(v.isNull());
-        assertTrue(v.asBoolean());
-        assertThrows(ClassCastException.class, v::asInteger);
-        assertThrows(ClassCastException.class, v::asDouble);
-        assertThrows(ClassCastException.class, v::asString);
+        assertTrue(v.booleanValue());
+        assertThrows(ClassCastException.class, v::intValue);
+        assertThrows(ClassCastException.class, v::doubleValue);
+        assertThrows(ClassCastException.class, v::stringValue);
     }
 
     @Test
@@ -50,10 +54,10 @@ public class ValueTest
     {
         GddlValue v = GddlValue.of(false);
         assertFalse(v.isNull());
-        assertFalse(v.asBoolean());
-        assertThrows(ClassCastException.class, v::asInteger);
-        assertThrows(ClassCastException.class, v::asDouble);
-        assertThrows(ClassCastException.class, v::asString);
+        assertFalse(v.booleanValue());
+        assertThrows(ClassCastException.class, v::intValue);
+        assertThrows(ClassCastException.class, v::doubleValue);
+        assertThrows(ClassCastException.class, v::stringValue);
     }
 
     @Test
@@ -61,10 +65,10 @@ public class ValueTest
     {
         GddlValue v = GddlValue.of(1);
         assertFalse(v.isNull());
-        assertEquals(1L, v.asInteger());
-        assertThrows(ClassCastException.class, v::asBoolean);
-        assertThrows(ClassCastException.class, v::asDouble);
-        assertThrows(ClassCastException.class, v::asString);
+        assertEquals(1L, v.intValue());
+        assertThrows(ClassCastException.class, v::booleanValue);
+        assertThrows(ClassCastException.class, v::doubleValue);
+        assertThrows(ClassCastException.class, v::stringValue);
     }
 
     @Test
@@ -72,10 +76,10 @@ public class ValueTest
     {
         GddlValue v = GddlValue.of(1.0);
         assertFalse(v.isNull());
-        assertEquals(1L, v.asDouble(), 1E-10);
-        assertThrows(ClassCastException.class, v::asBoolean);
-        assertThrows(ClassCastException.class, v::asInteger);
-        assertThrows(ClassCastException.class, v::asString);
+        assertEquals(1L, v.doubleValue(), 1E-10);
+        assertThrows(ClassCastException.class, v::booleanValue);
+        assertThrows(ClassCastException.class, v::intValue);
+        assertThrows(ClassCastException.class, v::stringValue);
     }
 
     @Test
@@ -83,10 +87,10 @@ public class ValueTest
     {
         GddlValue v = GddlValue.of("1");
         assertFalse(v.isNull());
-        assertEquals("1", v.asString());
-        assertThrows(ClassCastException.class, v::asBoolean);
-        assertThrows(ClassCastException.class, v::asInteger);
-        assertThrows(ClassCastException.class, v::asDouble);
+        assertEquals("1", v.stringValue());
+        assertThrows(ClassCastException.class, v::booleanValue);
+        assertThrows(ClassCastException.class, v::intValue);
+        assertThrows(ClassCastException.class, v::doubleValue);
     }
 
     @Test
@@ -101,7 +105,7 @@ public class ValueTest
     {
         GddlValue v = GddlValue.of(true).copy();
         assertFalse(v.isNull());
-        assertTrue(v.asBoolean());
+        assertTrue(v.booleanValue());
     }
 
     @Test
@@ -109,7 +113,7 @@ public class ValueTest
     {
         GddlValue v = GddlValue.of(false).copy();
         assertFalse(v.isNull());
-        assertFalse(v.asBoolean());
+        assertFalse(v.booleanValue());
     }
 
     @Test
@@ -117,7 +121,7 @@ public class ValueTest
     {
         GddlValue v = GddlValue.of(1).copy();
         assertFalse(v.isNull());
-        assertEquals(1L, v.asInteger());
+        assertEquals(1L, v.intValue());
     }
 
     @Test
@@ -125,7 +129,7 @@ public class ValueTest
     {
         GddlValue v = GddlValue.of(1.0).copy();
         assertFalse(v.isNull());
-        assertEquals(1L, v.asDouble(), 1E-10);
+        assertEquals(1L, v.doubleValue(), 1E-10);
     }
 
     @Test
@@ -133,6 +137,15 @@ public class ValueTest
     {
         GddlValue v = GddlValue.of("1").copy();
         assertFalse(v.isNull());
-        assertEquals("1", v.asString());
+        assertEquals("1", v.stringValue());
+    }
+
+    public static <T extends Throwable, V> void assertThrows(Class<T> expectedThrowable,
+                                                       Callable<V> callable)
+    {
+        Assert.assertThrows(expectedThrowable, () -> {
+            var v = callable.call();
+            fail("Expected callable to throw, but it returned " + v);
+        });
     }
 }

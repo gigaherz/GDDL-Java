@@ -49,9 +49,7 @@ public class ParsingContext implements ContextProvider
 
     public boolean equalsImpl(@NotNull ParsingContext other)
     {
-        return line == other.line &&
-                column == other.column &&
-                filename.equals(other.filename);
+        return line == other.line && column == other.column && filename.equals(other.filename);
     }
 
     @Override

@@ -88,10 +88,10 @@ public final class GddlList extends GddlElement<GddlList> implements List<GddlEl
     @Override
     public GddlElement<?> remove(int index)
     {
-        GddlElement<?> e = contents.get(index);
+        GddlElement<?> at = contents.get(index);
         contents.remove(index);
-        onRemove(e);
-        return e;
+        onRemove(at);
+        return at;
     }
 
     public boolean contains(GddlElement<?> element)
@@ -111,12 +111,13 @@ public final class GddlList extends GddlElement<GddlList> implements List<GddlEl
         Objects.requireNonNull(e);
 
         GddlElement<?> old = contents.get(index);
-        if (old == e)
-            return old;
+        if (old != e)
+        {
+            contents.set(index, e);
+            onRemove(old);
+            onAdd(e);
+        }
 
-        onRemove(old);
-        contents.set(index, e);
-        onAdd(e);
         return old;
     }
 
@@ -135,7 +136,7 @@ public final class GddlList extends GddlElement<GddlList> implements List<GddlEl
     @Override
     public void clear()
     {
-        contents.forEach(e -> e.setParent(null));
+        contents.forEach(this::onRemove);
         contents.clear();
     }
 
@@ -351,6 +352,7 @@ public final class GddlList extends GddlElement<GddlList> implements List<GddlEl
             @Override
             public void remove()
             {
+                it.remove();
                 onRemove(current);
             }
         };

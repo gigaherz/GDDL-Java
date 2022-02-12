@@ -297,15 +297,15 @@ public final class FormatterOptions
             return this;
         }
 
-        public FormatterOptions build()
-        {
-            return new FormatterOptions(this);
-        }
-
         public Builder preferJsonStyle(boolean prefer)
         {
             this.preferJsonStyle = prefer;
             return this;
+        }
+
+        public FormatterOptions build()
+        {
+            return new FormatterOptions(this);
         }
     }
 }

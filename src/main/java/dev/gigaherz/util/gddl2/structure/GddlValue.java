@@ -76,25 +76,25 @@ public final class GddlValue extends GddlElement<GddlValue>
     }
 
     @Override
-    public String asString()
+    public String stringValue()
     {
         return (String) Objects.requireNonNull(data);
     }
 
     @Override
-    public boolean asBoolean()
+    public boolean booleanValue()
     {
         return (boolean) Objects.requireNonNull(data);
     }
 
     @Override
-    public long asInteger()
+    public long intValue()
     {
         return (long) Objects.requireNonNull(data);
     }
 
     @Override
-    public double asDouble()
+    public double doubleValue()
     {
         return (double) Objects.requireNonNull(data);
     }
@@ -193,7 +193,7 @@ public final class GddlValue extends GddlElement<GddlValue>
         return equalsImpl(other);
     }
 
-    protected boolean equalsImpl(@NotNull GddlValue value)
+    private boolean equalsImpl(@NotNull GddlValue value)
     {
         return Objects.equals(data, value.data);
     }

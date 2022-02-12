@@ -131,13 +131,7 @@ public final class GddlReference extends GddlElement<GddlReference>
         if (isResolved())
             return;
 
-        if (!rooted && tryResolve(root, true))
-        {
-            resolved = true;
-            return;
-        }
-
-        resolved = tryResolve(root, false);
+        resolved = tryResolve(root, !rooted);
     }
 
     private boolean tryResolve(GddlElement<?> root, boolean relative)
@@ -163,7 +157,7 @@ public final class GddlReference extends GddlElement<GddlReference>
             var targetParent = target.getParent();
             if (targetParent.isMap())
             {
-                parentRoot = targetParent.asMap().getKeys(target).anyMatch(key -> key.equals(nameParts.get(0)));
+                parentRoot = targetParent.asMap().keysOf(target).anyMatch(key -> key.equals(nameParts.get(0)));
             }
         }
 
@@ -198,7 +192,7 @@ public final class GddlReference extends GddlElement<GddlReference>
         while(parent != null)
         {
             if (resolvedValue == parent)
-                throw new IllegalStateException("Invalid cyclic reference: Reference resolves to a parent element.");
+                throw new IllegalStateException("Invalid cyclic reference: Reference resolves to a parent of the current element.");
             parent = parent.getParent();
         }
 

@@ -12,7 +12,7 @@ public class Reader implements ContextProvider, AutoCloseable
     public Reader(java.io.Reader reader, String sourceName)
     {
         this.sourceName = sourceName;
-        dataSource = reader;
+        this.dataSource = reader;
     }
 
     /**
@@ -89,7 +89,7 @@ public class Reader implements ContextProvider, AutoCloseable
         require(count);
 
         while (count-- > 0)
-        { nextInternal(); }
+            nextInternal();
     }
     //endregion
 

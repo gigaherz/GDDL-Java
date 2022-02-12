@@ -239,7 +239,7 @@ public abstract class MappingResult<T>
         public MappingResult<T> mapString(Function<String, T> mapping)
         {
             if (remainder.isString())
-                return of(mapping.apply(remainder.asString()));
+                return of(mapping.apply(remainder.stringValue()));
             return this;
         }
 
@@ -247,7 +247,7 @@ public abstract class MappingResult<T>
         public MappingResult<T> mapBoolean(BooleanFunction<T> mapping)
         {
             if (remainder.isBoolean())
-                return of(mapping.apply(remainder.asBoolean()));
+                return of(mapping.apply(remainder.booleanValue()));
             return this;
         }
 
@@ -255,7 +255,7 @@ public abstract class MappingResult<T>
         public MappingResult<T> mapInteger(LongFunction<T> mapping)
         {
             if (remainder.isInteger())
-                return of(mapping.apply(remainder.asInteger()));
+                return of(mapping.apply(remainder.intValue()));
             return this;
         }
 
@@ -263,7 +263,7 @@ public abstract class MappingResult<T>
         public MappingResult<T> mapDouble(DoubleFunction<T> mapping)
         {
             if (remainder.isDouble())
-                return of(mapping.apply(remainder.asDouble()));
+                return of(mapping.apply(remainder.doubleValue()));
             return this;
         }
 

@@ -47,7 +47,4 @@ public interface TokenProvider extends ContextProvider, AutoCloseable
      * @param whitespaceMode The new mode
      */
     void setWhitespaceMode(WhitespaceMode whitespaceMode);
-
-    @Override
-    void close() throws IOException;
 }

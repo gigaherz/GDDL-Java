@@ -4,7 +4,6 @@ import dev.gigaherz.util.gddl2.structure.*;
 import dev.gigaherz.util.gddl2.util.BasicIntStack;
 import dev.gigaherz.util.gddl2.util.Utility;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -104,7 +103,7 @@ public class Formatter
     {
         //noinspection StringRepeatCanBeUsed
         for (int i = 0; i < n; i++)
-        { builder.append(c); }
+            builder.append(c);
     }
 
     private void appendIndent()
@@ -139,14 +138,13 @@ public class Formatter
         if (count > 0 && options.trimCommentLines)
         {
             while (count > 0 && lines[count - 1].length() == 0)
-            { count--; }
+                count--;
         }
         for (int i = 0; i < count; i++)
         {
             appendIndent();
-            String s = lines[i];
             builder.append('#');
-            builder.append(s);
+            builder.append(lines[i]);
             builder.append('\n');
         }
     }
@@ -183,19 +181,19 @@ public class Formatter
         }
         else if (v.isBoolean())
         {
-            builder.append(v.asBoolean() ? "true" : "false");
+            builder.append(v.booleanValue() ? "true" : "false");
         }
         else if (v.isInteger())
         {
-            formatInteger(v.asInteger());
+            formatInteger(v.intValue());
         }
         else if (v.isDouble())
         {
-            formatDoubleCustom(v.asDouble());
+            formatDoubleCustom(v.doubleValue());
         }
         else if (v.isString())
         {
-            builder.append(Utility.escapeString(v.asString()));
+            builder.append(Utility.escapeString(v.stringValue()));
         }
         else
         {
@@ -212,15 +210,9 @@ public class Formatter
     {
         switch (options.floatFormattingStyle)
         {
-            case DECIMAL:
-                formatDoubleDecimal(value);
-                break;
-            case SCIENTIFIC:
-                formatDoubleScientific(value);
-                break;
-            default:
-                formatDoubleAuto(value);
-                break;
+            case DECIMAL -> formatDoubleDecimal(value);
+            case SCIENTIFIC -> formatDoubleScientific(value);
+            default -> formatDoubleAuto(value);
         }
     }
 
@@ -359,7 +351,8 @@ public class Formatter
             builder.append(".NaN");
             return true;
         }
-        else if (Double.isInfinite(value))
+
+        if (Double.isInfinite(value))
         {
             if (options.alwaysShowNumberSign)
                 formatSign(value);
@@ -368,10 +361,8 @@ public class Formatter
             builder.append(".Inf");
             return true;
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
 
     private void formatNegative(double value)
@@ -483,7 +474,7 @@ public class Formatter
             appendMultiple(' ',options.spacesAfterEquals);
             formatElement(e, hasNext1);
 
-            if (hasNext1 && ((!e.isMap() && !e.isList()) || !options.omitCommaAfterClosingBrace))
+            if (hasNext1 && ((!e.isCollection()) || !options.omitCommaAfterClosingBrace))
             {
                 appendMultiple(' ', options.spacesBeforeComma);
                 builder.append(',');

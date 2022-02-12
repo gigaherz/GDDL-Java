@@ -50,7 +50,7 @@ public final class GddlDocument
 
     //region toString
     @Override
-    public final String toString()
+    public String toString()
     {
         return Formatter.formatCompact(this);
     }

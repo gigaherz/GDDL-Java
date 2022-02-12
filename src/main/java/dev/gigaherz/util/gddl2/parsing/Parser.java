@@ -126,6 +126,15 @@ public class Parser implements ContextProvider, AutoCloseable
         TokenType prefix = nextPrefix();
         return Arrays.stream(tokens).anyMatch(t -> prefix == t);
     }
+    //endregion
+
+    //region Parse Rules
+    private Map.Entry<GddlElement<?>, String> root() throws IOException, ParserException
+    {
+        GddlElement<?> E = element();
+        var end = popExpected(TokenType.END);
+        return Map.entry(E, end.comment);
+    }
 
     private boolean prefixIdentifier() throws LexerException, IOException
     {
@@ -133,15 +142,6 @@ public class Parser implements ContextProvider, AutoCloseable
         boolean r = hasAny(TokenType.IDENTIFIER);
         endPrefixScan();
         return r;
-    }
-
-    private boolean prefixReference() throws LexerException, IOException
-    {
-        beginPrefixScan();
-        boolean r = hasAny(TokenType.COLON, TokenType.SLASH) && hasAny(TokenType.IDENTIFIER);
-        endPrefixScan();
-
-        return r || prefixIdentifier();
     }
 
     private GddlElement<?> element() throws ParserException, IOException
@@ -163,11 +163,18 @@ public class Parser implements ContextProvider, AutoCloseable
         throw new ParserException(this, "Internal Error");
     }
 
-    private Map.Entry<GddlElement<?>, String> root() throws IOException, ParserException
+    private Token name() throws ParserException, IOException
     {
-        GddlElement<?> E = element();
-        var end = popExpected(TokenType.END);
-        return Map.entry(E, end.comment);
+        return popExpected(TokenType.IDENTIFIER, TokenType.STRING_LITERAL);
+    }
+
+    private boolean prefixReference() throws LexerException, IOException
+    {
+        beginPrefixScan();
+        boolean r = hasAny(TokenType.COLON, TokenType.SLASH) && hasAny(TokenType.IDENTIFIER);
+        endPrefixScan();
+
+        return r || prefixIdentifier();
     }
 
     private GddlReference reference() throws IOException, ParserException
@@ -198,14 +205,6 @@ public class Parser implements ContextProvider, AutoCloseable
         }
 
         return b;
-    }
-
-    private boolean prefixPathComponent() throws LexerException, IOException
-    {
-        beginPrefixScan();
-        boolean r = hasAny(TokenType.IDENTIFIER, TokenType.STRING_LITERAL, TokenType.DOT, TokenType.DOUBLE_DOT);
-        endPrefixScan();
-        return r;
     }
 
     private Token pathComponent() throws ParserException, IOException
@@ -240,14 +239,13 @@ public class Parser implements ContextProvider, AutoCloseable
             popExpected(TokenType.EQUAL_SIGN, TokenType.COLON);
 
             GddlElement<?> b = element();
-
             b.setComment(name.comment);
-            b.setWhitespace(name.comment);
+            b.setWhitespace(name.whitespace);
             s.put(n, b);
 
             if (lexer.peek() != TokenType.R_BRACE)
             {
-                if (!finishedWithRBrace || (lexer.peek() == TokenType.COMMA))
+                if (!finishedWithRBrace || lexer.peek() == TokenType.COMMA)
                 {
                     popExpected(TokenType.COMMA);
                 }
@@ -322,43 +320,31 @@ public class Parser implements ContextProvider, AutoCloseable
         return s;
     }
 
-    private boolean prefixName() throws LexerException, IOException
-    {
-        beginPrefixScan();
-        boolean r = hasAny(TokenType.IDENTIFIER, TokenType.STRING_LITERAL);
-        endPrefixScan();
-        return r;
-    }
-
-    private Token name() throws ParserException, IOException
-    {
-        return popExpected(TokenType.IDENTIFIER, TokenType.STRING_LITERAL);
-    }
-
     private static GddlValue nullValue(Token token)
     {
-        GddlValue e = GddlValue.nullValue();
+        var e = GddlValue.nullValue();
         e.setComment(token.comment);
         return e;
     }
 
     private static GddlValue booleanValue(Token token)
     {
-        GddlValue e = GddlValue.of(token.type == TokenType.TRUE);
+        var e = GddlValue.of(token.type == TokenType.TRUE);
         e.setComment(token.comment);
         return e;
     }
 
     private static GddlValue intValue(Token token)
     {
-        GddlValue e = GddlValue.of(Long.parseLong(token.text));
+        var e = GddlValue.of(Long.parseLong(token.text));
         e.setComment(token.comment);
         return e;
     }
 
     private static GddlValue hexIntValue(Token token)
     {
-        GddlValue e = GddlValue.of(Long.parseLong(token.text.substring(2), 16));
+        long num = Long.parseLong(token.text.substring(2), 16);
+        var e = GddlValue.of(num);
         e.setComment(token.comment);
         return e;
     }
@@ -382,14 +368,14 @@ public class Parser implements ContextProvider, AutoCloseable
                 value = Double.parseDouble(token.text);
                 break;
         }
-        GddlValue e = GddlValue.of(value);
+        var e = GddlValue.of(value);
         e.setComment(token.comment);
         return e;
     }
 
     private static GddlValue stringValue(Token token) throws ParserException
     {
-        GddlValue e = GddlValue.of(unescapeString(token));
+        var e = GddlValue.of(unescapeString(token));
         e.setComment(token.comment);
         return e;
     }
@@ -425,7 +411,7 @@ public class Parser implements ContextProvider, AutoCloseable
 
     //region AutoCloseable
     @Override
-    public void close() throws IOException
+    public void close() throws Exception
     {
         lexer.close();
     }

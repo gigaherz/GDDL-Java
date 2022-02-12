@@ -12,14 +12,14 @@ import static org.junit.Assert.assertNotNull;
 public class MapTest
 {
     @Test
-    public void emptyCollectionContainsNoItems()
+    public void emptyMapContainsNoItems()
     {
         GddlMap collection = GddlMap.empty();
         assertEquals(0, collection.size());
     }
 
     @Test
-    public void collectionOfAddsNames()
+    public void mapOfAddsNames()
     {
         GddlElement<?> element = GddlValue.of(true);
         GddlMap collection = GddlMap.of("test", element);

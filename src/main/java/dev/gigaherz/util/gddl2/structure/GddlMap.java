@@ -95,7 +95,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     @NotNull
     public Optional<GddlElement<?>> find(String name)
     {
-        return Optional.ofNullable(names.get(name));
+        return Optional.ofNullable(contents.get(name));
     }
 
     @Override
@@ -104,7 +104,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
         Objects.requireNonNull(key);
         Objects.requireNonNull(value);
 
-        var previous = names.put(key, value);
+        var previous = contents.put(key, value);
         onAdd(value);
         if (previous != null && previous != value)
             onRemove(previous);
@@ -122,7 +122,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
 
     public GddlElement<?> remove(String key)
     {
-        GddlElement<?> e = names.remove(key);
+        GddlElement<?> e = contents.remove(key);
         if (e != null)
             onRemove(e);
         return e;
@@ -130,79 +130,80 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
 
     public boolean remove(String key, GddlElement<?> e)
     {
-        boolean r = names.remove(key, e);
+        boolean r = contents.remove(key, e);
         if (r) onRemove(e);
         return r;
     }
 
     public boolean containsKey(String key)
     {
-        return names.containsKey(key);
+        return contents.containsKey(key);
     }
 
     public boolean containsValue(GddlElement<?> element)
     {
-        return names.containsValue(element);
+        return contents.containsValue(element);
     }
 
     public GddlElement<?> get(String key)
     {
-        return names.get(key);
+        return contents.get(key);
     }
 
     @Override
     public int size()
     {
-        return names.size();
+        return contents.size();
     }
 
     @Override
     public boolean isEmpty()
     {
-        return names.isEmpty();
+        return contents.isEmpty();
     }
 
     @Override
     public void clear()
     {
-        names.values().forEach(e -> e.setParent(null));
-        names.clear();
+        contents.values().forEach(this::onRemove);
+        contents.clear();
     }
 
     @NotNull
     @Override
     public Set<String> keySet()
     {
-        return names.keySet();
+        return contents.keySet();
     }
 
     @NotNull
     @Override
     public Collection<GddlElement<?>> values()
     {
-        return names.values();
+        return contents.values();
     }
 
     @NotNull
     @Override
     public Set<Entry<String, GddlElement<?>>> entrySet()
     {
-        return names.entrySet();
+        return contentsView.entrySet();
     }
 
     public int getFormattingComplexity()
     {
-        return 2 + names.values().stream().mapToInt(i -> 3 * i.getFormattingComplexity()).sum();
+        return 2 + contents.values().stream().mapToInt(i -> 3 * i.getFormattingComplexity()).sum();
     }
 
-    public Stream<String> getKeys(GddlElement<?> value)
+    public Stream<String> keysOf(GddlElement<?> value)
     {
-        return names.entrySet().stream().filter(kv -> kv.getValue() == value).map(kv -> kv.getKey());
+        return contents.entrySet().stream().filter(kv -> kv.getValue() == value).map(Entry::getKey);
     }
     //endregion
 
     //region Implementation
-    private final Map<String, GddlElement<?>> names = new HashMap<>();
+    private final Map<String, GddlElement<?>> contents = new HashMap<>();
+    private final Map<String, GddlElement<?>> contentsView = Collections.unmodifiableMap(contents);
     private String trailingComment;
 
     private String typeName;
@@ -214,7 +215,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     private GddlMap(Collection<Map.Entry<String, GddlElement<?>>> entries)
     {
         for(Map.Entry<String, GddlElement<?>> entry : entries)
-            names.put(entry.getKey(), entry.getValue());
+            put(entry.getKey(), entry.getValue());
     }
 
     private void onAdd(GddlElement<?> e)
@@ -234,7 +235,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     @Override
     public boolean containsKey(Object key)
     {
-        return names.containsKey(key);
+        return contents.containsKey(key);
     }
 
     /**
@@ -244,7 +245,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     @Override
     public boolean containsValue(Object value)
     {
-        return names.containsValue(value);
+        return contents.containsValue(value);
     }
 
     /**
@@ -254,7 +255,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     @Override
     public GddlElement<?> get(Object key)
     {
-        return null;
+        return key instanceof String s ? get(s) : null;
     }
 
     /**
@@ -264,7 +265,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     @Override
     public GddlElement<?> remove(Object key)
     {
-        return null;
+        return key instanceof String s ? remove(s) : null;
     }
     //endregion
 
@@ -281,7 +282,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     protected void copyTo(GddlMap other)
     {
         super.copyTo(other);
-        for (Map.Entry<String, GddlElement<?>> e : names.entrySet())
+        for (Map.Entry<String, GddlElement<?>> e : contents.entrySet())
         {
             other.put(e.getKey(), e.getValue().copy());
         }
@@ -290,7 +291,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     @Override
     public void resolve(GddlElement<?> root)
     {
-        for (GddlElement<?> el : names.values())
+        for (GddlElement<?> el : contents.values())
         {
             el.resolve(root);
         }
@@ -299,7 +300,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     @Override
     public GddlMap simplify()
     {
-        for(Map.Entry<String, GddlElement<?>> entry : names.entrySet())
+        for(Map.Entry<String, GddlElement<?>> entry : contents.entrySet())
         {
             put(entry.getKey(), entry.getValue().simplify());
         }
@@ -326,14 +327,14 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
 
     public boolean equalsImpl(@NotNull GddlMap other)
     {
-        return names.equals(other.names) &&
+        return contents.equals(other.contents) &&
                 Objects.equals(typeName, other.typeName);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(super.hashCode(), names, typeName);
+        return Objects.hash(super.hashCode(), contents, typeName);
     }
 
     //endregion

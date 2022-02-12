@@ -163,7 +163,7 @@ public class ParserTest
     }
 
     @Test
-    public void parsesBracesAsList() throws IOException, ParserException
+    public void parsesBracketsAsList() throws IOException, ParserException
     {
         TokenProvider provider = lexerBuilder().addLBracket().addRBracket().build();
         Parser parser = new Parser(provider);
@@ -216,6 +216,22 @@ public class ParserTest
         GddlDocument doc = parser.parse(false);
         var actual = doc.getRoot();
         assertEquals(GddlList.of(GddlValue.of(1)), actual);
+    }
+
+    @Test
+    public void parsesBracesAsMap() throws IOException, ParserException
+    {
+        TokenProvider provider = lexerBuilder().addLBrace().addRBrace().build();
+        Parser parser = new Parser(provider);
+        assertEquals(GddlMap.empty(), parser.parse(false).getRoot());
+    }
+
+    @Test
+    public void parsesTypedMap() throws IOException, ParserException
+    {
+        TokenProvider provider = lexerBuilder().addIdentifier("test").addLBrace().addRBrace().build();
+        Parser parser = new Parser(provider);
+        assertEquals(GddlMap.empty().withTypeName("test"), parser.parse(false).getRoot());
     }
 
     @Test

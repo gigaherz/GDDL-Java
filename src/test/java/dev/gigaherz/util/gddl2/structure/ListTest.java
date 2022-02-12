@@ -9,76 +9,76 @@ import static org.junit.Assert.assertEquals;
 public class ListTest
 {
     @Test
-    public void emptyCollectionContainsNoItems()
+    public void emptyListContainsNoItems()
     {
-        GddlList collection = GddlList.empty();
-        assertEquals(0, collection.size());
+        GddlList list = GddlList.empty();
+        assertEquals(0, list.size());
     }
 
     @Test
-    public void collectionOfAddsElements()
+    public void listOfAddsElements()
     {
-        GddlList collection = GddlList.of(GddlValue.of(1));
-        assertEquals(1, collection.size());
+        GddlList list = GddlList.of(GddlValue.of(1));
+        assertEquals(1, list.size());
     }
 
     @Test
-    public void collectionAddAddsElements()
+    public void listAddAddsElements()
     {
-        GddlList collection = GddlList.empty();
-        assertEquals(0, collection.size());
-        collection.add(GddlValue.of(1));
-        assertEquals(1, collection.size());
+        GddlList list = GddlList.empty();
+        assertEquals(0, list.size());
+        list.add(GddlValue.of(1));
+        assertEquals(1, list.size());
     }
 
     @Test
-    public void collectionAddAllAddsElements()
+    public void listAddAllAddsElements()
     {
-        GddlList collection = GddlList.empty();
-        assertEquals(0, collection.size());
-        collection.addAll(Arrays.asList(GddlValue.of(1), GddlValue.of(2), GddlValue.of(3)));
-        assertEquals(3, collection.size());
+        GddlList list = GddlList.empty();
+        assertEquals(0, list.size());
+        list.addAll(Arrays.asList(GddlValue.of(1), GddlValue.of(2), GddlValue.of(3)));
+        assertEquals(3, list.size());
     }
 
     @Test
-    public void collectionGetReturnsElements()
+    public void listGetReturnsElements()
     {
         GddlValue second = GddlValue.of(2);
-        GddlList collection = GddlList.of(GddlValue.of(1), second, GddlValue.of(3));
-        assertEquals(second, collection.get(1));
+        GddlList list = GddlList.of(GddlValue.of(1), second, GddlValue.of(3));
+        assertEquals(second, list.get(1));
     }
 
     @Test
-    public void collectionAddInsertsElements()
+    public void listAddInsertsElements()
     {
         GddlValue second = GddlValue.of(2);
         GddlValue third = GddlValue.of(3);
-        GddlList collection = GddlList.of(GddlValue.of(1), second, GddlValue.of(4));
-        assertEquals(second, collection.get(1));
-        collection.add(1, third);
-        assertEquals(third, collection.get(1));
+        GddlList list = GddlList.of(GddlValue.of(1), second, GddlValue.of(4));
+        assertEquals(second, list.get(1));
+        list.add(1, third);
+        assertEquals(third, list.get(1));
     }
 
     @Test
-    public void collectionRemoveElementRemovesElements()
+    public void listRemoveElementRemovesElements()
     {
         GddlValue first = GddlValue.of(1);
         GddlValue second = GddlValue.of("test");
-        GddlList collection = GddlList.of(first, second);
-        assertEquals(2, collection.size());
-        collection.remove(second);
-        assertEquals(1, collection.size());
-        assertEquals(first, collection.get(0));
+        GddlList list = GddlList.of(first, second);
+        assertEquals(2, list.size());
+        list.remove(second);
+        assertEquals(1, list.size());
+        assertEquals(first, list.get(0));
     }
 
     @Test
-    public void collectionRemoveIndexRemovesElements()
+    public void listRemoveIndexRemovesElements()
     {
         GddlValue second = GddlValue.of("test");
-        GddlList collection = GddlList.of(GddlValue.of(1), second);
-        assertEquals(2, collection.size());
-        collection.remove(0);
-        assertEquals(1, collection.size());
-        assertEquals(second, collection.get(0));
+        GddlList list = GddlList.of(GddlValue.of(1), second);
+        assertEquals(2, list.size());
+        list.remove(0);
+        assertEquals(1, list.size());
+        assertEquals(second, list.get(0));
     }
 }

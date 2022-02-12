@@ -2,7 +2,6 @@ package dev.gigaherz.util.gddl2.structure;
 
 import dev.gigaherz.util.gddl2.serialization.Formatter;
 import dev.gigaherz.util.gddl2.util.MappingResult;
-import dev.gigaherz.util.gddl2.util.Utility;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @SuppressWarnings("unused")
-public abstract class GddlElement<T extends GddlElement<T>>
+public sealed abstract class GddlElement<T extends GddlElement<T>> permits GddlValue, GddlList, GddlMap, GddlReference
 {
     //region API
 
@@ -251,7 +250,7 @@ public abstract class GddlElement<T extends GddlElement<T>>
      *
      * @throws IllegalStateException If the contained value is not actually a string.
      */
-    public String asString()
+    public String stringValue()
     {
         throw new IllegalStateException("This element is not a value.");
     }
@@ -269,7 +268,7 @@ public abstract class GddlElement<T extends GddlElement<T>>
      *
      * @throws IllegalStateException If the contained value is not actually a boolean.
      */
-    public boolean asBoolean()
+    public boolean booleanValue()
     {
         throw new IllegalStateException("This element is not a value.");
     }
@@ -287,7 +286,7 @@ public abstract class GddlElement<T extends GddlElement<T>>
      *
      * @throws IllegalStateException If the contained value is not actually an integer.
      */
-    public long asInteger()
+    public long intValue()
     {
         throw new IllegalStateException("This element is not a value.");
     }
@@ -305,9 +304,14 @@ public abstract class GddlElement<T extends GddlElement<T>>
      *
      * @throws IllegalStateException If the contained value is not actually a floating-point number.
      */
-    public double asDouble()
+    public double doubleValue()
     {
         throw new IllegalStateException("This element is not a value.");
+    }
+
+    public boolean isCollection()
+    {
+        return isMap() || isList();
     }
 
     public <TResult> TResult when(Function<MappingResult<GddlElement<?>>, TResult> mapping)

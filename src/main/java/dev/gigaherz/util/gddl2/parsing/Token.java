@@ -18,7 +18,7 @@ public class Token implements ContextProvider
         this.comment = comment;
         this.type = type;
         this.text = text;
-        context = contextProvider.getParsingContext();
+        this.context = contextProvider.getParsingContext();
     }
 
     @Override
@@ -34,18 +34,23 @@ public class Token implements ContextProvider
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(Object other)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        return equals((Token) o);
+        if (other == this) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        return equalsImpl((Token) other);
     }
 
-    public boolean equals(@NotNull Token other)
+    public boolean equals(Token other)
     {
-        return type == other.type &&
-                text.equals(other.text) &&
-                context.equals(other.context);
+        if (other == this) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        return equalsImpl(other);
+    }
+
+    private boolean equalsImpl(@NotNull Token other)
+    {
+        return type == other.type && text.equals(other.text) && context.equals(other.context);
     }
 
     @Override

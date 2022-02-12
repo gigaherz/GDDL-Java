@@ -44,10 +44,12 @@ public class ReferenceTest
     @Test
     public void nestedChildReferenceResolvesToChild()
     {
-        GddlValue relativeChild = GddlValue.of("the child");
+        GddlValue relativeChild = GddlValue.of("relative child");
+        GddlValue absoluteChild = GddlValue.of("absolute child");
         GddlMap parent = GddlMap.of("parent", GddlValue.of("the parent"), "child", relativeChild);
-        GddlMap root = GddlMap.of("root", GddlValue.of("root"), "parent", parent);
+        GddlMap root = GddlMap.of("root", GddlValue.of("root"), "child", absoluteChild, "parent", parent);
         GddlReference r = GddlReference.relative("parent", "child");
+        parent.put("reference", r);
         r.resolve(root);
         assertEquals(relativeChild, r.resolvedValue());
     }
