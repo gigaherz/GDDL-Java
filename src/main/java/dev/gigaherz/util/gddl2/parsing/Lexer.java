@@ -44,6 +44,14 @@ public class Lexer implements TokenProvider, AutoCloseable
     }
 
     @Override
+    public Token peekFull() throws LexerException, IOException
+    {
+        require(1);
+
+        return lookAhead.get(0);
+    }
+
+    @Override
     public Token pop() throws LexerException, IOException
     {
         require(2);
@@ -156,22 +164,14 @@ public class Lexer implements TokenProvider, AutoCloseable
 
             Token id = new Token(TokenType.IDENTIFIER, reader.read(number), startContext, comment, whitespace);
 
-            if (id.text.compareToIgnoreCase("nil") == 0)
-                return new Token(TokenType.NIL, id.text, id, comment, whitespace);
-            if (id.text.compareToIgnoreCase("null") == 0)
-                return new Token(TokenType.NULL, id.text, id, comment, whitespace);
-            if (id.text.compareToIgnoreCase("true") == 0)
-                return new Token(TokenType.TRUE, id.text, id, comment, whitespace);
-            if (id.text.compareToIgnoreCase("false") == 0)
-                return new Token(TokenType.FALSE, id.text, id, comment, whitespace);
-            if (id.text.compareToIgnoreCase("boolean") == 0)
-                return new Token(TokenType.BOOLEAN, id.text, id, comment, whitespace);
-            if (id.text.compareToIgnoreCase("string") == 0)
-                return new Token(TokenType.STRING, id.text, id, comment, whitespace);
-            if (id.text.compareToIgnoreCase("integer") == 0)
-                return new Token(TokenType.INTEGER, id.text, id, comment, whitespace);
-            if (id.text.compareToIgnoreCase("decimal") == 0)
-                return new Token(TokenType.DECIMAL, id.text, id, comment, whitespace);
+            if (id.text.compareToIgnoreCase("nil") == 0) return id.specialize(TokenType.NIL);
+            if (id.text.compareToIgnoreCase("null") == 0) return id.specialize(TokenType.NULL);
+            if (id.text.compareToIgnoreCase("true") == 0) return id.specialize(TokenType.TRUE);
+            if (id.text.compareToIgnoreCase("false") == 0) return id.specialize(TokenType.FALSE);
+            if (id.text.compareToIgnoreCase("boolean") == 0) return id.specialize(TokenType.BOOLEAN);
+            if (id.text.compareToIgnoreCase("string") == 0) return id.specialize(TokenType.STRING);
+            if (id.text.compareToIgnoreCase("integer") == 0) return id.specialize(TokenType.INTEGER);
+            if (id.text.compareToIgnoreCase("decimal") == 0) return id.specialize(TokenType.DECIMAL);
 
             return id;
         }

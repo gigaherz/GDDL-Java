@@ -11,6 +11,7 @@ public class Token implements ContextProvider
     public final TokenType type;
     public final String text;
     public final ParsingContext context;
+    public Token parent;
 
     public Token(TokenType type, String text, ContextProvider contextProvider, String comment, String whitespace)
     {
@@ -19,6 +20,17 @@ public class Token implements ContextProvider
         this.type = type;
         this.text = text;
         this.context = contextProvider.getParsingContext();
+    }
+
+    public Token withParent(Token parent)
+    {
+        this.parent = parent;
+        return this;
+    }
+
+    public Token specialize(TokenType child)
+    {
+        return new Token(child, text, this, comment, whitespace).withParent(this);
     }
 
     @Override
@@ -57,6 +69,11 @@ public class Token implements ContextProvider
     public int hashCode()
     {
         return Objects.hash(whitespace, comment, type, text, context);
+    }
+
+    public boolean is(TokenType tokenType)
+    {
+        return type == tokenType || (parent != null && parent.is(tokenType));
     }
 
     @Override

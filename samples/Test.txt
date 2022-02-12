@@ -24,7 +24,7 @@ typeNameHere {
         "Testing \t\f\b\r\n escape\x20codes\u1234",
         'Strings can also be single-quoted.',
         "unicode !ℝ   ∞    -∞    +∞",
-    
+
         # Lists
         [],
         [ null ],
@@ -36,13 +36,13 @@ typeNameHere {
         [ .23 ],
         [ .23e45 ],
         [ 12.34e-5 ],
-        [ "This is a string literal" ],f
+        [ "This is a string literal" ],
         [ "Testing \t\f\b\r\n escape\x20codes\u1234" ],
         [ 'Strings can also be single-quoted.' ],
-    
+
         # The comma is optional after a closing brace
         [ 1,2,3,4,5 ]
-    
+
         # Special cases
         [],
         [[]],
@@ -81,7 +81,7 @@ typeNameHere {
         typeName { value = "This is a string literal" },
         typeName { value = "Testing \t\f\b\r\n escape\x20codes\u1234" },
         typeName { value = 'Strings can also be single-quoted.' },
-    
+
         typeName { }
         typeName { v = {} }
         [ typeName { } ]
@@ -89,8 +89,8 @@ typeNameHere {
     ]
 
     # Named elements
-    nullValue = null,
-    booleanValue = false,
+    null = null,
+    boolean = false,
     integer = 12345,
     hex = 0x12345,
     decimal = 123.45,
@@ -104,13 +104,13 @@ typeNameHere {
 
     "named list" = [ "a", [ 1 ], 0x345 ],
     namedTypedMap = map_with_a_type { value = "\u0001" }
-    
+
     # References
-    
+
     replace_this_with = stringLiteral,
     slash_reference = /namedTypedMap/value,
-    array_reference = /"named list"/[1..2],
-    slash_reference = /namedTypedMap/value,
+    # NOT YET IMPLEMENTED
+    #array_reference = /"named list"/[1..2],
 
     # The comma in the last element is optional but allowed.
 }

@@ -106,6 +106,18 @@ public class Parser implements ContextProvider, AutoCloseable
         throw new ParserException(this, String.format("Unexpected token %s. Expected: %s.", current, expected[0]));
     }
 
+    private Token popExpectedWithParent(TokenType... expected) throws ParserException, IOException
+    {
+        Token current = lexer.peekFull();
+        if (Arrays.stream(expected).anyMatch(current::is))
+            return lexer.pop();
+
+        if (expected.length != 1)
+            throw new ParserException(this, String.format("Unexpected token %s. Expected one of: %s.", current, Utility.join(", ", expected)));
+
+        throw new ParserException(this, String.format("Unexpected token %s. Expected: %s.", current, expected[0]));
+    }
+
     private void beginPrefixScan()
     {
         prefixStack.push(prefixPos);
@@ -160,7 +172,7 @@ public class Parser implements ContextProvider, AutoCloseable
         if (prefixList()) return list();
         if (prefixReference()) return reference();
 
-        throw new ParserException(this, "Internal Error");
+        throw new ParserException(this, String.format("Internal Error: Token %s did not correspond to any code path.", lexer.peek()));
     }
 
     private Token name() throws ParserException, IOException
@@ -171,7 +183,7 @@ public class Parser implements ContextProvider, AutoCloseable
     private boolean prefixReference() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(TokenType.COLON, TokenType.SLASH) && hasAny(TokenType.IDENTIFIER);
+        boolean r = hasAny(TokenType.COLON, TokenType.SLASH) && hasAny(TokenType.IDENTIFIER, TokenType.STRING_LITERAL);
         endPrefixScan();
 
         return r || prefixIdentifier();
@@ -231,10 +243,9 @@ public class Parser implements ContextProvider, AutoCloseable
         {
             finishedWithRBrace = false;
 
+            var name = popExpectedWithParent(TokenType.IDENTIFIER, TokenType.STRING_LITERAL);
 
-            Token name = popExpected(TokenType.IDENTIFIER, TokenType.STRING_LITERAL);
-
-            String n = name.type == TokenType.IDENTIFIER ? name.text : unescapeString(name);
+            String n = name.type == TokenType.STRING_LITERAL ? unescapeString(name) : name.text;
 
             popExpected(TokenType.EQUAL_SIGN, TokenType.COLON);
 

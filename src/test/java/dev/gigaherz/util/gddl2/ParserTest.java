@@ -492,6 +492,12 @@ public class ParserTest
         }
 
         @Override
+        public Token peekFull()
+        {
+            return get(0);
+        }
+
+        @Override
         public Token pop()
         {
             Token t = get(0);
