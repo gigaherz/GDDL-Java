@@ -3,13 +3,13 @@ package dev.gigaherz.util.gddl2;
 import dev.gigaherz.util.gddl2.exceptions.ReaderException;
 import dev.gigaherz.util.gddl2.parsing.ParsingContext;
 import dev.gigaherz.util.gddl2.parsing.Reader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class ReaderTest
 {

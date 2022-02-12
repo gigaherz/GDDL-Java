@@ -6,12 +6,13 @@ import dev.gigaherz.util.gddl2.structure.GddlList;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
 import dev.gigaherz.util.gddl2.structure.GddlValue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class DynamicOpsTest
 {

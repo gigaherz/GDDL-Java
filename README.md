@@ -12,7 +12,7 @@ A complete example
 ```
 typedMap {
 
-    "Basic elements" = [    
+    "Basic elements" = [
         null, nil,
         false, true,
         12345,
@@ -55,7 +55,7 @@ Because eBNF has an infinity of established conventions, here's mine:
 * Equals sign (`=`) declares a rule
 * The vertical bar (`|`) defines alternatives
 * Square brackets (`[]`) define optional sections
-* Square brackets (`{}}`) define repeats (0 or more)
+* Square brackets (`{}`) define repeats (0 or more)
 * Parentheses (`()`) define groups
 * Double quotes (`""`) define a terminal string
 * Backticks ( ` ) define a regex terminal

@@ -47,10 +47,16 @@ configurations {
     demoImplementation.extendsFrom implementation, dynamicImplementation
 }
 
+test {
+    useJUnitPlatform()
+}
+
 dependencies {
     compileOnly 'org.jetbrains:annotations:20.1.0'
 
-    testImplementation group: 'junit', name: 'junit', version: '4.13'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
     testImplementation "com.google.guava:guava:29.0-jre"
 
     dynamicImplementation 'com.mojang:datafixerupper:4.0.26'

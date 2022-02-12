@@ -6,9 +6,9 @@ import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.structure.GddlList;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
 import dev.gigaherz.util.gddl2.structure.GddlValue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FormattingTest
 {

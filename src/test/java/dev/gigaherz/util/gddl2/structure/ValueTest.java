@@ -1,12 +1,11 @@
 package dev.gigaherz.util.gddl2.structure;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ValueTest
 {
@@ -143,7 +142,7 @@ public class ValueTest
     public static <T extends Throwable, V> void assertThrows(Class<T> expectedThrowable,
                                                        Callable<V> callable)
     {
-        Assert.assertThrows(expectedThrowable, () -> {
+        Assertions.assertThrows(expectedThrowable, () -> {
             var v = callable.call();
             fail("Expected callable to throw, but it returned " + v);
         });

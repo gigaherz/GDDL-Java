@@ -5,13 +5,13 @@ import dev.gigaherz.util.gddl2.exceptions.LexerException;
 import dev.gigaherz.util.gddl2.exceptions.ParserException;
 import dev.gigaherz.util.gddl2.parsing.*;
 import dev.gigaherz.util.gddl2.structure.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ParserTest
 {

@@ -2,12 +2,12 @@ package dev.gigaherz.util.gddl2;
 
 import dev.gigaherz.util.gddl2.exceptions.LexerException;
 import dev.gigaherz.util.gddl2.parsing.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LexerTest
 {
@@ -136,7 +136,7 @@ public class LexerTest
     {
         Lexer lexer = new Lexer(makeReader(text));
         Token token = lexer.pop();
-        assertEquals(String.format("Should find END after reading token %s", token), TokenType.END, lexer.peek());
+        assertEquals(TokenType.END, lexer.peek(), String.format("Should find END after reading token %s", token));
         return token;
     }
 
