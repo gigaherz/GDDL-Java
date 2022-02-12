@@ -202,7 +202,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     //endregion
 
     //region Implementation
-    private final Map<String, GddlElement<?>> contents = new HashMap<>();
+    private final Map<String, GddlElement<?>> contents = new LinkedHashMap<>();
     private final Map<String, GddlElement<?>> contentsView = Collections.unmodifiableMap(contents);
     private String trailingComment;
 

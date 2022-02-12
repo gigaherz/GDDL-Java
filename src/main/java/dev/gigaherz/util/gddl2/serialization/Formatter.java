@@ -436,7 +436,7 @@ public class Formatter
 
         boolean first = true;
         List<String> keys = new ArrayList<>(c.keySet());
-        keys.sort(String::compareTo);
+        if (options.sortMapKeys) keys.sort(String::compareTo);
         for (int i = 0; i < keys.size(); i++)
         {
             String key = keys.get(i);

@@ -40,6 +40,7 @@ public final class FormatterOptions
     public final int spacesInEmptyCollection;
     public final int oneElementPerLineThreshold;
     public final boolean omitCommaAfterClosingBrace;
+    public final boolean sortMapKeys;
 
     // Values
     public final int lineBreaksAfterValues;
@@ -80,6 +81,7 @@ public final class FormatterOptions
         spacesInEmptyCollection = builder.spacesInEmptyCollection;
         oneElementPerLineThreshold = builder.oneElementPerLineThreshold;
         omitCommaAfterClosingBrace = builder.omitCommaAfterClosingBrace;
+        sortMapKeys = builder.sortMapKeys;
         lineBreaksAfterValues = builder.lineBreaksAfterValues;
         floatFormattingStyle = builder.floatFormattingStyle;
         alwaysShowNumberSign = builder.alwaysShowNumberSign;
@@ -113,6 +115,7 @@ public final class FormatterOptions
         private int spacesInEmptyCollection = 0;
         private int oneElementPerLineThreshold = Integer.MAX_VALUE;
         private boolean omitCommaAfterClosingBrace = false;
+        private boolean sortMapKeys = false;
 
         // Values
         private int lineBreaksAfterValues = 0;
@@ -222,6 +225,12 @@ public final class FormatterOptions
         public Builder omitCommaAfterClosingBrace(boolean omitCommaAfterClosingBrace)
         {
             this.omitCommaAfterClosingBrace = omitCommaAfterClosingBrace;
+            return this;
+        }
+
+        public Builder sortMapKeys(boolean sortMapKeys)
+        {
+            this.sortMapKeys = sortMapKeys;
             return this;
         }
 

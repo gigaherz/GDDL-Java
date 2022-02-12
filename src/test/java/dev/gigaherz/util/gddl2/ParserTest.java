@@ -461,7 +461,7 @@ public class ParserTest
     public static class MockLexer implements TokenProvider
     {
         public final List<Token> preparedTokens;
-        public int index = 0;
+        public int current = 0;
         public boolean closed = false;
 
         public MockLexer(List<Token> preparedTokens)
@@ -473,7 +473,7 @@ public class ParserTest
         {
             if (closed)
                 throw new IllegalStateException("The TokenProvider is closed.");
-            int idx = this.index + index;
+            int idx = this.current + index;
             if (idx >= preparedTokens.size())
                 idx = preparedTokens.size() - 1;
             return preparedTokens.get(idx);
@@ -501,7 +501,7 @@ public class ParserTest
         public Token pop()
         {
             Token t = get(0);
-            index++;
+            current++;
             return t;
         }
 
@@ -522,7 +522,7 @@ public class ParserTest
         {
             if (closed)
                 throw new IllegalStateException("The TokenProvider is closed.");
-            return preparedTokens.get(Math.min(index, preparedTokens.size() - 1)).context;
+            return preparedTokens.get(Math.min(current, preparedTokens.size() - 1)).context;
         }
 
         @Override
