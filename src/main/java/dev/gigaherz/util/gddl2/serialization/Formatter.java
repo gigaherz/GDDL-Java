@@ -68,12 +68,18 @@ public class Formatter
         appendIndent();
         formatElement(e, false);
     }
-    //endregion 
+
+    public FormatterOptions getOptions()
+    {
+        return options;
+    }
+    //endregion
 
     //region Implementation
     private static final Pattern COMMENT_LINE_SPLITTER = Pattern.compile("\n|\r\n");
 
     private final BasicIntStack indentLevels = new BasicIntStack();
+
     private final FormatterOptions options;
     private final StringBuilder builder;
 
@@ -380,21 +386,12 @@ public class Formatter
     private void formatReference(GddlReference r)
     {
         int count = 0;
-        for (String it : r.getNameParts())
+        for (var it : r.getNameParts())
         {
             if (count++ > 0)
-                builder.append(':');
-            builder.append(it);
+                builder.append(options.useJsonDelimiters ? '/' : ':');
+            builder.append(it.toString(this));
         }
-
-        /*if (r.isResolved())
-        {
-            builder.append('=');
-            if (r.resolvedValue() == null)
-                builder.append("NULL");
-            else
-                builder.append(r.resolvedValue());
-        }*/
     }
 
     private void formatMap(GddlMap c, boolean hasNext0)
@@ -466,11 +463,11 @@ public class Formatter
 
             formatComment(e);
             appendIndent();
-            if (!Utility.isValidIdentifier(key))
+            if (options.alwaysUseStringLiterals || !Utility.isValidIdentifier(key))
                 key = Utility.escapeString(key);
             builder.append(key);
             appendMultiple(' ',options.spacesBeforeEquals);
-            builder.append('=');
+            builder.append(options.useJsonDelimiters ? ':' : '=');
             appendMultiple(' ',options.spacesAfterEquals);
             formatElement(e, hasNext1);
 

@@ -2,9 +2,7 @@ package dev.gigaherz.util.gddl2.util;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.stream.Stream;
 
 public final class Utility
@@ -431,5 +429,19 @@ public final class Utility
     public static boolean isNullOrEmpty(@Nullable String string)
     {
         return string == null || string.length() == 0;
+    }
+
+    public static <T> boolean listEquals(List<T> a, List<T> b)
+    {
+        if (a.size() != b.size())
+            return false;
+
+        for (int i = 0; i < a.size(); i++)
+        {
+            if (!Objects.equals(a.get(i), b.get(i)))
+                return false;
+        }
+
+        return true;
     }
 }

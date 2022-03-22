@@ -2,13 +2,17 @@ package dev.gigaherz.util.gddl2.parsing;
 
 import dev.gigaherz.util.gddl2.exceptions.LexerException;
 import dev.gigaherz.util.gddl2.exceptions.ParserException;
+import dev.gigaherz.util.gddl2.queries.Query;
 import dev.gigaherz.util.gddl2.structure.*;
 import dev.gigaherz.util.gddl2.util.BasicIntStack;
+import dev.gigaherz.util.gddl2.util.Index;
+import dev.gigaherz.util.gddl2.util.Range;
 import dev.gigaherz.util.gddl2.util.Utility;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("unused")
 public class Parser implements ContextProvider, AutoCloseable
@@ -58,13 +62,13 @@ public class Parser implements ContextProvider, AutoCloseable
      */
     public GddlDocument parse() throws IOException, ParserException
     {
-        return parse(true);
+        return parse(false);
     }
 
     /**
      * Parses the whole file and returns the resulting root element.
      *
-     * @param simplify If true, the structure
+     * @param simplify If true, queries are resolved and values are simplified.
      * @return The root element
      * @throws IOException     When accessing the source stream.
      * @throws ParserException When parsing
@@ -84,6 +88,11 @@ public class Parser implements ContextProvider, AutoCloseable
         doc.setDanglingComment(result.getValue());
 
         return doc;
+    }
+
+    public Query ParseQuery() throws IOException, ParserException
+    {
+        return QueryPath().path();
     }
     //endregion
 
@@ -183,7 +192,7 @@ public class Parser implements ContextProvider, AutoCloseable
     private boolean prefixReference() throws LexerException, IOException
     {
         beginPrefixScan();
-        boolean r = hasAny(TokenType.COLON, TokenType.SLASH) && hasAny(TokenType.IDENTIFIER, TokenType.STRING_LITERAL);
+        boolean r = hasAny(TokenType.COLON, TokenType.SLASH) && hasAny(TokenType.IDENTIFIER, TokenType.STRING_LITERAL, TokenType.L_BRACKET);
         endPrefixScan();
 
         return r || prefixIdentifier();
@@ -191,37 +200,114 @@ public class Parser implements ContextProvider, AutoCloseable
 
     private GddlReference reference() throws IOException, ParserException
     {
+        var queryParse = QueryPath();
+
+        GddlReference b = GddlReference.of(queryParse.path);
+        b.setComment(queryParse.token.comment);
+
+        return b;
+    }
+
+    private QueryParse QueryPath() throws IOException, ParserException
+    {
+        AtomicReference<Query> pathRef = new AtomicReference<>(new Query());
+
+        Token firstToken = null;
+
         boolean rooted = false;
 
         TokenType firstDelimiter = null;
         if (lexer.peek() == TokenType.COLON || lexer.peek() == TokenType.SLASH)
         {
-            firstDelimiter = popExpected(TokenType.COLON, TokenType.SLASH).type;
-            rooted = true;
+            firstToken = popExpected(TokenType.COLON, TokenType.SLASH);
+            firstDelimiter = firstToken.type;
+            pathRef.set(pathRef.get().absolute());
         }
 
-        Token component = pathComponent();
-        GddlReference b = rooted ? GddlReference.absolute(component.text) : GddlReference.relative(component.text);
-        b.setComment(component.comment);
+        Token pathToken = pathComponent(pathRef);
+        if (firstToken == null) firstToken = pathToken;
 
         while (lexer.peek() == TokenType.COLON || lexer.peek() == TokenType.SLASH)
         {
             if (firstDelimiter != null && lexer.peek() != firstDelimiter)
-                throw new ParserException(this, String.format("References must use consistent delimiters, expected %s, found %s instead", firstDelimiter, lexer.peek()));
+                throw new ParserException(this, String.format("Query must use consistent delimiters, expected %s, found %s instead", firstDelimiter, lexer.peek()));
 
             firstDelimiter = popExpected(TokenType.COLON, TokenType.SLASH).type;
 
-            component = pathComponent();
-
-            b.add(component.text);
+            pathComponent(pathRef);
         }
 
-        return b;
+        return new QueryParse(firstToken, pathRef.get());
     }
 
-    private Token pathComponent() throws ParserException, IOException
+    private Token pathComponent(AtomicReference<Query> pathRef) throws ParserException, IOException
     {
-        return popExpected(TokenType.IDENTIFIER, TokenType.STRING_LITERAL, TokenType.DOT, TokenType.DOUBLE_DOT);
+        var token = popExpected(TokenType.IDENTIFIER, TokenType.STRING_LITERAL, TokenType.DOT, TokenType.DOUBLE_DOT, TokenType.L_BRACKET);
+        var path = pathRef.get();
+        switch (token.type)
+        {
+            case IDENTIFIER:
+                path = path.byKey(token.text);
+                break;
+            case STRING_LITERAL:
+                path = path.byKey(unescapeString(token));
+                break;
+            case DOT:
+                path = path.self();
+                break;
+            case DOUBLE_DOT:
+                path = path.parent();
+                break;
+            case L_BRACKET:
+            {
+                boolean hasStart = false;
+                var start = Index.fromStart(0);
+
+                if (lexer.peek() == TokenType.CARET)
+                {
+                    popExpected(TokenType.CARET);
+                    start = Index.fromEnd((int)intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
+                    hasStart = true;
+                }
+                else if (lexer.peek() == TokenType.INTEGER_LITERAL)
+                {
+                    start = Index.fromStart((int)intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
+                    hasStart = true;
+                }
+
+                if (hasStart && lexer.peek() == TokenType.R_BRACKET)
+                {
+                    popExpected(TokenType.R_BRACKET);
+                    path = path.byRange(new Range(start, start.value() + 1));
+                    break;
+                }
+
+                var inclusive = popExpected(TokenType.DOUBLE_DOT, TokenType.TRIPLE_DOT);
+
+                var end = Index.fromEnd(0);
+
+                if (lexer.peek() == TokenType.CARET)
+                {
+                    popExpected(TokenType.CARET);
+                    end = Index.fromEnd((int)intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
+                }
+                else if (lexer.peek() == TokenType.INTEGER_LITERAL)
+                {
+                    end = Index.fromStart((int)intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
+                    if (inclusive.type == TokenType.TRIPLE_DOT)
+                        end = Index.fromStart(end.value() + 1);
+                }
+
+                popExpected(TokenType.R_BRACKET);
+
+                path = path.byRange(new Range(start, end));
+                break;
+            }
+            default:
+                throw new ParserException(lexer, String.format("Internal Error: Unexpected token %s found when parsing Reference path component", token));
+        }
+        pathRef.set(path);
+        return token;
     }
 
     private boolean prefixMap() throws LexerException, IOException
@@ -282,9 +368,6 @@ public class Parser implements ContextProvider, AutoCloseable
     private GddlMap object() throws IOException, ParserException
     {
         Token type = name();
-
-        if (!prefixMap())
-            throw new ParserException(this, "Internal error");
 
         GddlMap s = map().withTypeName(type.text);
 
@@ -362,23 +445,13 @@ public class Parser implements ContextProvider, AutoCloseable
 
     private static GddlValue floatValue(Token token)
     {
-        double value;
-        switch (token.text)
-        {
-            case ".NaN":
-                value = Double.NaN;
-                break;
-            case ".Inf":
-            case "+.Inf":
-                value = Double.POSITIVE_INFINITY;
-                break;
-            case "-.Inf":
-                value = Double.NEGATIVE_INFINITY;
-                break;
-            default:
-                value = Double.parseDouble(token.text);
-                break;
-        }
+        double value = switch (token.text)
+                {
+                    case ".NaN" -> Double.NaN;
+                    case ".Inf", "+.Inf" -> Double.POSITIVE_INFINITY;
+                    case "-.Inf" -> Double.NEGATIVE_INFINITY;
+                    default -> Double.parseDouble(token.text);
+                };
         var e = GddlValue.of(value);
         e.setComment(token.comment);
         return e;
@@ -425,6 +498,10 @@ public class Parser implements ContextProvider, AutoCloseable
     public void close() throws Exception
     {
         lexer.close();
+    }
+
+    private record QueryParse(Token token, Query path)
+    {
     }
     //endregion
 }

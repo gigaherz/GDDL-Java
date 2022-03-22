@@ -1,5 +1,6 @@
 package dev.gigaherz.util.gddl2.structure;
 
+import dev.gigaherz.util.gddl2.queries.Query;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,7 +11,7 @@ public class ReferenceTest
     public void referenceResolvesToElement()
     {
         GddlMap root = GddlMap.of("child", GddlValue.of("child"));
-        GddlReference r = GddlReference.absolute();
+        GddlReference r = GddlReference.of(new Query().absolute());
         r.resolve(root);
         assertEquals(root, r.resolvedValue());
     }
@@ -22,7 +23,7 @@ public class ReferenceTest
         GddlValue absoluteChild = GddlValue.of("absolute child");
         GddlMap parent = GddlMap.of("parent", GddlValue.of("parent"), "child", relativeChild);
         GddlMap root = GddlMap.of("root", GddlValue.of("root"), "child", absoluteChild, "parent", parent);
-        GddlReference r = GddlReference.absolute("child");
+        GddlReference r = GddlReference.of(new Query().absolute().byKey("child"));
         parent.put("reference", r);
         r.resolve(root);
         assertEquals(absoluteChild, r.resolvedValue());
@@ -35,7 +36,7 @@ public class ReferenceTest
         GddlValue absoluteChild = GddlValue.of("absolute child");
         GddlMap parent = GddlMap.of("parent", GddlValue.of("parent"), "child", relativeChild);
         GddlMap root = GddlMap.of("root", GddlValue.of("root"), "child", absoluteChild, "parent", parent);
-        GddlReference r = GddlReference.relative("child");
+        GddlReference r = GddlReference.of(new Query().byKey("child"));
         parent.put("reference", r);
         r.resolve(root);
         assertEquals(relativeChild, r.resolvedValue());
@@ -46,9 +47,10 @@ public class ReferenceTest
     {
         GddlValue relativeChild = GddlValue.of("relative child");
         GddlValue absoluteChild = GddlValue.of("absolute child");
-        GddlMap parent = GddlMap.of("parent", GddlValue.of("the parent"), "child", relativeChild);
+        GddlMap parent2 = GddlMap.of("parent", GddlValue.of("parent"), "child", relativeChild);
+        GddlMap parent = GddlMap.of("parent", parent2);
         GddlMap root = GddlMap.of("root", GddlValue.of("root"), "child", absoluteChild, "parent", parent);
-        GddlReference r = GddlReference.relative("parent", "child");
+        GddlReference r = GddlReference.of(new Query().byKey("parent").byKey("child"));
         parent.put("reference", r);
         r.resolve(root);
         assertEquals(relativeChild, r.resolvedValue());

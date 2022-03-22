@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.gigaherz.util.gddl2.exceptions.LexerException;
 import dev.gigaherz.util.gddl2.exceptions.ParserException;
 import dev.gigaherz.util.gddl2.parsing.*;
+import dev.gigaherz.util.gddl2.queries.Query;
 import dev.gigaherz.util.gddl2.structure.*;
 import org.junit.jupiter.api.Test;
 
@@ -261,7 +262,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addLBracket().addIdentifier("a").addColon().addIdentifier("b").addRBracket().build();
         Parser parser = new Parser(provider);
-        GddlList expected = GddlList.of(GddlReference.relative("a", "b"));
+        GddlList expected = GddlList.of(GddlReference.of(new Query().byKey("a").byKey("b")));
         GddlDocument doc = parser.parse(false);
         var actual = doc.getRoot();
         assertEquals(expected, actual);
@@ -272,7 +273,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addLBracket().addColon().addIdentifier("a").addColon().addIdentifier("b").addRBracket().build();
         Parser parser = new Parser(provider);
-        GddlList expected = GddlList.of(GddlReference.absolute("a", "b"));
+        GddlList expected = GddlList.of(GddlReference.of(new Query().absolute().byKey("a").byKey("b")));
         GddlDocument doc = parser.parse(false);
         var actual = doc.getRoot();
         assertEquals(expected, actual);
@@ -283,7 +284,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addLBracket().addIdentifier("a").addSlash().addIdentifier("b").addRBracket().build();
         Parser parser = new Parser(provider);
-        GddlList expected = GddlList.of(GddlReference.relative("a", "b"));
+        GddlList expected = GddlList.of(GddlReference.of(new Query().byKey("a").byKey("b")));
         GddlDocument doc = parser.parse(false);
         var actual = doc.getRoot();
         assertEquals(expected, actual);
@@ -294,7 +295,7 @@ public class ParserTest
     {
         TokenProvider provider = lexerBuilder().addLBracket().addSlash().addIdentifier("a").addSlash().addIdentifier("b").addRBracket().build();
         Parser parser = new Parser(provider);
-        GddlList expected = GddlList.of(GddlReference.absolute("a", "b"));
+        GddlList expected = GddlList.of(GddlReference.of(new Query().absolute().byKey("a").byKey("b")));
         GddlDocument doc = parser.parse(false);
         var actual = doc.getRoot();
         assertEquals(expected, actual);

@@ -81,7 +81,7 @@ key_value_list  = (identifier | string) "="
                 | map key_value_list
                 ) ;
 
-name            = (identifier | string) "=";
+name            = identifier | string;
 
 list            = "[" [ element_list ] "]" ;
 
@@ -94,8 +94,8 @@ element_list    = element [ "," ]
 reference       = nonstring_part | colon_path | slash_path ;
 colon_path      = [ path_part ] ":" path_part { ":" path_part } ;
 slash_path      = [ path_part ] "/" path_part { "/" path_part } ;
-path_part       = nonstring_part | string;
-nonstring_part  = "." | ".." | identifier | string;
+path_part       = "." | ".." | name | range ;
+range = "[" [start] [ (".."|"...") [end] ] "]" ;
 
 # Terminals
 nil             = "nil" | "null" ;

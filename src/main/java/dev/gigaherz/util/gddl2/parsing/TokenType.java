@@ -8,11 +8,13 @@ public enum TokenType
     SLASH,
     DOT,
     DOUBLE_DOT,
+    TRIPLE_DOT,
     L_BRACE,
     R_BRACE,
     L_BRACKET,
     R_BRACKET,
     PERCENT,
+    CARET,
 
     HEX_INT_LITERAL,
     INTEGER_LITERAL,

@@ -15,14 +15,17 @@ public final class FormatterOptions
             .spacesAfterClosingBrace(0)
             .spacesInEmptyCollection(1)
             .spacesAfterComma(1)
-            .spacesBeforeEquals(0)
+            .spacesBeforeEquals(1)
             .spacesAfterEquals(1)
             .spacesInEmptyCollection(1)
             .oneElementPerLineThreshold(10)
             .spacesPerIndent(4)
             .blankLinesBeforeComment(1)
-            .preferJsonStyle(true)
             .build();
+    public static final FormatterOptions COMPACT_JSON = new Builder(COMPACT).alwaysUseStringLiterals(true).useJsonDelimiters(true).build();
+    public static final FormatterOptions NICE_JSON = new Builder(NICE).spacesBeforeEquals(0).alwaysUseStringLiterals(true).useJsonDelimiters(true).build();
+    public static final FormatterOptions COMPACT_JSON5 = new Builder(COMPACT_JSON).alwaysUseStringLiterals(false).build();
+    public static final FormatterOptions NICE_JSON5 = new Builder(NICE_JSON).alwaysUseStringLiterals(false).build();
 
     // Collections
     public final int lineBreaksBeforeOpeningBrace;
@@ -41,6 +44,7 @@ public final class FormatterOptions
     public final int oneElementPerLineThreshold;
     public final boolean omitCommaAfterClosingBrace;
     public final boolean sortMapKeys;
+    public final boolean alwaysUseStringLiterals;
 
     // Values
     public final int lineBreaksAfterValues;
@@ -61,7 +65,7 @@ public final class FormatterOptions
     public final boolean trimCommentLines;
 
     // Other
-    public final boolean preferJsonStyle;
+    public final boolean useJsonDelimiters;
 
     // Internal Constructor
     private FormatterOptions(Builder builder)
@@ -94,7 +98,8 @@ public final class FormatterOptions
         writeComments = builder.writeComments;
         blankLinesBeforeComment = builder.blankLinesBeforeComment;
         trimCommentLines = builder.trimCommentLines;
-        preferJsonStyle = builder.preferJsonStyle;
+        useJsonDelimiters = builder.useJsonDelimiters;
+        alwaysUseStringLiterals = builder.alwaysUseStringLiterals;
     }
 
     public static final class Builder
@@ -116,6 +121,7 @@ public final class FormatterOptions
         private int oneElementPerLineThreshold = Integer.MAX_VALUE;
         private boolean omitCommaAfterClosingBrace = false;
         private boolean sortMapKeys = false;
+        private boolean alwaysUseStringLiterals = false;
 
         // Values
         private int lineBreaksAfterValues = 0;
@@ -136,7 +142,44 @@ public final class FormatterOptions
         private boolean trimCommentLines = true;
 
         // Other
-        private boolean preferJsonStyle = false;
+        private boolean useJsonDelimiters = false;
+
+        public Builder()
+        {
+        }
+
+        public Builder(FormatterOptions copyFrom)
+        {
+            lineBreaksBeforeOpeningBrace = copyFrom.lineBreaksBeforeOpeningBrace;
+            lineBreaksAfterOpeningBrace = copyFrom.lineBreaksAfterOpeningBrace;
+            lineBreaksBeforeClosingBrace = copyFrom.lineBreaksBeforeClosingBrace;
+            lineBreaksAfterClosingBrace = copyFrom.lineBreaksAfterClosingBrace;
+            spacesBeforeOpeningBrace = copyFrom.spacesBeforeOpeningBrace;
+            spacesAfterOpeningBrace = copyFrom.spacesAfterOpeningBrace;
+            spacesBeforeClosingBrace = copyFrom.spacesBeforeClosingBrace;
+            spacesAfterClosingBrace = copyFrom.spacesAfterClosingBrace;
+            spacesBeforeComma = copyFrom.spacesBeforeComma;
+            spacesAfterComma = copyFrom.spacesAfterComma;
+            spacesBeforeEquals = copyFrom.spacesBeforeEquals;
+            spacesAfterEquals = copyFrom.spacesAfterEquals;
+            spacesInEmptyCollection = copyFrom.spacesInEmptyCollection;
+            oneElementPerLineThreshold = copyFrom.oneElementPerLineThreshold;
+            omitCommaAfterClosingBrace = copyFrom.omitCommaAfterClosingBrace;
+            sortMapKeys = copyFrom.sortMapKeys;
+            lineBreaksAfterValues = copyFrom.lineBreaksAfterValues;
+            floatFormattingStyle = copyFrom.floatFormattingStyle;
+            alwaysShowNumberSign = copyFrom.alwaysShowNumberSign;
+            alwaysShowExponentSign = copyFrom.alwaysShowExponentSign;
+            autoScientificNotationUpper = copyFrom.autoScientificNotationUpper;
+            autoScientificNotationLower = copyFrom.autoScientificNotationLower;
+            floatSignificantFigures = copyFrom.floatSignificantFigures;
+            indentUsingTabs = copyFrom.indentUsingTabs;
+            spacesPerIndent = copyFrom.spacesPerIndent;
+            writeComments = copyFrom.writeComments;
+            blankLinesBeforeComment = copyFrom.blankLinesBeforeComment;
+            trimCommentLines = copyFrom.trimCommentLines;
+            useJsonDelimiters = copyFrom.useJsonDelimiters;
+        }
 
         public Builder lineBreaksBeforeOpeningBrace(int lineBreaksBeforeOpeningBrace)
         {
@@ -306,9 +349,15 @@ public final class FormatterOptions
             return this;
         }
 
-        public Builder preferJsonStyle(boolean prefer)
+        public Builder useJsonDelimiters(boolean prefer)
         {
-            this.preferJsonStyle = prefer;
+            this.useJsonDelimiters = prefer;
+            return this;
+        }
+
+        public Builder alwaysUseStringLiterals(boolean alwaysUseStringLiterals)
+        {
+            this.alwaysUseStringLiterals = alwaysUseStringLiterals;
             return this;
         }
 

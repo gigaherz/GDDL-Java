@@ -1,13 +1,17 @@
 package dev.gigaherz.util.gddl2.structure;
 
+import dev.gigaherz.util.gddl2.exceptions.ParserException;
+import dev.gigaherz.util.gddl2.queries.Query;
 import dev.gigaherz.util.gddl2.serialization.Formatter;
 import dev.gigaherz.util.gddl2.util.MappingResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public sealed abstract class GddlElement<T extends GddlElement<T>> permits GddlValue, GddlList, GddlMap, GddlReference
@@ -333,6 +337,11 @@ public sealed abstract class GddlElement<T extends GddlElement<T>> permits GddlV
     {
     }
 
+    public Stream<GddlElement<?>> query(String query)
+    {
+        return Query.fromString(query).apply(this);
+    }
+
     /**
      * @return True if this element is not a reference, or the target of the reference has been determined
      */
@@ -401,6 +410,11 @@ public sealed abstract class GddlElement<T extends GddlElement<T>> permits GddlV
     public abstract boolean equals(Object o);
 
     public abstract boolean equals(T other);
+
+    protected boolean equalsImpl(GddlElement<?> other)
+    {
+        return !(hasComment() || other.hasComment()) || Objects.equals(comment, other.comment);
+    }
 
     @Override
     public int hashCode()

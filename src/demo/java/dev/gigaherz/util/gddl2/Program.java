@@ -1,14 +1,9 @@
 package dev.gigaherz.util.gddl2;
 
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
-import dev.gigaherz.util.gddl2.dynamic.GDDLOps;
 import dev.gigaherz.util.gddl2.exceptions.ParserException;
 import dev.gigaherz.util.gddl2.serialization.Formatter;
 
 import java.io.IOException;
-import java.util.List;
 
 public class Program
 {
@@ -21,6 +16,9 @@ public class Program
             var result = Formatter.formatNice(e);
             System.out.println(result);
             //Files.writeString(Paths.get("./Test.output.txt"), result);
+
+            var v3 = doc.getRoot().query("'named list'/[1]/[0]");
+            System.out.println(v3.toList());
         }
         catch (IOException | ParserException e)
         {

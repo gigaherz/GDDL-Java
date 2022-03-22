@@ -1,5 +1,6 @@
 package dev.gigaherz.util.gddl2.structure;
 
+import dev.gigaherz.util.gddl2.util.Range;
 import dev.gigaherz.util.gddl2.util.Utility;
 import org.jetbrains.annotations.NotNull;
 
@@ -97,6 +98,13 @@ public final class GddlList extends GddlElement<GddlList> implements List<GddlEl
     public boolean contains(GddlElement<?> element)
     {
         return contents.contains(element);
+    }
+
+    public List<GddlElement<?>> get(Range range)
+    {
+        int start = range.offset(contents.size());
+        int length = range.length(contents.size());
+        return contents.subList(start, length);
     }
 
     @Override
@@ -315,7 +323,7 @@ public final class GddlList extends GddlElement<GddlList> implements List<GddlEl
 
     public boolean equalsImpl(@NotNull GddlList other)
     {
-        return contents.equals(other.contents);
+        return Utility.listEquals(contents, other.contents);
     }
 
     @Override

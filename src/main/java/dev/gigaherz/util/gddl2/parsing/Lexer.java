@@ -126,21 +126,8 @@ public class Lexer implements TokenProvider, AutoCloseable
                 return new Token(TokenType.EQUAL_SIGN, reader.read(1), startContext, comment, whitespace);
             case '%':
                 return new Token(TokenType.PERCENT, reader.read(1), startContext, comment, whitespace);
-        }
-
-        if (ich == '.')
-        {
-            ich = reader.peek(1);
-            if (ich == '.')
-            {
-                return new Token(TokenType.DOUBLE_DOT, reader.read(1), startContext, comment, whitespace);
-            }
-            else if (!Utility.isDigit(ich) && (ich != 'I') && (ich != 'N'))
-            {
-                return new Token(TokenType.DOT, reader.read(2), startContext, comment, whitespace);
-            }
-
-            ich = reader.peek();
+            case '^':
+                return new Token(TokenType.CARET, reader.read(1), startContext, comment, whitespace);
         }
 
         if (Utility.isLetter(ich) || ich == '_')
@@ -216,6 +203,27 @@ public class Lexer implements TokenProvider, AutoCloseable
             int number = 0;
             boolean fractional = false;
 
+            if (ich == '.')
+            {
+                ich = reader.peek(1);
+                if (ich == '.')
+                {
+                    ich = reader.peek(2);
+                    if (ich == '.')
+                    {
+                        return new Token(TokenType.TRIPLE_DOT, reader.read(3), startContext, comment, whitespace);
+                    }
+
+                    return new Token(TokenType.DOUBLE_DOT, reader.read(2), startContext, comment, whitespace);
+                }
+                else if (!Utility.isDigit(ich) && (ich != 'I') && (ich != 'N'))
+                {
+                    return new Token(TokenType.DOT, reader.read(2), startContext, comment, whitespace);
+                }
+
+                ich = reader.peek();
+            }
+
             if (ich == '.' && reader.peek(number + 1) == 'N' && reader.peek(number + 2) == 'a' && reader.peek(number + 3) == 'N')
             {
                 return new Token(TokenType.DECIMAL_LITERAL, reader.read(number + 4), startContext, comment, whitespace);
@@ -260,24 +268,32 @@ public class Lexer implements TokenProvider, AutoCloseable
                 }
             }
 
+            boolean doubleDot = false;
             if (ich == '.')
             {
-                fractional = true;
-
-                // skip the '.'
-                number++;
-
-                ich = reader.peek(number);
-
-                while (Utility.isDigit(ich))
+                if (reader.peek(number + 1) == '.') // double-dot
                 {
+                    doubleDot = true;
+                }
+                else
+                {
+                    fractional = true;
+
+                    // skip the '.'
                     number++;
 
                     ich = reader.peek(number);
+
+                    while (Utility.isDigit(ich))
+                    {
+                        number++;
+
+                        ich = reader.peek(number);
+                    }
                 }
             }
 
-            if (ich == 'e' || ich == 'E')
+            if (!doubleDot && (ich == 'e' || ich == 'E'))
             {
                 fractional = true;
 
