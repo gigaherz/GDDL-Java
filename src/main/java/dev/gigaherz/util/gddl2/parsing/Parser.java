@@ -84,7 +84,7 @@ public class Parser implements ContextProvider, AutoCloseable
             root = root.simplify();
         }
 
-        var doc = new GddlDocument(root);
+        var doc = GddlDocument.create(root);
         doc.setDanglingComment(result.getValue());
 
         return doc;
@@ -99,7 +99,6 @@ public class Parser implements ContextProvider, AutoCloseable
     //region Implementation
     int prefixPos = -1;
     final BasicIntStack prefixStack = new BasicIntStack();
-    @SuppressWarnings("FieldCanBeLocal")
     private boolean finishedWithRBrace = false;
     private final TokenProvider lexer;
 
@@ -266,12 +265,12 @@ public class Parser implements ContextProvider, AutoCloseable
                 if (lexer.peek() == TokenType.CARET)
                 {
                     popExpected(TokenType.CARET);
-                    start = Index.fromEnd((int)intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
+                    start = Index.fromEnd((int) intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
                     hasStart = true;
                 }
                 else if (lexer.peek() == TokenType.INTEGER_LITERAL)
                 {
-                    start = Index.fromStart((int)intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
+                    start = Index.fromStart((int) intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
                     hasStart = true;
                 }
 
@@ -289,11 +288,11 @@ public class Parser implements ContextProvider, AutoCloseable
                 if (lexer.peek() == TokenType.CARET)
                 {
                     popExpected(TokenType.CARET);
-                    end = Index.fromEnd((int)intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
+                    end = Index.fromEnd((int) intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
                 }
                 else if (lexer.peek() == TokenType.INTEGER_LITERAL)
                 {
-                    end = Index.fromStart((int)intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
+                    end = Index.fromStart((int) intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
                     if (inclusive.type == TokenType.TRIPLE_DOT)
                         end = Index.fromStart(end.value() + 1);
                 }

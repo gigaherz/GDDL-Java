@@ -114,7 +114,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     @Override
     public void putAll(@NotNull Map<? extends String, ? extends GddlElement<?>> m)
     {
-        for(var entry : m.entrySet())
+        for (var entry : m.entrySet())
         {
             put(entry.getKey(), entry.getValue());
         }
@@ -214,8 +214,8 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
 
     private GddlMap(Collection<Map.Entry<String, GddlElement<?>>> entries)
     {
-        for(Map.Entry<String, GddlElement<?>> entry : entries)
-            put(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, GddlElement<?>> entry : entries)
+        {put(entry.getKey(), entry.getValue());}
     }
 
     private void onAdd(GddlElement<?> e)
@@ -300,7 +300,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     @Override
     public GddlMap simplify()
     {
-        for(Map.Entry<String, GddlElement<?>> entry : contents.entrySet())
+        for (Map.Entry<String, GddlElement<?>> entry : contents.entrySet())
         {
             put(entry.getKey(), entry.getValue().simplify());
         }

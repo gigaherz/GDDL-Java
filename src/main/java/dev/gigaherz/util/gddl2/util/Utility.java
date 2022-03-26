@@ -392,19 +392,6 @@ public final class Utility
      * Joins the sequence of objects with the given separator in between elements.
      *
      * @param separator The text to use between elements
-     * @param iterable  The objects to join
-     * @param <T>       The type of object
-     * @return A string with the joined elements
-     */
-    public static <T> String join(CharSequence separator, Iterable<T> iterable)
-    {
-        return join(separator, iterable.iterator());
-    }
-
-    /**
-     * Joins the sequence of objects with the given separator in between elements.
-     *
-     * @param separator The text to use between elements
      * @param iterator  The objects to join
      * @param <T>       The type of object
      * @return A string with the joined elements
@@ -426,6 +413,7 @@ public final class Utility
      * @param string The string
      * @return True if the string is either null or the empty string
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isNullOrEmpty(@Nullable String string)
     {
         return string == null || string.length() == 0;

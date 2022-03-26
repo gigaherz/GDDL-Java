@@ -43,18 +43,6 @@ public class Reader implements ContextProvider, AutoCloseable
     }
 
     /**
-     * Removes the first character in the lookahead buffer, and returns it.
-     *
-     * @return The character, or -1 if end of file
-     */
-    public int next() throws IOException, ReaderException
-    {
-        require(1);
-
-        return nextInternal();
-    }
-
-    /**
      * Removes N characters from the lookahead buffer, and returns them as a string.
      *
      * @param count The number of characters to return
@@ -89,7 +77,7 @@ public class Reader implements ContextProvider, AutoCloseable
         require(count);
 
         while (count-- > 0)
-            nextInternal();
+        {nextInternal();}
     }
     //endregion
 

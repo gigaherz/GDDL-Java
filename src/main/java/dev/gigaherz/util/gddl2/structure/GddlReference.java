@@ -3,9 +3,9 @@ package dev.gigaherz.util.gddl2.structure;
 import dev.gigaherz.util.gddl2.exceptions.ResolutionException;
 import dev.gigaherz.util.gddl2.queries.Query;
 import dev.gigaherz.util.gddl2.queries.QueryComponent;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 public final class GddlReference extends GddlElement<GddlReference>
 {
@@ -66,7 +66,7 @@ public final class GddlReference extends GddlElement<GddlReference>
     //region Element
 
     @Override
-    public GddlReference copyInternal()
+    protected GddlReference copyInternal()
     {
         var reference = new GddlReference(path.copy());
         copyTo(reference);
@@ -162,7 +162,7 @@ public final class GddlReference extends GddlElement<GddlReference>
         return equalsImpl(other);
     }
 
-    protected boolean equalsImpl(GddlReference other)
+    private boolean equalsImpl(GddlReference other)
     {
         return super.equalsImpl(other) &&
                 Objects.equals(path, other.path) /*&&

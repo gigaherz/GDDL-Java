@@ -109,7 +109,7 @@ public class Formatter
     {
         //noinspection StringRepeatCanBeUsed
         for (int i = 0; i < n; i++)
-            builder.append(c);
+        {builder.append(c);}
     }
 
     private void appendIndent()
@@ -144,7 +144,7 @@ public class Formatter
         if (count > 0 && options.trimCommentLines)
         {
             while (count > 0 && lines[count - 1].length() == 0)
-                count--;
+            {count--;}
         }
         for (int i = 0; i < count; i++)
         {
@@ -328,7 +328,7 @@ public class Formatter
             v++;
             if (v >= 10)
             {
-                r = 1;
+                //r = 1;
                 v -= 10;
             }
             else
@@ -466,9 +466,9 @@ public class Formatter
             if (options.alwaysUseStringLiterals || !Utility.isValidIdentifier(key))
                 key = Utility.escapeString(key);
             builder.append(key);
-            appendMultiple(' ',options.spacesBeforeEquals);
+            appendMultiple(' ', options.spacesBeforeEquals);
             builder.append(options.useJsonDelimiters ? ':' : '=');
-            appendMultiple(' ',options.spacesAfterEquals);
+            appendMultiple(' ', options.spacesAfterEquals);
             formatElement(e, hasNext1);
 
             if (hasNext1 && ((!e.isCollection()) || !options.omitCommaAfterClosingBrace))
@@ -485,18 +485,17 @@ public class Formatter
             formatComment(c.getTrailingComment());
 
         popIndent();
-        if (c.size() == 0 && !oneElementPerLine)
+        if (c.size() != 0 || oneElementPerLine) // Done on the open side
         {
-            // Done on the open side
-        }
-        else if (oneElementPerLine && options.lineBreaksBeforeClosingBrace > 0)
-        {
-            appendMultiple('\n', options.lineBreaksBeforeClosingBrace);
-            appendIndent();
-        }
-        else if (options.spacesBeforeClosingBrace > 0)
-        {
-            appendMultiple(' ', options.spacesBeforeClosingBrace);
+            if (oneElementPerLine && options.lineBreaksBeforeClosingBrace > 0)
+            {
+                appendMultiple('\n', options.lineBreaksBeforeClosingBrace);
+                appendIndent();
+            }
+            else if (options.spacesBeforeClosingBrace > 0)
+            {
+                appendMultiple(' ', options.spacesBeforeClosingBrace);
+            }
         }
         builder.append('}');
         if (!hasNext0 || options.omitCommaAfterClosingBrace)

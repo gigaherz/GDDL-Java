@@ -1,7 +1,7 @@
 package dev.gigaherz.util.gddl2;
 
-import dev.gigaherz.util.gddl2.serialization.FormatterOptions;
 import dev.gigaherz.util.gddl2.serialization.Formatter;
+import dev.gigaherz.util.gddl2.serialization.FormatterOptions;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.structure.GddlList;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
@@ -68,7 +68,7 @@ public class FormattingTest
     {
         assertEquals("[]", formatOneCompact(GddlList.empty()));
         assertEquals("[[]]", formatOneCompact(GddlList.of(GddlList.empty())));
-        assertEquals("[[],[]]", formatOneCompact(GddlList.of(GddlList.empty(),GddlList.empty())));
+        assertEquals("[[],[]]", formatOneCompact(GddlList.of(GddlList.empty(), GddlList.empty())));
         assertEquals("[[],{}]", formatOneCompact(GddlList.of(GddlList.empty(), GddlMap.empty())));
         assertEquals("[1]", formatOneCompact(GddlList.of(GddlValue.of(1))));
         assertEquals("[\"1\"]", formatOneCompact(GddlList.of(GddlValue.of("1"))));
@@ -79,13 +79,13 @@ public class FormattingTest
     public void testMapsCompact()
     {
         assertEquals("{}", formatOneCompact(GddlMap.empty()));
-        assertEquals("{a=[]}", formatOneCompact(GddlMap.of("a",GddlList.empty())));
-        assertEquals("{a=[],b=[]}", formatOneCompact(GddlMap.of("a",GddlList.empty(), "b", GddlList.empty())));
-        assertEquals("{a=[],b={}}", formatOneCompact(GddlMap.of("a",GddlList.empty(), "b", GddlMap.empty())));
-        assertEquals("{a=1}", formatOneCompact(GddlMap.of("a",GddlValue.of(1))));
-        assertEquals("{a=\"1\"}", formatOneCompact(GddlMap.of("a",GddlValue.of("1"))));
-        assertEquals("{a=null}", formatOneCompact(GddlMap.of("a",GddlValue.nullValue())));
-        assertEquals("{\"a b\"=1}", formatOneCompact(GddlMap.of("a b",GddlValue.of(1))));
+        assertEquals("{a=[]}", formatOneCompact(GddlMap.of("a", GddlList.empty())));
+        assertEquals("{a=[],b=[]}", formatOneCompact(GddlMap.of("a", GddlList.empty(), "b", GddlList.empty())));
+        assertEquals("{a=[],b={}}", formatOneCompact(GddlMap.of("a", GddlList.empty(), "b", GddlMap.empty())));
+        assertEquals("{a=1}", formatOneCompact(GddlMap.of("a", GddlValue.of(1))));
+        assertEquals("{a=\"1\"}", formatOneCompact(GddlMap.of("a", GddlValue.of("1"))));
+        assertEquals("{a=null}", formatOneCompact(GddlMap.of("a", GddlValue.nullValue())));
+        assertEquals("{\"a b\"=1}", formatOneCompact(GddlMap.of("a b", GddlValue.of(1))));
     }
 
     public static String formatOneCompact(GddlElement<?> e)

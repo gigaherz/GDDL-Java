@@ -2,8 +2,8 @@ package dev.gigaherz.util.gddl2.dynamic;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import dev.gigaherz.util.gddl2.structure.GddlList;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
+import dev.gigaherz.util.gddl2.structure.GddlList;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
 import dev.gigaherz.util.gddl2.structure.GddlValue;
 import org.junit.jupiter.api.Test;
@@ -14,6 +14,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@SuppressWarnings("SameParameterValue")
 public class DynamicOpsTest
 {
     @Test
@@ -25,8 +26,8 @@ public class DynamicOpsTest
         assertRoundTrip(GddlValue.of("a"), Codec.STRING, "a");
         assertRoundTrip(GddlValue.of(1.0), Codec.DOUBLE, 1.0);
 
-        assertRoundTrip(GddlValue.of(1), Codec.BYTE, (byte)1);
-        assertRoundTrip(GddlValue.of(1), Codec.SHORT, (short)1);
+        assertRoundTrip(GddlValue.of(1), Codec.BYTE, (byte) 1);
+        assertRoundTrip(GddlValue.of(1), Codec.SHORT, (short) 1);
         assertRoundTrip(GddlValue.of(1), Codec.INT, 1);
         assertRoundTrip(GddlValue.of(1.0), Codec.FLOAT, 1.0f);
     }
@@ -42,25 +43,25 @@ public class DynamicOpsTest
     public void testList()
     {
         var expected = GddlList.of(GddlValue.of(1), GddlValue.of(2), GddlValue.of(3));
-        assertRoundTrip(expected, Codec.list(Codec.INT), List.of(1,2,3));
+        assertRoundTrip(expected, Codec.list(Codec.INT), List.of(1, 2, 3));
     }
 
     @Test
     public void testMap()
     {
         GddlMap expected = GddlMap.of("a", GddlValue.of("1"), "b", GddlValue.of("2"), "c", GddlValue.of("3"));
-        assertRoundTrip(expected, Codec.unboundedMap(Codec.STRING, Codec.STRING), Map.of("a","1", "b", "2", "c", "3"));
+        assertRoundTrip(expected, Codec.unboundedMap(Codec.STRING, Codec.STRING), Map.of("a", "1", "b", "2", "c", "3"));
     }
 
     private <T> void assertRoundTrip(GddlElement<?> expected, Codec<T> codec, T value)
     {
         var result = codec.encodeStart(GDDLOps.INSTANCE, value);
         var optional = result.result();
-        if (optional.isEmpty()) fail("Decode error: " + result.error().get());
+        if (optional.isEmpty()) fail("Decode error: " + result.error().orElseThrow());
         assertEquals(expected, optional.get());
         var result2 = codec.decode(GDDLOps.INSTANCE, optional.get());
         var optional2 = result2.result();
-        if (optional2.isEmpty()) fail("Decode error: " + result2.error().get());
+        if (optional2.isEmpty()) fail("Decode error: " + result2.error().orElseThrow());
         assertEquals(value, optional2.get().getFirst());
     }
 

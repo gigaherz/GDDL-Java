@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 public final class SelfQueryComponent extends QueryComponent
 {
-    public static SelfQueryComponent INSTANCE = new SelfQueryComponent();
+    public static final SelfQueryComponent INSTANCE = new SelfQueryComponent();
 
     private SelfQueryComponent()
     {

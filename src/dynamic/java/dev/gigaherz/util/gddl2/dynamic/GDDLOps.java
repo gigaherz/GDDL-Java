@@ -3,8 +3,8 @@ package dev.gigaherz.util.gddl2.dynamic;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
-import dev.gigaherz.util.gddl2.structure.GddlList;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
+import dev.gigaherz.util.gddl2.structure.GddlList;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
 import dev.gigaherz.util.gddl2.structure.GddlValue;
 
@@ -49,35 +49,52 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     @Override
     public <U> U convertTo(DynamicOps<U> outOps, GddlElement<?> input)
     {
-        return input.resolvedValue().<U>when()
-                .mapMap(c -> convertMap(outOps, c))
-                .mapList(c -> convertList(outOps, c))
-                .mapNull(outOps::empty)
-                .mapString(outOps::createString)
-                .mapBoolean(outOps::createBoolean)
-                .mapInteger(l -> {
-                    if ((byte) l == l)
-                    {
-                        return outOps.createByte((byte)l);
-                    }
-                    if ((short) l == l)
-                    {
-                        return outOps.createShort((short)l);
-                    }
-                    if ((int) l == l)
-                    {
-                        return outOps.createInt((int)l);
-                    }
-                    return outOps.createLong(l);
-                })
-                .mapDouble(d -> {
-                    if ((float) d == d)
-                    {
-                        return outOps.createFloat((float)d);
-                    }
-                    return outOps.createDouble(d);
-                })
-                .orElseThrow(() -> new IllegalStateException("Unresolved reference not supported."));
+        input = input.resolvedValue();
+
+        if (input.isNull())
+            return outOps.empty();
+        if (input.isString())
+            return outOps.createString(input.stringValue());
+        if (input.isBoolean())
+            return outOps.createBoolean(input.booleanValue());
+        if (input.isInteger())
+        {
+            var l = input.intValue();
+            if ((byte) l == l)
+            {
+                return outOps.createByte((byte) l);
+            }
+            if ((short) l == l)
+            {
+                return outOps.createShort((short) l);
+            }
+            if ((int) l == l)
+            {
+                return outOps.createInt((int) l);
+            }
+            return outOps.createLong(l);
+        }
+        if (input.isDouble())
+        {
+            var d = input.doubleValue();
+            if ((float) d == d)
+            {
+                return outOps.createFloat((float) d);
+            }
+            return outOps.createDouble(d);
+        }
+        if (input.isMap())
+            return convertMap(outOps, input.asMap());
+        if (input.isList())
+            return convertList(outOps, input.asList());
+
+        if (input.isReference())
+            throw new IllegalStateException("Unsupported conversion of unresolved reference");
+
+        if (input.isValue())
+            throw new IllegalStateException("Unimplemented value type " + input);
+
+        throw new IllegalStateException("Unknown input type " + input.getClass());
     }
 
     @Override
@@ -216,7 +233,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
         return DataResult.success(
                 input.asMap().entrySet().stream()
                         .map(
-                            e -> Pair.of(GddlValue.of(e.getKey()), e.getValue())
+                                e -> Pair.of(GddlValue.of(e.getKey()), e.getValue())
                         )
         );
     }
@@ -233,7 +250,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     public GddlElement<?> createMap(Map<GddlElement<?>, GddlElement<?>> map)
     {
         var c = GddlMap.empty();
-        map.forEach((k,v) -> c.put(k.stringValue(), v));
+        map.forEach((k, v) -> c.put(k.stringValue(), v));
         return c;
     }
 

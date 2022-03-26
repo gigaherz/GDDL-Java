@@ -140,7 +140,7 @@ public class ValueTest
     }
 
     public static <T extends Throwable, V> void assertThrows(Class<T> expectedThrowable,
-                                                       Callable<V> callable)
+                                                             Callable<V> callable)
     {
         Assertions.assertThrows(expectedThrowable, () -> {
             var v = callable.call();

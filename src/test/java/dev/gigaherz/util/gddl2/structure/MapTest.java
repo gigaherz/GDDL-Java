@@ -23,5 +23,4 @@ public class MapTest
         assertNotNull(value);
         assertEquals(element, value);
     }
-
 }

@@ -2,9 +2,7 @@ package dev.gigaherz.util.gddl2.queries;
 
 import dev.gigaherz.util.gddl2.serialization.Formatter;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
-import dev.gigaherz.util.gddl2.util.Index;
 import dev.gigaherz.util.gddl2.util.Range;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
@@ -12,11 +10,6 @@ import java.util.stream.Stream;
 public final class ListQueryComponent extends QueryComponent
 {
     private final Range range;
-
-    public ListQueryComponent(int start, boolean fromEnd, int second)
-    {
-        range = new Range(Index.fromStart(start), new Index(second, fromEnd));
-    }
 
     public ListQueryComponent(Range range)
     {

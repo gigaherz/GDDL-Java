@@ -302,7 +302,7 @@ public class ParserTest
     }
 
     @Test
-    public void rejectsMixedDelimiterReference() throws IOException, ParserException
+    public void rejectsMixedDelimiterReference()
     {
         TokenProvider provider = lexerBuilder().addLBracket().addSlash().addIdentifier("a").addColon().addIdentifier("b").addRBracket().build();
         Parser parser = new Parser(provider);

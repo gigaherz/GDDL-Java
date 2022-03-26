@@ -14,6 +14,6 @@ public record Range(Index start, Index end)
 
     public int length(int size)
     {
-        return end.offset(size)-start.offset(size);
+        return end.offset(size) - start.offset(size);
     }
 }

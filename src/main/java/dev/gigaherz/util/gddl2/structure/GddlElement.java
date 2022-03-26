@@ -1,16 +1,12 @@
 package dev.gigaherz.util.gddl2.structure;
 
-import dev.gigaherz.util.gddl2.exceptions.ParserException;
 import dev.gigaherz.util.gddl2.queries.Query;
 import dev.gigaherz.util.gddl2.serialization.Formatter;
-import dev.gigaherz.util.gddl2.util.MappingResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
@@ -316,16 +312,6 @@ public sealed abstract class GddlElement<T extends GddlElement<T>> permits GddlV
     public boolean isCollection()
     {
         return isMap() || isList();
-    }
-
-    public <TResult> TResult when(Function<MappingResult<GddlElement<?>>, TResult> mapping)
-    {
-        return mapping.apply(MappingResult.remainder(this));
-    }
-
-    public <TResult> MappingResult<TResult> when()
-    {
-        return MappingResult.remainder(this);
     }
 
     public GddlElement<?> simplify()

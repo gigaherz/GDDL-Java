@@ -8,13 +8,14 @@ import java.util.Objects;
 public final class GddlDocument
 {
     //region API
-    public GddlDocument()
+    public static GddlDocument create()
     {
+        return new GddlDocument();
     }
 
-    public GddlDocument(GddlElement<?> root)
+    public static GddlDocument create(GddlElement<?> root)
     {
-        this.root = root;
+        return new GddlDocument(root);
     }
 
     public boolean hasDanglingComment()
@@ -37,15 +38,21 @@ public final class GddlDocument
         return root;
     }
 
-    public void setRoot(GddlElement<?> root)
-    {
-        this.root = root;
-    }
     //endregion
 
     //region Implementation
-    private GddlElement<?> root;
+    private final GddlElement<?> root;
     private String danglingComment;
+
+    private GddlDocument()
+    {
+        this(GddlMap.empty());
+    }
+
+    private GddlDocument(GddlElement<?> root)
+    {
+        this.root = root;
+    }
     //endregion
 
     //region toString

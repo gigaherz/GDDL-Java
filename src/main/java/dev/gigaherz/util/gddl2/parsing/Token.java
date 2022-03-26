@@ -56,7 +56,7 @@ public class Token implements ContextProvider
     public boolean equals(Token other)
     {
         if (other == this) return true;
-        if (other == null || getClass() != other.getClass()) return false;
+        if (other == null) return false;
         return equalsImpl(other);
     }
 
