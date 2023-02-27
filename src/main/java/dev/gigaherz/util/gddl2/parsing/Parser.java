@@ -277,7 +277,7 @@ public class Parser implements ContextProvider, AutoCloseable
                 if (hasStart && lexer.peek() == TokenType.R_BRACKET)
                 {
                     popExpected(TokenType.R_BRACKET);
-                    path = path.byRange(new Range(start, start.value() + 1));
+                    path = path.byRange(new Range(start, start.fromEnd() ? Index.fromEnd(start.value() - 1) : Index.fromStart(start.value() + 1)));
                     break;
                 }
 
@@ -294,7 +294,7 @@ public class Parser implements ContextProvider, AutoCloseable
                 {
                     end = Index.fromStart((int) intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
                     if (inclusive.type == TokenType.TRIPLE_DOT)
-                        end = Index.fromStart(end.value() + 1);
+                        end = end.fromEnd() ? Index.fromEnd(end.value() - 1) : Index.fromStart(end.value() + 1);
                 }
 
                 popExpected(TokenType.R_BRACKET);
