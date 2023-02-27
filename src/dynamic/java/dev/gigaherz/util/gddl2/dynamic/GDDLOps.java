@@ -104,7 +104,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
             return DataResult.success(input.intValue());
         else if (input.isDouble())
             return DataResult.success(input.doubleValue());
-        return DataResult.error("Not a number");
+        return DataResult.error(() -> "Not a number");
     }
 
     @Override
@@ -148,7 +148,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     {
         if (input.isBoolean())
             return DataResult.success(input.booleanValue());
-        return DataResult.error("Not a boolean");
+        return DataResult.error(() -> "Not a boolean");
     }
 
     @Override
@@ -175,7 +175,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     {
         if (input.isString())
             return DataResult.success(input.stringValue());
-        return DataResult.error("Not a string");
+        return DataResult.error(() -> "Not a string");
     }
 
     @Override
@@ -200,14 +200,14 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
         else if (element.isList())
             return DataResult.success(element.asList().copy());
         else
-            return DataResult.error("Not a list");
+            return DataResult.error(() -> "Not a list");
     }
 
     @Override
     public DataResult<GddlElement<?>> mergeToMap(GddlElement<?> map, GddlElement<?> key, GddlElement<?> value)
     {
         if (!key.isString())
-            return DataResult.error("Key is not a string");
+            return DataResult.error(() -> "Key is not a string");
         return asNewMap(map).map(c -> {
             c.put(key.stringValue(), value);
             return c;
@@ -221,14 +221,14 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
         else if (element.isMap())
             return DataResult.success(element.asMap().copy());
         else
-            return DataResult.error("Not a map");
+            return DataResult.error(() -> "Not a map");
     }
 
     @Override
     public DataResult<Stream<Pair<GddlElement<?>, GddlElement<?>>>> getMapValues(GddlElement<?> input)
     {
         if (!input.isMap())
-            return DataResult.error("Not a map");
+            return DataResult.error(() -> "Not a map");
 
         return DataResult.success(
                 input.asMap().entrySet().stream()
@@ -259,7 +259,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     {
         if (input.isList())
             return DataResult.success(input.asList().stream());
-        return DataResult.error("Not a list");
+        return DataResult.error(() -> "Not a list");
     }
 
     @Override
