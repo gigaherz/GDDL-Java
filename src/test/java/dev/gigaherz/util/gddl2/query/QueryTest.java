@@ -54,4 +54,25 @@ public class QueryTest
         assertEquals(List.of(GddlValue.of("Text"), GddlValue.of(1), GddlValue.of(false)), Query.fromString("/[0..^0]").apply(list).toList());
         assertEquals(List.of(GddlValue.of(1), GddlValue.of(false)), Query.fromString("/[^2...^0]").apply(list).toList());
     }
+
+    @Test
+    public void queryListInsideObject()
+    {
+        var list1 = GddlList.of(
+                GddlValue.of(12345)
+        );
+        var list = GddlList.of(
+                GddlValue.of("A"),
+                GddlValue.of(314),
+                list1
+        );
+        var map = GddlMap.of(
+                "key1", GddlValue.of("Text"),
+                "key2", GddlValue.of(1),
+                "key3", list
+        );
+        assertEquals(List.of(GddlValue.of(314)), Query.fromString("/key3/[1..^1]").apply(map).toList());
+        assertEquals(List.of(GddlValue.of(314)), Query.fromString("/key3[1..^1]").apply(map).toList());
+        assertEquals(List.of(GddlValue.of(12345)), Query.fromString("/key3[2][0]").apply(map).toList());
+    }
 }

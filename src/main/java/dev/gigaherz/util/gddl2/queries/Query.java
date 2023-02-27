@@ -25,7 +25,7 @@ public class Query
             var reader = new Reader(new StringReader(pathExpression), "QueryParser.ParsePath(String)");
             var lexer = new Lexer(reader);
             var parser = new Parser(lexer);
-            return parser.ParseQuery();
+            return parser.parseQuery();
         }
         catch (ParserException | IOException e)
         {

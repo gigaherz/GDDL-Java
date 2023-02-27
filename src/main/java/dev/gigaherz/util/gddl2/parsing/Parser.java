@@ -90,9 +90,11 @@ public class Parser implements ContextProvider, AutoCloseable
         return doc;
     }
 
-    public Query ParseQuery() throws IOException, ParserException
+    public Query parseQuery() throws IOException, ParserException
     {
-        return QueryPath().path();
+        var result = queryPath();
+        popExpected(TokenType.END);
+        return result.path();
     }
     //endregion
 
@@ -199,7 +201,7 @@ public class Parser implements ContextProvider, AutoCloseable
 
     private GddlReference reference() throws IOException, ParserException
     {
-        var queryParse = QueryPath();
+        var queryParse = queryPath();
 
         GddlReference b = GddlReference.of(queryParse.path);
         b.setComment(queryParse.token.comment);
@@ -207,7 +209,7 @@ public class Parser implements ContextProvider, AutoCloseable
         return b;
     }
 
-    private QueryParse QueryPath() throws IOException, ParserException
+    private QueryParse queryPath() throws IOException, ParserException
     {
         AtomicReference<Query> pathRef = new AtomicReference<>(new Query());
 
@@ -226,12 +228,15 @@ public class Parser implements ContextProvider, AutoCloseable
         Token pathToken = pathComponent(pathRef);
         if (firstToken == null) firstToken = pathToken;
 
-        while (lexer.peek() == TokenType.COLON || lexer.peek() == TokenType.SLASH)
+        while (lexer.peek() == TokenType.COLON || lexer.peek() == TokenType.SLASH || lexer.peek() == TokenType.L_BRACKET)
         {
-            if (firstDelimiter != null && lexer.peek() != firstDelimiter)
-                throw new ParserException(this, String.format("Query must use consistent delimiters, expected %s, found %s instead", firstDelimiter, lexer.peek()));
+            if (lexer.peek() != TokenType.L_BRACKET)
+            {
+                if (firstDelimiter != null && lexer.peek() != firstDelimiter)
+                    throw new ParserException(this, String.format("Query must use consistent delimiters, expected %s, found %s instead", firstDelimiter, lexer.peek()));
 
-            firstDelimiter = popExpected(TokenType.COLON, TokenType.SLASH).type;
+                firstDelimiter = popExpected(TokenType.COLON, TokenType.SLASH).type;
+            }
 
             pathComponent(pathRef);
         }
