@@ -155,7 +155,7 @@ To anyone else: I wrote this before I learned JSON. It's designed to look a bit 
 How to Use
 --------------------
 
-In your maven/gradle/ivy file, include `https://dl.bintray.com/gigaherz/maven` as a maven repository, then use the groupId `gigaherz.util.gddl`, artifactId `gigaherz.util.gddl2`, and the version you want to use.
+In your maven/gradle/ivy file, include `https://dogforce-games.com/maven/` as a maven repository, then use the groupId `gigaherz.util.gddl`, artifactId `gddl2`, and the version you want to use.
 
 Use the `Parser.fromFile` function to initialize a parser, and then call `parse` on the parser object to obtain the high-level representation of the data.
 

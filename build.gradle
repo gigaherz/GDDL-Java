@@ -59,7 +59,7 @@ dependencies {
 
     testImplementation 'com.google.guava:guava:31.1-jre'
 
-    dynamicImplementation 'com.mojang:datafixerupper:4.0.26'
+    dynamicImplementation 'com.mojang:datafixerupper:6.0.6'
 }
 
 jar {
@@ -71,7 +71,7 @@ jar {
         attributes([
                 "Specification-Title": "GDDL",
                 "Specification-Vendor": "gigaherz",
-                "Specification-Version": "2.0", // We are version 1 of ourselves
+                "Specification-Version": "2.0",
                 "Implementation-Title": "GDDL",
                 "Implementation-Version": archiveVersion,
                 "Implementation-Vendor" :"gigaherz",
@@ -102,7 +102,7 @@ task dynamicJar(type: Jar, dependsOn: classes) {
         attributes([
                 "Specification-Title": "GDDL Dynamic",
                 "Specification-Vendor": "gigaherz",
-                "Specification-Version": "2.0", // We are version 1 of ourselves
+                "Specification-Version": "2.0",
                 "Implementation-Title": "GDDL Dynamic",
                 "Implementation-Version": archiveVersion,
                 "Implementation-Vendor" :"gigaherz",
@@ -130,13 +130,13 @@ tasks.assemble.dependsOn sourcesJar, dynamicJar, dynamicSourcesJar
 publishing {
     publications {
         main(MavenPublication) {
-            artifactId 'gddl'
+            artifactId 'gddl2'
 
             artifact jar
             artifact sourcesJar
         }
         dynamic(MavenPublication) {
-            artifactId 'gddl-dynamic'
+            artifactId 'gddl2-dynamic'
 
             artifact dynamicJar
             artifact dynamicSourcesJar
@@ -144,8 +144,21 @@ publishing {
     }
 
     repositories {
-        maven {
-            url "$buildDir/repo"
+        if (findProperty("RELEASE") && System.env.giga_maven_host != null) {
+            System.out.println("Remote publish enabled on " + System.env.giga_maven_host)
+            maven {
+                url System.env.giga_maven_host
+                credentials {
+                    username System.env.giga_maven_user
+                    password System.env.giga_maven_password
+                }
+            }
+        }
+        else {
+            System.out.println("Remote publish disabled.")
+            maven {
+                url "$buildDir/repo"
+            }
         }
     }
 }
