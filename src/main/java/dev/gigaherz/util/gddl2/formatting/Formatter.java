@@ -1,4 +1,4 @@
-package dev.gigaherz.util.gddl2.serialization;
+package dev.gigaherz.util.gddl2.formatting;
 
 import dev.gigaherz.util.gddl2.structure.*;
 import dev.gigaherz.util.gddl2.util.BasicIntStack;
@@ -265,38 +265,49 @@ public class Formatter
         double integral = Math.floor(value);
         double fractional = value - integral;
 
-        List<Integer> temp = new ArrayList<>();
+        int exp = integral > 0 ? (int) Math.floor(Math.log10(integral)+1) : 0;
 
-        int intDigits = formatIntegral(integral, temp);
+        List<Integer> temp1 = new ArrayList<>();
+        double leftovers = getDigitsForRounding(temp1, (options.floatSignificantFigures-exp), fractional);
+
+        int nonTrailingDigits = roundDigits(temp1, leftovers);
+        if (nonTrailingDigits < 0)
+        {
+            nonTrailingDigits = ~nonTrailingDigits;
+            integral+=1;
+        }
+
+        formatIntegral(integral, exp);
 
         builder.append('.');
 
-        formatFractional(fractional, intDigits, temp);
+        formatFractional(temp1, nonTrailingDigits);
     }
 
-    private int formatIntegral(double integral, List<Integer> temp)
+    private void formatIntegral(double integral, int exp)
     {
         if (!(integral > 0))
         {
             builder.append('0');
-            return 0;
+            return;
         }
 
-        int exp = (int) Math.ceil(Math.log10(integral));
         double value = integral / Math.pow(10, exp);
 
-        int nonTrailingDigits = formatDigits(temp, Math.min(exp, options.floatSignificantFigures), value);
+        List<Integer> temp = new ArrayList<>();
+        double leftovers = getDigitsForRounding(temp, Math.min(exp, options.floatSignificantFigures), value);
+        int nonTrailingDigits1 = roundDigits(temp, leftovers);
+        int nonTrailingDigits = formatDigitsAfterRounding(temp, nonTrailingDigits1);
 
         appendMultiple('0', exp - nonTrailingDigits);
-        return exp;
     }
 
-    private void formatFractional(double fractional, int intDigits, List<Integer> temp)
+    private void formatFractional(List<Integer> temp, int nonTrailingDigits)
     {
-        formatDigits(temp, (options.floatSignificantFigures - intDigits), fractional);
+        formatDigitsAfterRounding(temp, nonTrailingDigits);
     }
 
-    private int formatDigits(List<Integer> temp, int exp, double value)
+    private double getDigitsForRounding(List<Integer> temp, int exp, double value)
     {
         temp.clear();
         while (value > 0 && temp.size() < exp)
@@ -310,7 +321,11 @@ public class Formatter
         {
             temp.add(0);
         }
-        int nonTrailingDigits = roundDigits(temp, value);
+        return value;
+    }
+
+    private int formatDigitsAfterRounding(List<Integer> temp, int nonTrailingDigits)
+    {
         for (int i = 0; i < nonTrailingDigits; i++)
         {
             builder.append((char) ('0' + temp.get(i)));
@@ -318,10 +333,10 @@ public class Formatter
         return nonTrailingDigits;
     }
 
-    private int roundDigits(List<Integer> temp, double value)
+    private int roundDigits(List<Integer> temp, double leftovers)
     {
         int l = temp.size() - 1;
-        int r = value >= 0.5 ? 1 : 0;
+        int r = leftovers >= 0.5 ? 1 : 0;
         while (r > 0 && l >= 0) // round up
         {
             int v = temp.get(l);
@@ -338,7 +353,7 @@ public class Formatter
             temp.set(l, v);
             l--;
         }
-        int firstTrailingZero = temp.size();
+        int firstTrailingZero = 1;
         for (int i = temp.size() - 1; i >= 0; i--)
         {
             if (temp.get(i) != 0)
@@ -347,7 +362,7 @@ public class Formatter
                 break;
             }
         }
-        return firstTrailingZero;
+        return r > 0 ? ~firstTrailingZero : firstTrailingZero;
     }
 
     private boolean formatSpecial(double value)

@@ -1,7 +1,7 @@
 package dev.gigaherz.util.gddl2.structure;
 
 import dev.gigaherz.util.gddl2.queries.Query;
-import dev.gigaherz.util.gddl2.serialization.Formatter;
+import dev.gigaherz.util.gddl2.formatting.Formatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

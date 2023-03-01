@@ -1,7 +1,7 @@
 package dev.gigaherz.util.gddl2;
 
-import dev.gigaherz.util.gddl2.serialization.Formatter;
-import dev.gigaherz.util.gddl2.serialization.FormatterOptions;
+import dev.gigaherz.util.gddl2.formatting.Formatter;
+import dev.gigaherz.util.gddl2.formatting.FormatterOptions;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.structure.GddlList;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
@@ -44,13 +44,15 @@ public class FormattingTest
     {
         assertEquals("1.0", formatOneCompact(GddlValue.of(1.0)));
         assertEquals("1.01", formatOneCompact(GddlValue.of(1.01)));
+        assertEquals("10.0", formatOneCompact(GddlValue.of(10.0)));
         assertEquals("1.000000000001", formatOneCompact(GddlValue.of(1.000000000001)));
         assertEquals("0.1", formatOneCompact(GddlValue.of(0.1)));
         assertEquals("1.0e-8", formatOneCompact(GddlValue.of(0.00000001)));
         assertEquals("1.0e10", formatOneCompact(GddlValue.of(10000000000.0)));
         assertEquals("3.0e-50", formatOneCompact(GddlValue.of(3e-50)));
         assertEquals("1.0e18", formatOneCompact(GddlValue.of(1000000000000000000.0)));
-        assertEquals("1.999999999999999e15", formatOneCompact(GddlValue.of(1999999999999999.0)));
+        assertEquals("1.99999999999999e14", formatOneCompact(GddlValue.of(199999999999999.0)));
+        assertEquals("2.0e15", formatOneCompact(GddlValue.of(1999999999999999.0)));
         assertEquals("2.0e32", formatOneCompact(GddlValue.of(199999999999999999999999999999999.0)));
         assertEquals(".NaN", formatOneCompact(GddlValue.of(Float.NaN)));
         assertEquals(".Inf", formatOneCompact(GddlValue.of(Float.POSITIVE_INFINITY)));

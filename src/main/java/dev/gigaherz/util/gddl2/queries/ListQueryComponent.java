@@ -1,6 +1,6 @@
 package dev.gigaherz.util.gddl2.queries;
 
-import dev.gigaherz.util.gddl2.serialization.Formatter;
+import dev.gigaherz.util.gddl2.formatting.Formatter;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.util.Range;
 import org.jetbrains.annotations.NotNull;

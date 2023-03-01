@@ -1,7 +1,7 @@
 package dev.gigaherz.util.gddl2;
 
 import dev.gigaherz.util.gddl2.exceptions.ParserException;
-import dev.gigaherz.util.gddl2.serialization.Formatter;
+import dev.gigaherz.util.gddl2.formatting.Formatter;
 
 import java.io.IOException;
 

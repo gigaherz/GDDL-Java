@@ -111,6 +111,26 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
         return previous;
     }
 
+    public GddlElement<?> put(String key, String value)
+    {
+        return put(key, GddlValue.of(value));
+    }
+
+    public GddlElement<?> put(String key, long value)
+    {
+        return put(key, GddlValue.of(value));
+    }
+
+    public GddlElement<?> put(String key, boolean value)
+    {
+        return put(key, GddlValue.of(value));
+    }
+
+    public GddlElement<?> put(String key, double value)
+    {
+        return put(key, GddlValue.of(value));
+    }
+
     @Override
     public void putAll(@NotNull Map<? extends String, ? extends GddlElement<?>> m)
     {
@@ -148,6 +168,36 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     public GddlElement<?> get(String key)
     {
         return contents.get(key);
+    }
+
+    public GddlMap getMap(String key)
+    {
+        return get(key).asMap();
+    }
+
+    public GddlList getList(String key)
+    {
+        return get(key).asList();
+    }
+
+    public String getString(String key)
+    {
+        return get(key).stringValue();
+    }
+
+    public long getInt(String key)
+    {
+        return get(key).intValue();
+    }
+
+    public double getDouble(String key)
+    {
+        return get(key).doubleValue();
+    }
+
+    public boolean getBoolean(String key)
+    {
+        return get(key).booleanValue();
     }
 
     @Override

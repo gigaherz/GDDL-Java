@@ -1,4 +1,4 @@
-package dev.gigaherz.util.gddl2.serialization;
+package dev.gigaherz.util.gddl2.formatting;
 
 public final class FormatterOptions
 {
