@@ -3,11 +3,10 @@ package dev.gigaherz.util.gddl2.serialization.mappers;
 import dev.gigaherz.util.gddl2.serialization.GddlSerializer;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
-import dev.gigaherz.util.gddl2.structure.GddlValue;
 
-public class StringMapper extends MapperBase
+public class PassthroughMapper extends MapperBase
 {
-    public StringMapper(int priority)
+    public PassthroughMapper(int priority)
     {
         super(priority);
     }
@@ -15,13 +14,13 @@ public class StringMapper extends MapperBase
     @Override
     public boolean canApply(Class<?> clazz)
     {
-        return clazz == String.class;
+        return GddlElement.class.isAssignableFrom(clazz);
     }
 
     @Override
     public GddlElement<?> serialize(Object object, GddlSerializer serializer) throws ReflectiveOperationException
     {
-        return GddlValue.of((String)object);
+        return (GddlElement<?>) object;
     }
 
     @Override
@@ -31,14 +30,14 @@ public class StringMapper extends MapperBase
     }
 
     @Override
-    public Object deserialize(GddlElement<?> element, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
+    public Object deserialize(GddlElement<?> map, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
     {
-        return element.stringValue();
+        return clazz.cast(map);
     }
 
     @Override
     public Object deserializeVerbose(GddlMap map, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
     {
-        return deserialize(unwrapVerbose(map), clazz, serializer);
+        return unwrapVerbose(map);
     }
 }

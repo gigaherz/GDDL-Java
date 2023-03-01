@@ -1,7 +1,7 @@
 package dev.gigaherz.util.gddl2.serialization;
 
 import dev.gigaherz.util.gddl2.serialization.mappers.*;
-import dev.gigaherz.util.gddl2.structure.GddlMap;
+import dev.gigaherz.util.gddl2.structure.GddlElement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class GddlSerializer
             registerMapper(new ListMapper(PRIORITY_COLLECTION));
             registerMapper(new MapMapper(PRIORITY_COLLECTION));
             registerMapper(new SetMapper(PRIORITY_COLLECTION));
-            registerMapper(new GddlMapper(PRIORITY_COLLECTION + 1));
+            registerMapper(new PassthroughMapper(PRIORITY_COLLECTION + 1));
         }
     }
 
@@ -60,24 +60,11 @@ public class GddlSerializer
         mappers.add(mapper);
     }
 
-    private MapperBase findTopFieldMapperForClass(Class<?> clazz)
-    {
-        for (MapperBase mapper : mappers)
-        {
-            if (mapper.canMapToField(clazz))
-            {
-                return mapper;
-            }
-        }
-
-        return null;
-    }
-
     private MapperBase findTopCompoundMapperForClass(Class<?> clazz)
     {
         for (MapperBase mapper : mappers)
         {
-            if (mapper.canMapToMap(clazz))
+            if (mapper.canApply(clazz))
             {
                 return mapper;
             }
@@ -86,25 +73,7 @@ public class GddlSerializer
         return null;
     }
 
-    // ==============================================================================================================
-    // Serializing
-    public void serializeTo(GddlMap tag, String fieldName, Object object)
-            throws ReflectiveOperationException
-    {
-        if (object != null)
-        {
-            MapperBase mapper = findTopFieldMapperForClass(object.getClass());
-            if (mapper != null)
-            {
-                mapper.serializeField(tag, fieldName, object, this);
-                return;
-            }
-        }
-
-        generic.serializeField(tag, fieldName, object, this);
-    }
-
-    public GddlMap serialize(Object object)
+    public GddlElement<?> serialize(Object object)
             throws ReflectiveOperationException
     {
         if (object != null)
@@ -112,39 +81,56 @@ public class GddlSerializer
             MapperBase mapper = findTopCompoundMapperForClass(object.getClass());
             if (mapper != null)
             {
-                return mapper.serializeMap(object, this);
+                return mapper.serialize(object, this);
             }
         }
 
-        return generic.serializeMap(object, this);
+        return generic.serialize(object, this);
     }
 
-    // ==============================================================================================================
-    // Deserializing
-    public <T> T deserialize(Class<? extends T> clazz, GddlMap tag)
+    public GddlElement<?> serializeVerbose(Object object)
+            throws ReflectiveOperationException
+    {
+        if (object != null)
+        {
+            MapperBase mapper = findTopCompoundMapperForClass(object.getClass());
+            if (mapper != null)
+            {
+                return mapper.serializeVerbose(object, this);
+            }
+        }
+
+        return generic.serializeVerbose(object, this);
+    }
+
+    public <T> T deserialize(GddlElement<?> element, Class<? extends T> clazz)
             throws ReflectiveOperationException
     {
         MapperBase mapper = findTopCompoundMapperForClass(clazz);
         if (mapper != null)
         {
-            return (T)mapper.deserializeMap(tag, clazz, this);
+            return (T)mapper.deserialize(element, clazz, this);
         }
 
-        return (T)generic.deserializeMap(tag, clazz, this);
+        return (T)generic.deserialize(element, clazz, this);
     }
 
-    public Object deserializeFrom(GddlMap parent, String fieldName, Class<?> clazz, Object currentValue)
-            throws ReflectiveOperationException
+    public <T> T deserializeVerbose(GddlElement<?> element) throws ReflectiveOperationException
     {
-        if (!parent.containsKey(fieldName))
-            return currentValue;
+        if (element.isNull())
+            return null;
 
-        MapperBase mapper = findTopFieldMapperForClass(clazz);
+        var map = element.asMap();
+
+        var className = map.getString("class");
+        var clazz = Class.forName(className);
+
+        MapperBase mapper = findTopCompoundMapperForClass(clazz);
         if (mapper != null)
         {
-            return mapper.deserializeField(parent, fieldName, clazz, this);
+            return (T)mapper.deserializeVerbose(map, clazz, this);
         }
 
-        return generic.deserializeField(parent, fieldName, clazz, this);
+        return (T)generic.deserializeVerbose(map, clazz, this);
     }
 }

@@ -18,32 +18,32 @@ public abstract class MapperBase
         this.priority = priority;
     }
 
-    protected GddlMap getTypeCompound(Object o, String type)
+    public abstract boolean canApply(Class<?> clazz);
+
+    protected GddlMap makeVerboseMap(Object object)
     {
-        GddlMap tag = GddlMap.empty();
-        tag.put("type", type);
-        tag.put("className", o.getClass().getName());
-        return tag;
+        var map = GddlMap.empty();
+        map.put("class", object.getClass().getName());
+        return map;
     }
 
-    protected GddlMap wrapToCompound(GddlElement<?> tag, Object o)
+    protected GddlMap wrapVerbose(Object object, GddlElement<?> element)
     {
-        if (tag.isMap())
-            return tag.asMap();
-        GddlMap tag2 = getTypeCompound(o, "custom");
-        tag2.get("data");
-        return tag2;
+        var map = makeVerboseMap(object);
+        map.put("value", element);
+        return map;
     }
 
-    public abstract boolean canMapToField(Class<?> clazz);
+    protected GddlElement<?> unwrapVerbose(GddlMap map)
+    {
+        return map.get("value");
+    }
 
-    public abstract boolean canMapToMap(Class<?> clazz);
+    public abstract GddlElement<?> serialize(Object object, GddlSerializer serializer) throws ReflectiveOperationException;
 
-    public abstract void serializeField(GddlMap parent, String fieldName, Object object, GddlSerializer serializer) throws ReflectiveOperationException;
+    public abstract GddlElement<?> serializeVerbose(Object object, GddlSerializer serializer) throws ReflectiveOperationException;
 
-    public abstract Object deserializeField(GddlMap parent, String fieldName, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException;
+    public abstract Object deserialize(GddlElement<?> element, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException;
 
-    public abstract GddlMap serializeMap(Object object, GddlSerializer serializer) throws ReflectiveOperationException;
-
-    public abstract Object deserializeMap(GddlMap self, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException;
+    public abstract Object deserializeVerbose(GddlMap map, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException;
 }

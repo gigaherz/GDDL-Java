@@ -2,7 +2,9 @@ package dev.gigaherz.util.gddl2.serialization.mappers;
 
 import dev.gigaherz.util.gddl2.serialization.GddlSerializationException;
 import dev.gigaherz.util.gddl2.serialization.GddlSerializer;
+import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
+import dev.gigaherz.util.gddl2.structure.GddlValue;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -15,54 +17,44 @@ public class GenericObjectMapper extends MapperBase
     }
 
     @Override
-    public boolean canMapToField(Class<?> clazz)
+    public boolean canApply(Class<?> clazz)
     {
         return true;
     }
 
     @Override
-    public boolean canMapToMap(Class<?> clazz)
-    {
-        return true;
-    }
-
-    @Override
-    public void serializeField(GddlMap parent, String fieldName, Object object, GddlSerializer serializer) throws ReflectiveOperationException
-    {
-        GddlMap tag2 = serializeObject(object, serializer);
-        parent.put(fieldName, tag2);
-    }
-
-    @Override
-    public Object deserializeField(GddlMap parent, String fieldName, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
-    {
-        GddlMap tag2 = (GddlMap) parent.get(fieldName);
-        return deserializeObject(tag2, clazz, serializer);
-    }
-
-    @Override
-    public GddlMap serializeMap(Object object, GddlSerializer serializer) throws ReflectiveOperationException
+    public GddlElement<?> serialize(Object object, GddlSerializer serializer) throws ReflectiveOperationException
     {
         return serializeObject(object, serializer);
     }
 
     @Override
-    public Object deserializeMap(GddlMap self, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
+    public GddlElement<?> serializeVerbose(Object object, GddlSerializer serializer) throws ReflectiveOperationException
     {
-        return deserializeObject(self, clazz, serializer);
+        return serialize(object, serializer);
     }
 
-    private GddlMap serializeObject(Object o, GddlSerializer serializer)
+    @Override
+    public Object deserialize(GddlElement<?> element, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
+    {
+        return deserializeObject(element, clazz, serializer);
+    }
+
+    @Override
+    public Object deserializeVerbose(GddlMap map, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
+    {
+        return deserialize(map, clazz, serializer);
+    }
+
+    private GddlElement<?> serializeObject(Object o, GddlSerializer serializer)
             throws ReflectiveOperationException
     {
         if (o == null)
         {
-            GddlMap tag = GddlMap.empty();
-            tag.put("type", "null");
-            return tag;
+            return GddlValue.nullValue();
         }
 
-        GddlMap tag = getTypeCompound(o, "object");
+        GddlMap map = makeVerboseMap(o);
 
         Class<?> cls = o.getClass();
 
@@ -76,25 +68,24 @@ public class GenericObjectMapper extends MapperBase
                     continue;
 
                 f.setAccessible(true);
-                serializer.serializeTo(tag, f.getName(), f.get(o));
+                map.put(f.getName(), serializer.serialize(f.get(o)));
             }
 
             cls = cls.getSuperclass();
         }
 
-        return tag;
+        return map;
     }
 
-    private Object deserializeObject(GddlMap tag, Class<?> clazz, GddlSerializer serializer)
+    private Object deserializeObject(GddlElement<?> element, Class<?> clazz, GddlSerializer serializer)
             throws ReflectiveOperationException
     {
-        if (tag.getString("type").equals("null"))
+        if (element.isNull())
             return null;
 
-        if (!tag.getString("type").equals("object"))
-            throw new GddlSerializationException();
+        var map = element.asMap();
 
-        Class<?> actual = Class.forName(tag.getString("className"));
+        Class<?> actual = Class.forName(map.getString("class"));
         if (!clazz.isAssignableFrom(actual))
             throw new GddlSerializationException();
 
@@ -112,7 +103,7 @@ public class GenericObjectMapper extends MapperBase
                     continue;
 
                 f.setAccessible(true);
-                f.set(o, serializer.deserializeFrom(tag, f.getName(), f.getType(), f.get(o)));
+                f.set(o, serializer.deserialize(map.get(f.getName()), f.getType()));
             }
 
             cls = cls.getSuperclass();

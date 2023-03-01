@@ -191,7 +191,7 @@ public class Formatter
         }
         else if (v.isInteger())
         {
-            formatInteger(v.intValue());
+            formatInteger(v.longValue());
         }
         else if (v.isDouble())
         {

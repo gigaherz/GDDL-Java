@@ -1,7 +1,9 @@
 package dev.gigaherz.util.gddl2.serialization.mappers;
 
 import dev.gigaherz.util.gddl2.serialization.GddlSerializer;
+import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
+import dev.gigaherz.util.gddl2.structure.GddlValue;
 
 import java.lang.reflect.Type;
 
@@ -25,101 +27,96 @@ public class PrimitiveTypeMapper extends MapperBase
     }
 
     @Override
-    public boolean canMapToField(Class<?> clazz)
+    public boolean canApply(Class<?> clazz)
     {
         return clazz.isPrimitive() || isBoxType(clazz);
     }
 
     @Override
-    public boolean canMapToMap(Class<?> clazz)
-    {
-        return false;
-    }
-
-    @Override
-    public void serializeField(GddlMap parent, String fieldName, Object object, GddlSerializer serializer) throws ReflectiveOperationException
+    public GddlElement<?> serialize(Object object, GddlSerializer serializer) throws ReflectiveOperationException
     {
         if (object instanceof Byte b)
         {
-            parent.put(fieldName, b);
+            return GddlValue.of(b);
         }
         else if (object instanceof Short s)
         {
-            parent.put(fieldName, s);
+            return GddlValue.of(s);
         }
         else if (object instanceof Integer i)
         {
-            parent.put(fieldName, i);
+            return GddlValue.of(i);
         }
         else if (object instanceof Long l)
         {
-            parent.put(fieldName, l);
+            return GddlValue.of(l);
         }
         else if (object instanceof Float f)
         {
-            parent.put(fieldName, f);
+            return GddlValue.of(f);
         }
         else if (object instanceof Double d)
         {
-            parent.put(fieldName, d);
+            return GddlValue.of(d);
         }
         else if (object instanceof Boolean b)
         {
-            parent.put(fieldName, b);
+            return GddlValue.of(b);
         }
         else if (object instanceof Character c)
         {
-            parent.put(fieldName, c);
+            return GddlValue.of(c);
         }
+        throw new IllegalStateException("Class is not a java primitive!");
     }
 
     @Override
-    public Object deserializeField(GddlMap parent, String fieldName, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
+    public GddlElement<?> serializeVerbose(Object object, GddlSerializer serializer) throws ReflectiveOperationException
+    {
+        return wrapVerbose(object, serialize(object, serializer));
+    }
+
+    @Override
+    public Object deserialize(GddlElement<?> element, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
     {
         if (clazz == Byte.class || clazz == byte.class)
         {
-            return (byte)parent.get(fieldName).intValue();
+            return element.byteValue();
         }
         else if (clazz == Short.class || clazz == short.class)
         {
-            return (short)parent.get(fieldName).intValue();
+            return element.shortValue();
         }
         else if (clazz == Integer.class || clazz == int.class)
         {
-            return (int)parent.get(fieldName).intValue();
+            return element.intValue();
         }
         else if (clazz == Long.class || clazz == long.class)
         {
-            return parent.get(fieldName).intValue();
+            return element.longValue();
         }
         else if (clazz == Float.class || clazz == float.class)
         {
-            return (float)parent.get(fieldName).doubleValue();
+            return element.floatValue();
         }
         else if (clazz == Double.class || clazz == double.class)
         {
-            return parent.get(fieldName).doubleValue();
+            return element.doubleValue();
         }
         else if (clazz == Boolean.class || clazz == boolean.class)
         {
-            return parent.get(fieldName).booleanValue();
+            return element.booleanValue();
         }
         else if (clazz == Character.class || clazz == char.class)
         {
-            return (char)parent.get(fieldName).intValue();
+            return (char)element.intValue();
         }
         return null;
     }
 
     @Override
-    public GddlMap serializeMap(Object object, GddlSerializer serializer) throws ReflectiveOperationException
+    public Object deserializeVerbose(GddlMap map, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
     {
-        return null;
-    }
-
-    @Override
-    public Object deserializeMap(GddlMap self, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
-    {
-        return null;
+        return deserialize(unwrapVerbose(map), clazz, serializer);
     }
 }

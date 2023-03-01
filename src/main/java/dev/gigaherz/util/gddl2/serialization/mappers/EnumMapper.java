@@ -1,8 +1,9 @@
 package dev.gigaherz.util.gddl2.serialization.mappers;
 
-import dev.gigaherz.util.gddl2.serialization.GddlSerializationException;
 import dev.gigaherz.util.gddl2.serialization.GddlSerializer;
+import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
+import dev.gigaherz.util.gddl2.structure.GddlValue;
 
 @SuppressWarnings("unchecked")
 public class EnumMapper extends MapperBase
@@ -13,62 +14,34 @@ public class EnumMapper extends MapperBase
     }
 
     @Override
-    public boolean canMapToField(Class<?> clazz)
+    public boolean canApply(Class<?> clazz)
     {
         return clazz.isEnum();
     }
 
     @Override
-    public boolean canMapToMap(Class<?> clazz)
+    public GddlElement<?> serialize(Object object, GddlSerializer serializer)
+            throws ReflectiveOperationException
     {
-        return false;
+        return GddlValue.of(((Enum<?>)object).name());
     }
 
     @Override
-    public GddlMap serializeMap(Object object, GddlSerializer serializer)
-            throws ReflectiveOperationException
+    public GddlElement<?> serializeVerbose(Object object, GddlSerializer serializer) throws ReflectiveOperationException
     {
-        return null;
+        return wrapVerbose(object, serialize(object, serializer));
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public Object deserialize(GddlElement<?> element, Class<?> clazz, GddlSerializer serializer)
+    {
+        return Enum.valueOf((Class)clazz, element.stringValue());
     }
 
     @Override
-    public Object deserializeMap(GddlMap self, Class<?> clazz, GddlSerializer serializer)
-            throws ReflectiveOperationException
+    public Object deserializeVerbose(GddlMap map, Class<?> clazz, GddlSerializer serializer)
     {
-        return null;
-    }
-
-    @Override
-    public void serializeField(GddlMap parent, String fieldName, Object object, GddlSerializer serializer)
-            throws ReflectiveOperationException
-    {
-        GddlMap tag2 = GddlMap.empty();
-        serializeEnum(tag2, ((Enum) object));
-        parent.put(fieldName, tag2);
-    }
-
-    @Override
-    public Object deserializeField(GddlMap parent, String fieldName, Class<?> clazz, GddlSerializer serializer)
-            throws ReflectiveOperationException
-    {
-        GddlMap tag2 = (GddlMap) parent.get(fieldName);
-        return deserializeEnum(tag2, (Class<? extends Enum>) clazz);
-    }
-
-    private static void serializeEnum(GddlMap tag, Enum o)
-    {
-        tag.put("type", "enum");
-        tag.put("className", o.getClass().getName());
-        tag.put("valueName", o.name());
-    }
-
-    private static Object deserializeEnum(GddlMap tag, Class<? extends Enum> clazz)
-    {
-        if (!tag.getString("type").equals("enum"))
-            throw new GddlSerializationException();
-        if (!tag.getString("className").equals(clazz.getName()))
-            throw new GddlSerializationException();
-
-        return Enum.valueOf(clazz, tag.getString("value"));
+        return deserialize(unwrapVerbose(map), clazz, serializer);
     }
 }

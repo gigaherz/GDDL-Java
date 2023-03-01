@@ -59,7 +59,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
             return outOps.createBoolean(input.booleanValue());
         if (input.isInteger())
         {
-            var l = input.intValue();
+            var l = input.longValue();
             if ((byte) l == l)
             {
                 return outOps.createByte((byte) l);
@@ -101,7 +101,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     public DataResult<Number> getNumberValue(GddlElement<?> input)
     {
         if (input.isInteger())
-            return DataResult.success(input.intValue());
+            return DataResult.success(input.longValue());
         else if (input.isDouble())
             return DataResult.success(input.doubleValue());
         return DataResult.error(() -> "Not a number");

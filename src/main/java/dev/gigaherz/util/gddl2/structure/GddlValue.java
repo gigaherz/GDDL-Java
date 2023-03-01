@@ -88,9 +88,33 @@ public final class GddlValue extends GddlElement<GddlValue>
     }
 
     @Override
-    public long intValue()
+    public byte byteValue()
+    {
+        return (byte)longValue();
+    }
+
+    @Override
+    public short shortValue()
+    {
+        return (short)longValue();
+    }
+
+    @Override
+    public int intValue()
+    {
+        return (int)longValue();
+    }
+
+    @Override
+    public long longValue()
     {
         return (long) Objects.requireNonNull(data);
+    }
+
+    @Override
+    public float floatValue()
+    {
+        return (float)doubleValue();
     }
 
     @Override

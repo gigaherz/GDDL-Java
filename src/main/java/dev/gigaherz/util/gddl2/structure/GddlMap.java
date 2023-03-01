@@ -185,9 +185,29 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
         return get(key).stringValue();
     }
 
-    public long getInt(String key)
+    public byte getByte(String key)
+    {
+        return get(key).byteValue();
+    }
+
+    public short getShort(String key)
+    {
+        return get(key).shortValue();
+    }
+
+    public int getInt(String key)
     {
         return get(key).intValue();
+    }
+
+    public long getLong(String key)
+    {
+        return get(key).longValue();
+    }
+
+    public float getFloat(String key)
+    {
+        return get(key).floatValue();
     }
 
     public double getDouble(String key)

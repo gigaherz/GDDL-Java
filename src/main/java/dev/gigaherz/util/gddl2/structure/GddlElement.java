@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
-public sealed abstract class GddlElement<T extends GddlElement<T>> permits GddlValue, GddlList, GddlMap, GddlReference
+public sealed abstract class GddlElement<T extends GddlElement<T>> extends Number permits GddlValue, GddlList, GddlMap, GddlReference
 {
     //region API
 
@@ -274,7 +274,7 @@ public sealed abstract class GddlElement<T extends GddlElement<T>> permits GddlV
     }
 
     /**
-     * Determines wether the contained value is an integer
+     * Determines wether the contained value is some integer type
      */
     public boolean isInteger()
     {
@@ -286,9 +286,47 @@ public sealed abstract class GddlElement<T extends GddlElement<T>> permits GddlV
      *
      * @throws IllegalStateException If the contained value is not actually an integer.
      */
-    public long intValue()
+    public byte byteValue()
     {
         throw new IllegalStateException("This element is not a value.");
+    }
+
+    /**
+     * Gets the integer contained in this value.
+     *
+     * @throws IllegalStateException If the contained value is not actually an integer.
+     */
+    public short shortValue()
+    {
+        throw new IllegalStateException("This element is not a value.");
+    }
+
+    /**
+     * Gets the integer contained in this value.
+     *
+     * @throws IllegalStateException If the contained value is not actually an integer.
+     */
+    public int intValue()
+    {
+        throw new IllegalStateException("This element is not a value.");
+    }
+
+    /**
+     * Gets the integer contained in this value.
+     *
+     * @throws IllegalStateException If the contained value is not actually an integer.
+     */
+    public long longValue()
+    {
+        throw new IllegalStateException("This element is not a value.");
+    }
+
+    /**
+     * Determines wether the contained value is a floating-point number
+     */
+    public boolean isFloat()
+    {
+        return isDouble();
     }
 
     /**
@@ -297,6 +335,16 @@ public sealed abstract class GddlElement<T extends GddlElement<T>> permits GddlV
     public boolean isDouble()
     {
         return false;
+    }
+
+    /**
+     * Gets the floating-point number contained in this value.
+     *
+     * @throws IllegalStateException If the contained value is not actually a floating-point number.
+     */
+    public float floatValue()
+    {
+        throw new IllegalStateException("This element is not a value.");
     }
 
     /**
