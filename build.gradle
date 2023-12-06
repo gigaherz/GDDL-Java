@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
     id("org.javamodularity.moduleplugin") version "1.8.12"
     id("org.gradlex.extra-java-module-info") version "1.6"
-
+    id 'org.ajoberstar.grgit' version '5.2.1'
 }
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
@@ -14,7 +14,25 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 //modularity.inferModulePath.set(false)
 
 group 'dev.gigaherz.util.gddl'
-version '2.0.0-alpha.4'
+version '2.0.0-SNAPSHOT'
+
+if (grgit != null)
+{
+    var describe = grgit.describe(abbrev:0)
+
+    if (describe.endsWith("-alpha")) {
+        var longDesc = grgit.describe(longDescr:true)
+        longDesc = longDesc.substring(0, longDesc.lastIndexOf('-'))
+        longDesc = longDesc.substring(0, longDesc.lastIndexOf('-')) + '.' + longDesc.substring(longDesc.lastIndexOf('-') + 1)
+        version longDesc
+    }
+}
+
+tasks.register("describe") {
+    doFirst {
+        println grgit.describe()
+    }
+}
 
 repositories {
     mavenCentral()
