@@ -1,8 +1,12 @@
 package dev.gigaherz.util.gddl2.structure;
 
 import dev.gigaherz.util.gddl2.formatting.Formatter;
-import dev.gigaherz.util.gddl2.util.Utility;
+import dev.gigaherz.util.gddl2.formatting.FormatterOptions;
+import dev.gigaherz.util.gddl2.internal.Utility;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 
 public final class GddlDocument
@@ -36,6 +40,16 @@ public final class GddlDocument
     public GddlElement<?> getRoot()
     {
         return root;
+    }
+
+    public void write(Path path) throws IOException
+    {
+        Files.writeString(path, Formatter.format(root, FormatterOptions.COMPACT_HUMAN));
+    }
+
+    public void write(Path path, FormatterOptions formatterOptions) throws IOException
+    {
+        Files.writeString(path, Formatter.format(root, formatterOptions));
     }
 
     //endregion
@@ -89,5 +103,6 @@ public final class GddlDocument
     {
         return Objects.hash(root, danglingComment);
     }
+
     //endregion
 }

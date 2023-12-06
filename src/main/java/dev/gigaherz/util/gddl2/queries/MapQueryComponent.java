@@ -2,7 +2,7 @@ package dev.gigaherz.util.gddl2.queries;
 
 import dev.gigaherz.util.gddl2.formatting.Formatter;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
-import dev.gigaherz.util.gddl2.util.Utility;
+import dev.gigaherz.util.gddl2.internal.Utility;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;

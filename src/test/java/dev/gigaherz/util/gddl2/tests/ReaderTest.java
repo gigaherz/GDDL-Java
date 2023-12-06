@@ -1,4 +1,4 @@
-package dev.gigaherz.util.gddl2;
+package dev.gigaherz.util.gddl2.tests;
 
 import dev.gigaherz.util.gddl2.exceptions.ReaderException;
 import dev.gigaherz.util.gddl2.parsing.ParsingContext;

@@ -1,6 +1,9 @@
-package dev.gigaherz.util.gddl2.structure;
+package dev.gigaherz.util.gddl2.tests.structure;
 
 import dev.gigaherz.util.gddl2.queries.Query;
+import dev.gigaherz.util.gddl2.structure.GddlMap;
+import dev.gigaherz.util.gddl2.structure.GddlReference;
+import dev.gigaherz.util.gddl2.structure.GddlValue;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

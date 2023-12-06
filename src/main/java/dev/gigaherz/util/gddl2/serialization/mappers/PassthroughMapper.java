@@ -4,7 +4,7 @@ import dev.gigaherz.util.gddl2.serialization.GddlSerializer;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
 
-public class PassthroughMapper extends MapperBase
+public class PassthroughMapper extends Mapper
 {
     public PassthroughMapper(int priority)
     {

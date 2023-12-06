@@ -1,4 +1,4 @@
-package dev.gigaherz.util.gddl2;
+package dev.gigaherz.util.gddl2.tests;
 
 import dev.gigaherz.util.gddl2.formatting.Formatter;
 import dev.gigaherz.util.gddl2.formatting.FormatterOptions;
@@ -93,7 +93,7 @@ public class FormattingTest
     public static String formatOneCompact(GddlElement<?> e)
     {
         StringBuilder b = new StringBuilder();
-        new Formatter(b, FormatterOptions.COMPACT).formatElement(e);
+        new Formatter(b, FormatterOptions.COMPACT_HUMAN).formatElement(e);
         return b.toString();
     }
 }

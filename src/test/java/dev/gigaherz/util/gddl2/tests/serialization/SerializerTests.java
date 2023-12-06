@@ -1,11 +1,11 @@
-package dev.gigaherz.util.gddl2.serialization;
+package dev.gigaherz.util.gddl2.tests.serialization;
 
+import dev.gigaherz.util.gddl2.serialization.GddlSerializer;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SerializerTests
 {
@@ -20,40 +20,54 @@ public class SerializerTests
         testSerialize(10.0f, "10.0");
         testSerialize(10.0, "10.0");
         testSerialize("10", "\"10\"");
-        testSerialize(true, "true");
+        testSerialize(new byte[]{1,2,3}, "[1,2,3]");
+        testSerialize(new int[]{1,2,3}, "[1,2,3]");
+        testSerialize(new long[]{1,2,3}, "[1,2,3]");
+        testSerialize(new double[]{1,2,3}, "[1.0,2.0,3.0]");
         testSerialize(List.of(1,2,3), "{class=\"java.util.ImmutableCollections$ListN\",elements=[{class=\"java.lang.Integer\",value=1},{class=\"java.lang.Integer\",value=2},{class=\"java.lang.Integer\",value=3}]}");
-        testSerialize(new TestSingleString(), "{class=\"dev.gigaherz.util.gddl2.serialization.SerializerTests$TestSingleString\",value1=\"Test8\"}");
-        testSerialize(new TestSingleByte(), "{class=\"dev.gigaherz.util.gddl2.serialization.SerializerTests$TestSingleByte\",value1=10}");
-        testSerialize(new TestSingleShort(), "{class=\"dev.gigaherz.util.gddl2.serialization.SerializerTests$TestSingleShort\",value1=10}");
-        testSerialize(new TestSingleInt(), "{class=\"dev.gigaherz.util.gddl2.serialization.SerializerTests$TestSingleInt\",value1=10}");
-        testSerialize(new TestSingleLong(), "{class=\"dev.gigaherz.util.gddl2.serialization.SerializerTests$TestSingleLong\",value1=10}");
-        testSerialize(new TestSingleFloat(), "{class=\"dev.gigaherz.util.gddl2.serialization.SerializerTests$TestSingleFloat\",value1=10.0}");
-        testSerialize(new TestSingleDouble(), "{class=\"dev.gigaherz.util.gddl2.serialization.SerializerTests$TestSingleDouble\",value1=10.0}");
-        testSerialize(new TestSingleBoolean(), "{class=\"dev.gigaherz.util.gddl2.serialization.SerializerTests$TestSingleBoolean\",value1=true}");
-        testSerialize(new TestSingleString(), "{class=\"dev.gigaherz.util.gddl2.serialization.SerializerTests$TestSingleString\",value1=\"Test8\"}");
-        testSerialize(new TestArrayOfStrings(), "{class=\"dev.gigaherz.util.gddl2.serialization.SerializerTests$TestArrayOfStrings\",value1=[\"Test1\",\"Test2\",\"Test3\",null]}");
-        testSerialize(new TestListOfNull(), "{class=\"dev.gigaherz.util.gddl2.serialization.SerializerTests$TestListOfNull\",value1={class=\"java.util.ArrayList\",elements=[null]}}");
+        testSerialize(new ByteField(), "{class=\""+ByteField.class.getName()+"\",value1=10}");
+        testSerialize(new ShortField(), "{class=\""+ShortField.class.getName()+"\",value1=10}");
+        testSerialize(new IntField(), "{class=\""+IntField.class.getName()+"\",value1=10}");
+        testSerialize(new LongField(), "{class=\""+LongField.class.getName()+"\",value1=10}");
+        testSerialize(new FloatField(), "{class=\""+FloatField.class.getName()+"\",value1=10.0}");
+        testSerialize(new DoubleField(), "{class=\""+DoubleField.class.getName()+"\",value1=10.0}");
+        testSerialize(new BooleanField(), "{class=\""+BooleanField.class.getName()+"\",value1=true}");
+        testSerialize(new StringField(), "{class=\""+StringField.class.getName()+"\",value1=\"Test8\"}");
+        testSerialize(new ArrayOfBytesField(), "{class=\""+ArrayOfBytesField.class.getName()+"\",value1=[1,2,3,4]}");
+        testSerialize(new ArrayOfStringsField(), "{class=\""+ArrayOfStringsField.class.getName()+"\",value1=[\"Test1\",\"Test2\",\"Test3\",null]}");
+        testSerialize(new NullInListField(), "{class=\""+NullInListField.class.getName()+"\",value1={class=\"java.util.ArrayList\",elements=[null]}}");
     }
 
     @Test
     public void testRoundTrip()
     {
-        testRoundTrip(new TestSingleByte());
-        testRoundTrip(new TestSingleShort());
-        testRoundTrip(new TestSingleInt());
-        testRoundTrip(new TestSingleLong());
-        testRoundTrip(new TestSingleFloat());
-        testRoundTrip(new TestSingleDouble());
-        testRoundTrip(new TestSingleBoolean());
-        testRoundTrip(new TestSingleString());
+        testRoundTrip((byte)10);
+        testRoundTrip((short)10);
+        testRoundTrip(10);
+        testRoundTrip(10L);
+        testRoundTrip(10.0f);
+        testRoundTrip(10.0);
+        testRoundTrip("10");
+        testRoundTrip(new byte[]{1,2,3});
+        testRoundTrip(new int[]{1,2,3});
+        testRoundTrip(new long[]{1,2,3});
+        testRoundTrip(new double[]{1,2,3});
+        testRoundTrip(new ByteField());
+        testRoundTrip(new ShortField());
+        testRoundTrip(new IntField());
+        testRoundTrip(new LongField());
+        testRoundTrip(new FloatField());
+        testRoundTrip(new DoubleField());
+        testRoundTrip(new BooleanField());
+        testRoundTrip(new StringField());
         testRoundTrip(new TestArrayOfFloats());
-        testRoundTrip(new TestListOfNull());
-        testRoundTrip(new TestListOfStrings());
-        testRoundTrip(new TestSetOfStrings());
-        testRoundTrip(new TestMapOfStrings());
-        testRoundTrip(new TestMapOfLists());
+        testRoundTrip(new NullInListField());
+        testRoundTrip(new ListOfStringsField());
+        testRoundTrip(new SetOfStringsField());
+        testRoundTrip(new MapOfStringsField());
+        testRoundTrip(new MapOfListsField());
 
-        testRoundTrip(new TestListOfTests());
+        testRoundTrip(new ComplexListField());
     }
 
     private static void testSerialize(Object o, String expected)
@@ -75,17 +89,40 @@ public class SerializerTests
 
         Object result = assertDoesNotThrow(() -> serializer.deserialize(serialized, o.getClass()));
 
-        assertEquals(o, result);
+        if (o.getClass().isArray())
+        {
+            var ct = o.getClass().getComponentType();
+            if (ct == byte.class)
+                assertArrayEquals((byte[]) o, (byte[]) result);
+            else if(ct == short.class)
+                assertArrayEquals((short[]) o, (short[]) result);
+            else if(ct == int.class)
+                assertArrayEquals((int[]) o, (int[]) result);
+            else if(ct == long.class)
+                assertArrayEquals((long[]) o, (long[]) result);
+            else if(ct == float.class)
+                assertArrayEquals((float[]) o, (float[]) result);
+            else if(ct == double.class)
+                assertArrayEquals((double[]) o, (double[]) result);
+            else if(ct == boolean.class)
+                assertArrayEquals((boolean[]) o, (boolean[]) result);
+            else
+                assertArrayEquals((Object[]) o, (Object[]) result);
+        }
+        else
+        {
+            assertEquals(o, result);
+        }
     }
 
-    public static class TestSingleByte 
+    public static class ByteField
     {
         byte value1 = 10;
 
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestSingleByte other))
+            if (!(obj instanceof ByteField other))
                 return false;
             return value1 == other.value1;
         }
@@ -97,14 +134,14 @@ public class SerializerTests
         }
     }
 
-    public static class TestSingleShort 
+    public static class ShortField
     {
         short value1 = 10;
 
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestSingleShort other))
+            if (!(obj instanceof ShortField other))
                 return false;
             return value1 == other.value1;
         }
@@ -116,14 +153,14 @@ public class SerializerTests
         }
     }
 
-    public static class TestSingleInt 
+    public static class IntField
     {
         int value1 = 10;
 
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestSingleInt other))
+            if (!(obj instanceof IntField other))
                 return false;
             return value1 == other.value1;
         }
@@ -135,14 +172,14 @@ public class SerializerTests
         }
     }
 
-    public static class TestSingleLong 
+    public static class LongField
     {
         long value1 = 10;
 
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestSingleLong other))
+            if (!(obj instanceof LongField other))
                 return false;
             return value1 == other.value1;
         }
@@ -154,16 +191,15 @@ public class SerializerTests
         }
     }
 
-    public static class TestSingleFloat 
+    public static class FloatField
     {
         float value1 = 10;
 
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestSingleFloat))
+            if (!(obj instanceof FloatField other))
                 return false;
-            TestSingleFloat other = (TestSingleFloat) obj;
             return value1 == other.value1;
         }
 
@@ -174,14 +210,14 @@ public class SerializerTests
         }
     }
 
-    public static class TestSingleDouble 
+    public static class DoubleField
     {
         double value1 = 10;
 
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestSingleDouble other))
+            if (!(obj instanceof DoubleField other))
                 return false;
             return value1 == other.value1;
         }
@@ -193,14 +229,14 @@ public class SerializerTests
         }
     }
 
-    public static class TestSingleBoolean 
+    public static class BooleanField
     {
         boolean value1 = true;
 
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestSingleBoolean other))
+            if (!(obj instanceof BooleanField other))
                 return false;
             return value1 == other.value1;
         }
@@ -212,14 +248,14 @@ public class SerializerTests
         }
     }
 
-    public static class TestSingleString
+    public static class StringField
     {
         String value1 = "Test8";
 
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestSingleString other))
+            if (!(obj instanceof StringField other))
                 return false;
             return value1.equals(other.value1);
         }
@@ -231,11 +267,11 @@ public class SerializerTests
         }
     }
 
-    public static class TestListOfStrings 
+    public static class ListOfStringsField
     {
         List<String> value1 = new ArrayList<String>();
 
-        public TestListOfStrings()
+        public ListOfStringsField()
         {
             value1.add("Test1");
             value1.add("Test2");
@@ -246,7 +282,7 @@ public class SerializerTests
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestListOfStrings other))
+            if (!(obj instanceof ListOfStringsField other))
                 return false;
             return value1.equals(other.value1);
         }
@@ -288,11 +324,40 @@ public class SerializerTests
         }
     }
 
-    public static class TestArrayOfStrings 
+    public static class ArrayOfBytesField
+    {
+        byte[] value1;
+
+        public ArrayOfBytesField()
+        {
+            value1 = new byte[4];
+            value1[0] = 1;
+            value1[1] = 2;
+            value1[2] = 3;
+            value1[3] = 4;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (!(obj instanceof ArrayOfBytesField other))
+                return false;
+
+            return Arrays.equals(value1, other.value1);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "ArrayOfBytesField[" + Arrays.toString(value1) + "]";
+        }
+    }
+
+    public static class ArrayOfStringsField
     {
         String[] value1;
 
-        public TestArrayOfStrings()
+        public ArrayOfStringsField()
         {
             value1 = new String[4];
             value1[0] = "Test1";
@@ -304,7 +369,7 @@ public class SerializerTests
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestArrayOfStrings other))
+            if (!(obj instanceof ArrayOfStringsField other))
                 return false;
 
             return Arrays.equals(value1, other.value1);
@@ -317,20 +382,20 @@ public class SerializerTests
         }
     }
 
-    public static class TestListOfNull
+    public static class NullInListField
     {
-        List value1;
+        List<Object> value1;
 
-        public TestListOfNull()
+        public NullInListField()
         {
-            value1 = new ArrayList();
+            value1 = new ArrayList<>();
             value1.add(null);
         }
 
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestListOfNull other))
+            if (!(obj instanceof NullInListField other))
                 return false;
 
             return Objects.equals(value1, other.value1);
@@ -343,11 +408,11 @@ public class SerializerTests
         }
     }
 
-    public static class TestSetOfStrings 
+    public static class SetOfStringsField
     {
         Set<String> value1 = new HashSet<>();
 
-        public TestSetOfStrings()
+        public SetOfStringsField()
         {
             value1.add("Test1");
             value1.add("Test2");
@@ -358,7 +423,7 @@ public class SerializerTests
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestSetOfStrings other))
+            if (!(obj instanceof SetOfStringsField other))
                 return false;
             return value1.equals(other.value1);
         }
@@ -370,11 +435,11 @@ public class SerializerTests
         }
     }
 
-    public static class TestMapOfStrings 
+    public static class MapOfStringsField
     {
         Map<String, String> value1 = new HashMap<String, String>();
 
-        public TestMapOfStrings()
+        public MapOfStringsField()
         {
             value1.put("Key1", "Value1");
             value1.put("Key2", "Value2");
@@ -387,7 +452,7 @@ public class SerializerTests
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestMapOfStrings other))
+            if (!(obj instanceof MapOfStringsField other))
                 return false;
             return value1.equals(other.value1);
         }
@@ -399,28 +464,26 @@ public class SerializerTests
         }
     }
 
-    public static class TestMapOfLists 
+    public static class MapOfListsField
     {
-        Map<String, List> value1 = new HashMap<>();
+        Map<String, List<Object>> value1 = new HashMap<>();
 
-        public TestMapOfLists()
+        public MapOfListsField()
         {
             value1.put("Key1", makeListFrom("1", "2", "3"));
             value1.put("Key2", makeListFrom("a", "b", "c"));
             value1.put("Key3", makeListFrom(null, "", "\t"));
         }
 
-        private List makeListFrom(String... s)
+        private List<Object> makeListFrom(String... s)
         {
-            List<String> list = new ArrayList<String>();
-            list.addAll(Arrays.asList(s));
-            return list;
+            return new ArrayList<>(Arrays.asList(s));
         }
 
         @Override
         public boolean equals(Object obj)
         {
-            return obj instanceof TestMapOfLists other && value1.equals(other.value1);
+            return obj instanceof MapOfListsField other && value1.equals(other.value1);
         }
 
         @Override
@@ -430,34 +493,33 @@ public class SerializerTests
         }
     }
 
-    public static class TestListOfTests 
+    public static class ComplexListField
     {
         List<Object> value1 = new ArrayList<>();
 
-        public TestListOfTests()
+        public ComplexListField()
         {
-            value1.add(new TestSingleByte());
-            value1.add(new TestSingleShort());
-            value1.add(new TestSingleInt());
-            value1.add(new TestSingleLong());
-            value1.add(new TestSingleFloat());
-            value1.add(new TestSingleDouble());
-            value1.add(new TestSingleBoolean());
-            value1.add(new TestSingleString());
+            value1.add(new ByteField());
+            value1.add(new ShortField());
+            value1.add(new IntField());
+            value1.add(new LongField());
+            value1.add(new FloatField());
+            value1.add(new DoubleField());
+            value1.add(new BooleanField());
+            value1.add(new StringField());
             value1.add(new TestArrayOfFloats());
-            value1.add(new TestListOfNull());
-            value1.add(new TestListOfStrings());
-            value1.add(new TestSetOfStrings());
-            value1.add(new TestMapOfStrings());
-            value1.add(new TestMapOfLists());
+            value1.add(new NullInListField());
+            value1.add(new ListOfStringsField());
+            value1.add(new SetOfStringsField());
+            value1.add(new MapOfStringsField());
+            value1.add(new MapOfListsField());
         }
 
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof TestListOfTests))
+            if (!(obj instanceof ComplexListField other))
                 return false;
-            TestListOfTests other = (TestListOfTests) obj;
             return value1.equals(other.value1);
         }
 

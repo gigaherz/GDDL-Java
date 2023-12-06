@@ -1,4 +1,4 @@
-package dev.gigaherz.util.gddl2;
+package dev.gigaherz.util.gddl2.tests;
 
 import dev.gigaherz.util.gddl2.exceptions.LexerException;
 import dev.gigaherz.util.gddl2.parsing.*;

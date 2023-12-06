@@ -9,7 +9,7 @@ import dev.gigaherz.util.gddl2.structure.GddlMap;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
-public class ListMapper extends MapperBase
+public class ListMapper extends Mapper
 {
     public ListMapper(int priority)
     {
@@ -69,7 +69,7 @@ public class ListMapper extends MapperBase
         if (!clazz.isAssignableFrom(actual))
             throw new GddlSerializationException();
 
-        var list = (List) actual.newInstance();
+        var list = (List) actual.getDeclaredConstructor().newInstance();
 
         var elements = map.getList("elements");
 

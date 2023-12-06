@@ -2,8 +2,8 @@ package dev.gigaherz.util.gddl2.formatting;
 
 public final class FormatterOptions
 {
-    public static final FormatterOptions COMPACT = new Builder().build(); // Default
-    public static final FormatterOptions NICE = new Builder()
+    public static final FormatterOptions COMPACT_HUMAN = new Builder().build(); // Default
+    public static final FormatterOptions NICE_HUMAN = new Builder()
             .writeComments(true)
             .lineBreaksAfterOpeningBrace(1)
             .lineBreaksBeforeClosingBrace(1)
@@ -22,8 +22,8 @@ public final class FormatterOptions
             .spacesPerIndent(4)
             .blankLinesBeforeComment(1)
             .build();
-    public static final FormatterOptions COMPACT_JSON = new Builder(COMPACT).alwaysUseStringLiterals(true).useJsonDelimiters(true).build();
-    public static final FormatterOptions NICE_JSON = new Builder(NICE).spacesBeforeEquals(0).alwaysUseStringLiterals(true).useJsonDelimiters(true).build();
+    public static final FormatterOptions COMPACT_JSON = new Builder(COMPACT_HUMAN).alwaysUseStringLiterals(true).useJsonDelimiters(true).build();
+    public static final FormatterOptions NICE_JSON = new Builder(NICE_HUMAN).spacesBeforeEquals(0).alwaysUseStringLiterals(true).useJsonDelimiters(true).build();
     public static final FormatterOptions COMPACT_JSON5 = new Builder(COMPACT_JSON).alwaysUseStringLiterals(false).build();
     public static final FormatterOptions NICE_JSON5 = new Builder(NICE_JSON).alwaysUseStringLiterals(false).build();
 

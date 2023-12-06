@@ -9,7 +9,7 @@ import dev.gigaherz.util.gddl2.structure.GddlValue;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-public class GenericObjectMapper extends MapperBase
+public class GenericObjectMapper extends Mapper
 {
     public GenericObjectMapper(int priority)
     {
@@ -91,7 +91,7 @@ public class GenericObjectMapper extends MapperBase
 
         Class<?> cls = actual;
 
-        Object o = cls.newInstance();
+        Object o = cls.getDeclaredConstructor().newInstance();
 
         // The loop skips Object
         while (cls.getSuperclass() != null)

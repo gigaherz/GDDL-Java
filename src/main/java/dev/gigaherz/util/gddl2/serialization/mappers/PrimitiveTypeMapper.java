@@ -7,7 +7,7 @@ import dev.gigaherz.util.gddl2.structure.GddlValue;
 
 import java.lang.reflect.Type;
 
-public class PrimitiveTypeMapper extends MapperBase
+public class PrimitiveTypeMapper extends Mapper
 {
     public PrimitiveTypeMapper(int priority)
     {

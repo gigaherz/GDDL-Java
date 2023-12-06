@@ -37,7 +37,7 @@ public final class GDDLOps implements DynamicOps<GddlElement<?>>
     @Override
     public GddlElement<?> emptyMap()
     {
-        return GddlList.empty();
+        return GddlMap.empty();
     }
 
     @Override

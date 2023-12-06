@@ -1,7 +1,8 @@
-package dev.gigaherz.util.gddl2.dynamic;
+package dev.gigaherz.util.gddl2.tests.dynamic;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import dev.gigaherz.util.gddl2.dynamic.GDDLOps;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.structure.GddlList;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
@@ -57,7 +58,7 @@ public class DynamicOpsTest
     {
         var result = codec.encodeStart(GDDLOps.INSTANCE, value);
         var optional = result.result();
-        if (optional.isEmpty()) fail("Decode error: " + result.error().orElseThrow());
+        if (optional.isEmpty()) fail("Encode error: " + result.error().orElseThrow());
         assertEquals(expected, optional.get());
         var result2 = codec.decode(GDDLOps.INSTANCE, optional.get());
         var optional2 = result2.result();

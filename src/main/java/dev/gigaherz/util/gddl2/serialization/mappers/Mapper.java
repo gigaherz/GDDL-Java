@@ -4,7 +4,7 @@ import dev.gigaherz.util.gddl2.serialization.GddlSerializer;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
 
-public abstract class MapperBase
+public abstract class Mapper
 {
     int priority;
 
@@ -13,14 +13,14 @@ public abstract class MapperBase
         return priority;
     }
 
-    public MapperBase(int priority)
+    public Mapper(int priority)
     {
         this.priority = priority;
     }
 
     public abstract boolean canApply(Class<?> clazz);
 
-    protected GddlMap makeVerboseMap(Object object)
+    protected static GddlMap makeVerboseMap(Object object)
     {
         var map = GddlMap.empty();
         map.put("class", object.getClass().getName());

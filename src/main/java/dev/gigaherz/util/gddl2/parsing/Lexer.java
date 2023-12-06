@@ -2,8 +2,8 @@ package dev.gigaherz.util.gddl2.parsing;
 
 import dev.gigaherz.util.gddl2.exceptions.LexerException;
 import dev.gigaherz.util.gddl2.exceptions.ReaderException;
-import dev.gigaherz.util.gddl2.util.ArrayQueue;
-import dev.gigaherz.util.gddl2.util.Utility;
+import dev.gigaherz.util.gddl2.internal.ArrayQueue;
+import dev.gigaherz.util.gddl2.internal.Utility;
 
 import java.io.IOException;
 

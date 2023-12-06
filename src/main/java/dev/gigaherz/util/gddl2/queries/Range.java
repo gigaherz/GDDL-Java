@@ -1,4 +1,4 @@
-package dev.gigaherz.util.gddl2.util;
+package dev.gigaherz.util.gddl2.queries;
 
 public record Range(Index start, Index end)
 {

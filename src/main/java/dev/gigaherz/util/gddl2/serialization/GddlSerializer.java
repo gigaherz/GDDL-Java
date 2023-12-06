@@ -14,7 +14,7 @@ public class GddlSerializer
     public static final int PRIORITY_PRIMITIVE = -200;
     public static final int PRIORITY_COLLECTION = -300;
 
-    private final List<MapperBase> mappers = new ArrayList<MapperBase>();
+    private final List<Mapper> mappers = new ArrayList<Mapper>();
     private final GenericObjectMapper generic = new GenericObjectMapper(Integer.MIN_VALUE);
 
 
@@ -41,12 +41,12 @@ public class GddlSerializer
         }
     }
 
-    public void registerMapper(MapperBase mapper)
+    public void registerMapper(Mapper mapper)
     {
         int prio = mapper.getPriority();
         for (int i = 0; i < mappers.size(); i++)
         {
-            MapperBase existing = mappers.get(i);
+            Mapper existing = mappers.get(i);
             if (existing.getPriority() < prio)
             {
                 mappers.add(i, mapper);
@@ -60,9 +60,9 @@ public class GddlSerializer
         mappers.add(mapper);
     }
 
-    private MapperBase findTopCompoundMapperForClass(Class<?> clazz)
+    private Mapper findTopCompoundMapperForClass(Class<?> clazz)
     {
-        for (MapperBase mapper : mappers)
+        for (Mapper mapper : mappers)
         {
             if (mapper.canApply(clazz))
             {
@@ -78,7 +78,7 @@ public class GddlSerializer
     {
         if (object != null)
         {
-            MapperBase mapper = findTopCompoundMapperForClass(object.getClass());
+            Mapper mapper = findTopCompoundMapperForClass(object.getClass());
             if (mapper != null)
             {
                 return mapper.serialize(object, this);
@@ -93,7 +93,7 @@ public class GddlSerializer
     {
         if (object != null)
         {
-            MapperBase mapper = findTopCompoundMapperForClass(object.getClass());
+            Mapper mapper = findTopCompoundMapperForClass(object.getClass());
             if (mapper != null)
             {
                 return mapper.serializeVerbose(object, this);
@@ -106,7 +106,7 @@ public class GddlSerializer
     public <T> T deserialize(GddlElement<?> element, Class<? extends T> clazz)
             throws ReflectiveOperationException
     {
-        MapperBase mapper = findTopCompoundMapperForClass(clazz);
+        Mapper mapper = findTopCompoundMapperForClass(clazz);
         if (mapper != null)
         {
             return (T)mapper.deserialize(element, clazz, this);
@@ -125,7 +125,7 @@ public class GddlSerializer
         var className = map.getString("class");
         var clazz = Class.forName(className);
 
-        MapperBase mapper = findTopCompoundMapperForClass(clazz);
+        Mapper mapper = findTopCompoundMapperForClass(clazz);
         if (mapper != null)
         {
             return (T)mapper.deserializeVerbose(map, clazz, this);

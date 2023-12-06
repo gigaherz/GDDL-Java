@@ -1,4 +1,4 @@
-package dev.gigaherz.util.gddl2;
+package dev.gigaherz.util.gddl2.tests;
 
 import com.google.common.collect.ImmutableList;
 import dev.gigaherz.util.gddl2.exceptions.LexerException;

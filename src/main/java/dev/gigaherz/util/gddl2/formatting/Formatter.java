@@ -1,8 +1,8 @@
 package dev.gigaherz.util.gddl2.formatting;
 
 import dev.gigaherz.util.gddl2.structure.*;
-import dev.gigaherz.util.gddl2.util.BasicIntStack;
-import dev.gigaherz.util.gddl2.util.Utility;
+import dev.gigaherz.util.gddl2.internal.BasicIntStack;
+import dev.gigaherz.util.gddl2.internal.Utility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,22 +14,22 @@ public class Formatter
     //region API
     public static String formatCompact(GddlDocument doc)
     {
-        return format(doc, FormatterOptions.COMPACT);
+        return format(doc, FormatterOptions.COMPACT_HUMAN);
     }
 
     public static String formatCompact(GddlElement<?> element)
     {
-        return format(element, FormatterOptions.COMPACT);
+        return format(element, FormatterOptions.COMPACT_HUMAN);
     }
 
     public static String formatNice(GddlDocument doc)
     {
-        return format(doc, FormatterOptions.NICE);
+        return format(doc, FormatterOptions.NICE_HUMAN);
     }
 
     public static String formatNice(GddlElement<?> element)
     {
-        return format(element, FormatterOptions.NICE);
+        return format(element, FormatterOptions.NICE_HUMAN);
     }
 
     public static String format(GddlDocument doc, FormatterOptions options)

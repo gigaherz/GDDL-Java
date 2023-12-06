@@ -1,4 +1,4 @@
-package dev.gigaherz.util.gddl2.util;
+package dev.gigaherz.util.gddl2.queries;
 
 public record Index(int value, boolean fromEnd)
 {

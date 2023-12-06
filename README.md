@@ -6,175 +6,142 @@ GDDL is a library for accessing data files described in the GDDL syntax.
 The source code is licensed under the 3-clause BSD license.
 See [LICENSE.txt](/LICENSE.txt) for details.
 
-A complete example
---------------------
+The old readme was severely out of date. The current one isn't as exhaustive as I'd like it to be but it will work for now. (Sorry I don't have an eBNF grammar at the moment)
+
+Here's instead a basic description of the syntax:
+
+## Syntax
+
+Starting with GDDL2, GDDL is a superset of Json. Meaning any valid JSON is also valid GDDL. However, it also supports alternative syntax for objects, and has additional features.
+
+### Literals
+
+GDDL supports the following literal types:
+
+- Nulls: `null` and `nil` keywords define a value with no value.
+- Integers: supported in decimal `12345` and hex `0x1f3a` formats.
+- Floating-point: basic `1.0`, `.23` and scientific notation `1E+23`.
+- Strings: can be single-quoted `'a'` or double-quoted `"a"`. Both work the same, and support escapes `"a \n b"`, including unicode hex `'\u2022'`.
+
+### Lists
+
+GDDL defines a list as a sequence of elements delimited by `[` `]`.
 
 ```
-typedMap {
+[ 0, 1, 2, 3, "a", 5.0 ]
+```
 
-    "Basic elements" = [
-        null, nil,
-        false, true,
-        12345,
-        0x12345,
-        123.45,
-        123e+45,
-        .23,
-        .23e45,
-        12.34e-5,
-        "This is a string literal",
-        "Testing \t\f\b\r\n escape\x20codes\u1234",
-        'Strings can also be single-quoted.'
-    ],
+### Maps
 
-    [ 1,2,3,4,5 ] # the comma is optional after a closing brace/bracket
+GDDL defines a map as a set of key-value pairs delimited by `{` `}`. Like in json, the keys are always strings, but they can also be defined as unquoted identifiers.
 
-    "Named elements" = {  
-        namedNumber = 12345,
-        namedString = "12345",
-    
-        # Named sets
-    
-        "named collection" = [ "a", { 1 }, 0x345 ],
-        namedTypedSet = set_with_a_type { a = "\u0001" }
-    
-        # References
+The preferred delimiter for key-value pairs is the equal sign `=`
 
-        # The comma in the last element is optional but allowed.
-        replace_this_with = RootSetName:namedNumber,
-    }
+```
+{
+    a = 1,
+    "b" = [ 3.0, "word" ]
 }
-
 ```
 
-Syntax
--------
+but using the colon `:` is also supported.
 
-Because eBNF has an infinity of established conventions, here's mine:
-* The `grammar` rule defines the start point
-* Equals sign (`=`) declares a rule
-* The vertical bar (`|`) defines alternatives
-* Square brackets (`[]`) define optional sections
-* Square brackets (`{}`) define repeats (0 or more)
-* Parentheses (`()`) define groups
-* Double quotes (`""`) define a terminal string
-* Backticks ( ` ) define a regex terminal
-* `#` starts a comment
-
-### eBNF grammar (as defined above)
-
-```ebnf
-
-grammar = element ;
-
-# Rules 
-element         = value | map | list | reference ;
-
-value           = nil | boolean | integer | hex_integer | decimal | scientific | string ;
-
-map             = [ identifier ] "{" [ key_value_list ] "}" ;
-
-key_value_list  = (identifier | string) "="
-                ( element [ "," ]     
-                | element "," key_value_list
-                | list key_value_list
-                | map key_value_list
-                ) ;
-
-name            = identifier | string;
-
-list            = "[" [ element_list ] "]" ;
-
-element_list    = element [ "," ]
-                | element "," element_list
-                | list element_list
-                | map element_list
-                ;
-
-reference       = nonstring_part | colon_path | slash_path ;
-colon_path      = [ path_part ] ":" path_part { ":" path_part } ;
-slash_path      = [ path_part ] "/" path_part { "/" path_part } ;
-path_part       = "." | ".." | name | range ;
-range = "[" [start] [ (".."|"...") [end] ] "]" ;
-
-# Terminals
-nil             = "nil" | "null" ;
-boolean         = "true" | "false" ;
-integer         = `[0-9]+` ;
-hex_integer     = `0x[0-9a-fA-F]*` ;
-decimal         = `[0-9]*.[0-9]+` ;
-scientific      = `[0-9]*.[0-9]+e[+-]?[0-9]+`
-                | `[0-9]+e[+-]?[0-9]+`
-                ;
-string          = `\"([^"\\]|(\\[tbrn])|(\\x[0-9a-fA-F]{1,4}))*\"`
-                | `\'([^'\\]|(\\[tbrn])|(\\x[0-9a-fA-F]{1,4}))*\'`
-                ;
-identifier      = `[a-zA-Z_][a-zA-Z_0-9]*` ;
 ```
-
-"What did I just read?", or, "Syntax the nice and easy way"
---------------------------------------------------
-
-Numeric literals and strings work mostly as you know them from languages such as C or Java.
-
-At the root of the document, is an element. This element can be of any type and fashion,
-but the language is most effective when the root is a (optionally named and/or typed) collection.
-
-An element in the language can be a literal (numeric or string), a collection, or a reference.
-
-An element can optionally be named, that is, in the form "name = element",
-which gives you (writer or consumer both) the ability to look up an element by name in the hierarchy.
-
-A collection is an ordered sequence of elements, akin to a list, but with the added feature of
-being able to look up named elements based on their name.
-
-Elements in a collection are separated by commas. The comma is optional after a nested collection.
-The last element in a collection can have a comma.
-
-A collection can also be typed. Unlike names, there can be multiple elements with the same type.
-
-The type does not matter to the parser, but it could be used in a schema file
-to provide a predetermined collection of rules for verification purposes.
-
-(No there's no schema system defined yet for this language feel free to contribute one.)
-
-A collection also has the ability to look up typed elements by their type name, and return the subset.
-
-Finally, the syntax allows for referencing other elements in the hierarchy,
-effectively allowing the file to describe a graph instead of just a tree.
-
-In the current version, references work solely on names, and can not reference elements by their type.
-
-It looks a lot like JSON, why not just use JSON?
-------------------------------------------------
-
-If you were already wondering that when you started reading, then why are you even here? Just use JSON, it's a perfectly fine language. I'm not trying to take it away from you.
-
-To anyone else: I wrote this before I learned JSON. It's designed to look a bit like the syntax of C-style programming languages, without the verbosity of XML. This overlaps a lot with the design of JSON, but it's intrinsically different.
-
-How to Use
---------------------
-
-In your maven/gradle/ivy file, include `https://dogforce-games.com/maven/` as a maven repository, then use the groupId `gigaherz.util.gddl`, artifactId `gddl2`, and the version you want to use.
-
-Use the `Parser.fromFile` function to initialize a parser, and then call `parse` on the parser object to obtain the high-level representation of the data.
-
-Potential future improvements (some crazier than others)
-------------------------------
-
-1. Allow references by type, index within the parent collection, and/or range selectors.
-   * Tentative syntax: Root:[3]:typename1[*]:typename2[2..3]
-
-1. Allow more fine-grained typing.
-   * Tentative syntax: 1234ui64 --> unsigned integer of 64bits.
-
-1. Templating support: element substitution engine.
-   * Basically turns the system into effectively a lambda-calculus engine!
-   * Syntax to be determined, but probably along the lines of:
-     ```
-something = typeName ( name1, name2, name3, ... ) { 
-... references to name2/name2/name3 ... 
+{
+    a: 1,
+    "b": [ 3.0, "word" ]
 }
-something(value1, value2, value3)
-something(name1=value1, name2=value2, name3=value3)
+```
+
+### Integrated Query Language
+
+GDDL defines a query language that allows referencing parts of a document. This query language can be used externally, but also within a document to reuse parts of the same document elsewhere.
+
+If a query starts with a slash `/`, it starts searching from the root element of the document, otherwise it's referenced from the container where the query is located.
+
+A list can be queried using range notation:
+
+- `[2]` returns the entry with index 2 (zero-based)
+- `[1..]` returns everything starting with the element at index 1
+- `[3..4]` returns the range from index 3 to 4 (exclusive)
+- `[3...4]` returns the range from index 3 to 4 (inclusive)
+- `[^1]` returns the second to last element
+- `[1,^1]` returns everything except the tips
+
+A map can be queried by the name of the key. 
+
+- In `{a:3, b:4}` the query `/a` would return `3`.
+
+When querying a value inside a collection, a slash `/` is used to separate between them. However, it is not needed to have a slash before the range brace.
+
+- `/a/b` queries the value of key `b` inside the value of key `a`.
+- `/a[15]` queries the value of index 15 inside the value of key `a`.
+
+For backward compatibility with the reference feature of GDDL1, the queries can use `:` instead of `/` as delimiter, but the entire query must use the same delimiter, mixin them is disallowed. 
+
+## The Library
+
+### Parsing a document
+
+GDDL provides convenience methods to parse a file.
+
+```java
+var doc = GDDL.fromFile("Test.txt");
+var root = doc.getRoot();
+```
+
+### Saving a document
+
+A document can be saved directly,
+
+```java
+doc.write(Paths.get("output.txt"));
+```
+
+but any value can be formatted to a string by using the formatter.
+
+```java
+var text = Formatter.formatNice(data);
+
+System.out.println(text);
+Files.writeString(Paths.get("output.txt"), text);
+```
+
+Both methods of saving support custom formatter options. 
+
+A few stock formats are provided in `FormatterOptions`:
+- `COMPACT_HUMAN` (default): Serializes without additional whitespace or line breaks. Uses `=` for maps.
+- `NICE_HUMAN`: Serializes with indentation, whitespaces around delimiters, and `=` for maps.
+- `COMPACT_JSON`: Always writes quoted strings for map keys. Uses `:` for maps.
+- `NICE_JSON`: Serializes with indentation and whitespaces around delimiters. Always writes quoted strings for map keys. Uses `:` for maps.
+- `COMPACT_JSON5`: Effectively the same as `COMPACT_HUMAN` but using `:` for maps.
+- `NICE_JSON5`: Effectively the same as `NICE_HUMAN` but using `:` for maps.
+
+### Constructing a document 
+
+The document object can be created through `GddlDocument.create()`, with an optional root value.
+
+A literal value can be created through `GddlValue.of(value)`. 
+
+Null values can be created through `GddlValue.nullValue()`.
+
+Lists can be created through `GddlList.empty()` and `GddlList.of(items...)`.
+
+Maps can be created through `GddlMap.empty()` and `GddlMap.of(items...)`.
+
+### Simplifying a document
+
+When parsing, sometimes it is wanted for the document to have all the queries resolved.
+
+The `simplify()` method returns a copy of the document that replaces all query references with their actual value.
+
+### Querying data
+
+The document structure can be accessed explicitly.
+
+
+Alternatively, the query language can be used to perform a query in code,
+
+```java
+var result = doc.getRoot().query("'key name'[1]/b");
 ```

@@ -9,7 +9,7 @@ import dev.gigaherz.util.gddl2.structure.GddlMap;
 import java.util.Map;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class MapMapper extends MapperBase
+public class MapMapper extends Mapper
 {
     public MapMapper(int priority)
     {
@@ -73,7 +73,7 @@ public class MapMapper extends MapperBase
         if (!clazz.isAssignableFrom(actual))
             throw new GddlSerializationException();
 
-        Map m = (Map) actual.newInstance();
+        Map m = (Map) actual.getDeclaredConstructor().newInstance();
 
         var elements = map.getList("elements");
         for (var entry : elements)

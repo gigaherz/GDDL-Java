@@ -8,7 +8,7 @@ import dev.gigaherz.util.gddl2.structure.GddlMap;
 import java.lang.reflect.Array;
 import java.util.function.ObjIntConsumer;
 
-public class ArrayMapper extends MapperBase
+public class ArrayMapper extends Mapper
 {
     public ArrayMapper(int priority)
     {

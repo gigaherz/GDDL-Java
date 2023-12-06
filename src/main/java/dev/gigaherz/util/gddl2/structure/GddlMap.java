@@ -1,6 +1,6 @@
 package dev.gigaherz.util.gddl2.structure;
 
-import dev.gigaherz.util.gddl2.util.Utility;
+import dev.gigaherz.util.gddl2.internal.Utility;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

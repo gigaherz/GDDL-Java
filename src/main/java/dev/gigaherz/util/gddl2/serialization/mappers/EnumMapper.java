@@ -6,7 +6,7 @@ import dev.gigaherz.util.gddl2.structure.GddlMap;
 import dev.gigaherz.util.gddl2.structure.GddlValue;
 
 @SuppressWarnings("unchecked")
-public class EnumMapper extends MapperBase
+public class EnumMapper extends Mapper
 {
     public EnumMapper(int priority)
     {

@@ -4,10 +4,10 @@ import dev.gigaherz.util.gddl2.exceptions.LexerException;
 import dev.gigaherz.util.gddl2.exceptions.ParserException;
 import dev.gigaherz.util.gddl2.queries.Query;
 import dev.gigaherz.util.gddl2.structure.*;
-import dev.gigaherz.util.gddl2.util.BasicIntStack;
-import dev.gigaherz.util.gddl2.util.Index;
-import dev.gigaherz.util.gddl2.util.Range;
-import dev.gigaherz.util.gddl2.util.Utility;
+import dev.gigaherz.util.gddl2.internal.BasicIntStack;
+import dev.gigaherz.util.gddl2.queries.Index;
+import dev.gigaherz.util.gddl2.queries.Range;
+import dev.gigaherz.util.gddl2.internal.Utility;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -99,8 +99,8 @@ public class Parser implements ContextProvider, AutoCloseable
     //endregion
 
     //region Implementation
-    int prefixPos = -1;
-    final BasicIntStack prefixStack = new BasicIntStack();
+    private int prefixPos = -1;
+    private final BasicIntStack prefixStack = new BasicIntStack();
     private boolean finishedWithRBrace = false;
     private final TokenProvider lexer;
 

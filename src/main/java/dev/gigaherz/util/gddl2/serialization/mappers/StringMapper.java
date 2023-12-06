@@ -5,7 +5,7 @@ import dev.gigaherz.util.gddl2.structure.GddlElement;
 import dev.gigaherz.util.gddl2.structure.GddlMap;
 import dev.gigaherz.util.gddl2.structure.GddlValue;
 
-public class StringMapper extends MapperBase
+public class StringMapper extends Mapper
 {
     public StringMapper(int priority)
     {
