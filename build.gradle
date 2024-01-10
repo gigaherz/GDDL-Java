@@ -20,11 +20,15 @@ if (grgit != null)
 {
     var describe = grgit.describe(abbrev:0)
 
-    if (describe.endsWith("-alpha")) {
+    if (describe != null && describe.endsWith("-alpha")) {
         var longDesc = grgit.describe(longDescr:true)
         longDesc = longDesc.substring(0, longDesc.lastIndexOf('-'))
         longDesc = longDesc.substring(0, longDesc.lastIndexOf('-')) + '.' + longDesc.substring(longDesc.lastIndexOf('-') + 1)
         version longDesc
+    }
+    else {
+        System.out.println("Git: " + describe)
+        version project.version + "+" + grgit.head().abbreviatedId
     }
 }
 
