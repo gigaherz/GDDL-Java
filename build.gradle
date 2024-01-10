@@ -30,6 +30,8 @@ if (grgit != null)
         System.out.println("Git: " + describe)
         version project.version + "+" + grgit.head().abbreviatedId
     }
+    
+    System.out.println("Version: " + project.version)
 }
 
 tasks.register("describe") {
