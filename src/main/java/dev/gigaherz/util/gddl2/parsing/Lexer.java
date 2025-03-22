@@ -284,6 +284,7 @@ public class Lexer implements TokenProvider, AutoCloseable
 
                     ich = reader.peek(number);
 
+                    //noinspection WhileCanBeDoWhile
                     while (Utility.isDigit(ich))
                     {
                         number++;
@@ -412,12 +413,12 @@ public class Lexer implements TokenProvider, AutoCloseable
 
     private String getComment()
     {
-        return commentBuilder.length() > 0 ? commentBuilder.toString() : "";
+        return !commentBuilder.isEmpty() ? commentBuilder.toString() : "";
     }
 
     private String getWhitespace()
     {
-        return whitespaceBuilder.length() > 0 ? whitespaceBuilder.toString() : "";
+        return !whitespaceBuilder.isEmpty() ? whitespaceBuilder.toString() : "";
     }
 
     private Token makeEndToken(ParsingContext startContext, String comment, String whitespace)
@@ -431,23 +432,20 @@ public class Lexer implements TokenProvider, AutoCloseable
         if (ich < 0)
             return "EOF";
 
-        switch (ich)
+        return switch (ich)
         {
-            case 0:
-                return "'\\0'";
-            case 8:
-                return "'\\b'";
-            case 9:
-                return "'\\t'";
-            case 10:
-                return "'\\n'";
-            case 13:
-                return "'\\r'";
-            default:
+            case 0 -> "'\\0'";
+            case 8 -> "'\\b'";
+            case 9 -> "'\\t'";
+            case 10 -> "'\\n'";
+            case 13 -> "'\\r'";
+            default ->
+            {
                 if (Utility.isControl(ich))
-                    return String.format("'\\u%04x'", ich);
-                return String.format("'%c'", ich);
-        }
+                    yield String.format("'\\u%04x'", ich);
+                yield String.format("'%c'", ich);
+            }
+        };
     }
 
     private int countEscapeSeq(int number) throws LexerException, IOException

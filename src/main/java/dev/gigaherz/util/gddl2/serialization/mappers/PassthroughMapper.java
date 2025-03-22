@@ -18,25 +18,25 @@ public class PassthroughMapper extends Mapper
     }
 
     @Override
-    public GddlElement<?> serialize(Object object, GddlSerializer serializer) throws ReflectiveOperationException
+    public GddlElement<?> serialize(Object object, GddlSerializer serializer)
     {
         return (GddlElement<?>) object;
     }
 
     @Override
-    public GddlElement<?> serializeVerbose(Object object, GddlSerializer serializer) throws ReflectiveOperationException
+    public GddlElement<?> serializeVerbose(Object object, GddlSerializer serializer)
     {
         return wrapVerbose(object, serialize(object, serializer));
     }
 
     @Override
-    public Object deserialize(GddlElement<?> map, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
+    public Object deserialize(GddlElement<?> map, Class<?> clazz, GddlSerializer serializer)
     {
         return clazz.cast(map);
     }
 
     @Override
-    public Object deserializeVerbose(GddlMap map, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
+    public Object deserializeVerbose(GddlMap map, Class<?> clazz, GddlSerializer serializer)
     {
         return unwrapVerbose(map);
     }

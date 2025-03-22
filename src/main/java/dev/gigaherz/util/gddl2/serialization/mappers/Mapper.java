@@ -6,7 +6,7 @@ import dev.gigaherz.util.gddl2.structure.GddlMap;
 
 public abstract class Mapper
 {
-    int priority;
+    private final int priority;
 
     public int getPriority()
     {

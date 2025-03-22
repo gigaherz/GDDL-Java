@@ -270,12 +270,12 @@ public class Parser implements ContextProvider, AutoCloseable
                 if (lexer.peek() == TokenType.CARET)
                 {
                     popExpected(TokenType.CARET);
-                    start = Index.fromEnd((int) intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
+                    start = Index.fromEnd(intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
                     hasStart = true;
                 }
                 else if (lexer.peek() == TokenType.INTEGER_LITERAL)
                 {
-                    start = Index.fromStart((int) intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
+                    start = Index.fromStart(intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
                     hasStart = true;
                 }
 
@@ -293,11 +293,11 @@ public class Parser implements ContextProvider, AutoCloseable
                 if (lexer.peek() == TokenType.CARET)
                 {
                     popExpected(TokenType.CARET);
-                    end = Index.fromEnd((int) intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
+                    end = Index.fromEnd(intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
                 }
                 else if (lexer.peek() == TokenType.INTEGER_LITERAL)
                 {
-                    end = Index.fromStart((int) intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
+                    end = Index.fromStart(intValue(popExpected(TokenType.INTEGER_LITERAL)).intValue());
                     if (inclusive.type == TokenType.TRIPLE_DOT)
                         end = end.fromEnd() ? Index.fromEnd(end.value() - 1) : Index.fromStart(end.value() + 1);
                 }

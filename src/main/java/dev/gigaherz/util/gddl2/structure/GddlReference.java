@@ -116,11 +116,13 @@ public final class GddlReference extends GddlElement<GddlReference>
 
                 if (resolvedValue != null)
                 {
+                    //noinspection NumberEquality
                     if (resolvedValue == this)
                         throw new IllegalStateException("Invalid cyclic reference: Reference resolves to itself.");
 
                     while (parent != null)
                     {
+                        //noinspection NumberEquality
                         if (resolvedValue == parent)
                             throw new IllegalStateException("Invalid cyclic reference: Reference resolves to a parent of the current element.");
                         parent = parent.getParent();
@@ -157,6 +159,7 @@ public final class GddlReference extends GddlElement<GddlReference>
     @Override
     public boolean equals(GddlReference other)
     {
+        //noinspection NumberEquality
         if (other == this) return true;
         if (other == null) return false;
         return equalsImpl(other);

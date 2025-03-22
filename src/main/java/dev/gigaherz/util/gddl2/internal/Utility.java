@@ -416,7 +416,7 @@ public final class Utility
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isNullOrEmpty(@Nullable String string)
     {
-        return string == null || string.length() == 0;
+        return string == null || string.isEmpty();
     }
 
     public static <T> boolean listEquals(List<T> a, List<T> b)

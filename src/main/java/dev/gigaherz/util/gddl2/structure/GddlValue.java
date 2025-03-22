@@ -212,6 +212,7 @@ public final class GddlValue extends GddlElement<GddlValue>
     @Override
     public boolean equals(GddlValue other)
     {
+        //noinspection NumberEquality
         if (this == other) return true;
         if (other == null) return false;
         return equalsImpl(other);

@@ -143,7 +143,7 @@ public class Formatter
         int count = lines.length;
         if (count > 0 && options.trimCommentLines)
         {
-            while (count > 0 && lines[count - 1].length() == 0)
+            while (count > 0 && lines[count - 1].isEmpty())
             {count--;}
         }
         for (int i = 0; i < count; i++)
@@ -317,7 +317,7 @@ public class Formatter
             value -= digit;
             temp.add(digit);
         }
-        if (temp.size() == 0)
+        if (temp.isEmpty())
         {
             temp.add(0);
         }
@@ -431,7 +431,7 @@ public class Formatter
             appendMultiple(' ', options.spacesBeforeOpeningBrace);
         }
         builder.append('{');
-        if (c.size() == 0 && !oneElementPerLine)
+        if (c.isEmpty() && !oneElementPerLine)
         {
             appendMultiple(' ', options.spacesInEmptyCollection);
         }
@@ -500,7 +500,7 @@ public class Formatter
             formatComment(c.getTrailingComment());
 
         popIndent();
-        if (c.size() != 0 || oneElementPerLine) // Done on the open side
+        if (!c.isEmpty() || oneElementPerLine) // Done on the open side
         {
             if (oneElementPerLine && options.lineBreaksBeforeClosingBrace > 0)
             {

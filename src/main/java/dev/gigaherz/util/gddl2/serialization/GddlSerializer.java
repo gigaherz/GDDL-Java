@@ -14,7 +14,7 @@ public class GddlSerializer
     public static final int PRIORITY_PRIMITIVE = -200;
     public static final int PRIORITY_COLLECTION = -300;
 
-    private final List<Mapper> mappers = new ArrayList<Mapper>();
+    private final List<Mapper> mappers = new ArrayList<>();
     private final GenericObjectMapper generic = new GenericObjectMapper(Integer.MIN_VALUE);
 
 

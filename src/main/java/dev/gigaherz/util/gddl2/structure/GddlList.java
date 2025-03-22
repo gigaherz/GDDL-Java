@@ -5,6 +5,7 @@ import dev.gigaherz.util.gddl2.internal.Utility;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -119,6 +120,7 @@ public final class GddlList extends GddlElement<GddlList> implements List<GddlEl
         Objects.requireNonNull(e);
 
         GddlElement<?> old = contents.get(index);
+        //noinspection NumberEquality
         if (old != e)
         {
             contents.set(index, e);
@@ -163,6 +165,7 @@ public final class GddlList extends GddlElement<GddlList> implements List<GddlEl
         return contents.lastIndexOf(o);
     }
 
+    @SuppressWarnings("SlowListContainsAll")
     @Override
     public boolean containsAll(@NotNull java.util.Collection<?> c)
     {
@@ -235,8 +238,13 @@ public final class GddlList extends GddlElement<GddlList> implements List<GddlEl
     @NotNull
     public <T> T @NotNull [] toArray(@NotNull T @NotNull [] a)
     {
-        //noinspection SuspiciousToArrayCall
         return contents.toArray(a);
+    }
+
+    @Override
+    public <T> T[] toArray(@NotNull IntFunction<T[]> generator)
+    {
+        return contents.toArray(generator);
     }
 
     @Override
@@ -295,10 +303,7 @@ public final class GddlList extends GddlElement<GddlList> implements List<GddlEl
     @Override
     public GddlList simplify()
     {
-        for (int i = 0; i < contents.size(); i++)
-        {
-            contents.set(i, contents.get(i).simplify());
-        }
+        contents.replaceAll(GddlElement::simplify);
 
         return this;
     }
@@ -316,6 +321,7 @@ public final class GddlList extends GddlElement<GddlList> implements List<GddlEl
     @Override
     public boolean equals(GddlList other)
     {
+        //noinspection NumberEquality
         if (this == other) return true;
         if (other == null) return false;
         return equalsImpl(other);

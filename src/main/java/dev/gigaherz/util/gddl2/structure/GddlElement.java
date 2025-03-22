@@ -19,7 +19,7 @@ public sealed abstract class GddlElement<T extends GddlElement<T>> extends Numbe
      */
     public final boolean hasWhitespace()
     {
-        return whitespace.length() > 0;
+        return !whitespace.isEmpty();
     }
 
     /**
@@ -61,7 +61,7 @@ public sealed abstract class GddlElement<T extends GddlElement<T>> extends Numbe
      */
     public final boolean hasComment()
     {
-        return comment.length() > 0;
+        return !comment.isEmpty();
     }
 
     /**

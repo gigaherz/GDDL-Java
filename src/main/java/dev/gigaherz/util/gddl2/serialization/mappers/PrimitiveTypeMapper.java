@@ -33,7 +33,7 @@ public class PrimitiveTypeMapper extends Mapper
     }
 
     @Override
-    public GddlElement<?> serialize(Object object, GddlSerializer serializer) throws ReflectiveOperationException
+    public GddlElement<?> serialize(Object object, GddlSerializer serializer)
     {
         if (object instanceof Byte b)
         {
@@ -71,13 +71,13 @@ public class PrimitiveTypeMapper extends Mapper
     }
 
     @Override
-    public GddlElement<?> serializeVerbose(Object object, GddlSerializer serializer) throws ReflectiveOperationException
+    public GddlElement<?> serializeVerbose(Object object, GddlSerializer serializer)
     {
         return wrapVerbose(object, serialize(object, serializer));
     }
 
     @Override
-    public Object deserialize(GddlElement<?> element, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
+    public Object deserialize(GddlElement<?> element, Class<?> clazz, GddlSerializer serializer)
     {
         if (clazz == Byte.class || clazz == byte.class)
         {
@@ -115,7 +115,7 @@ public class PrimitiveTypeMapper extends Mapper
     }
 
     @Override
-    public Object deserializeVerbose(GddlMap map, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
+    public Object deserializeVerbose(GddlMap map, Class<?> clazz, GddlSerializer serializer)
     {
         return deserialize(unwrapVerbose(map), clazz, serializer);
     }

@@ -269,7 +269,7 @@ public class SerializerTests
 
     public static class ListOfStringsField
     {
-        List<String> value1 = new ArrayList<String>();
+        List<String> value1 = new ArrayList<>();
 
         public ListOfStringsField()
         {
@@ -437,7 +437,7 @@ public class SerializerTests
 
     public static class MapOfStringsField
     {
-        Map<String, String> value1 = new HashMap<String, String>();
+        Map<String, String> value1 = new HashMap<>();
 
         public MapOfStringsField()
         {

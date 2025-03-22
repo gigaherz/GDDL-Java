@@ -21,13 +21,12 @@ public class EnumMapper extends Mapper
 
     @Override
     public GddlElement<?> serialize(Object object, GddlSerializer serializer)
-            throws ReflectiveOperationException
     {
         return GddlValue.of(((Enum<?>)object).name());
     }
 
     @Override
-    public GddlElement<?> serializeVerbose(Object object, GddlSerializer serializer) throws ReflectiveOperationException
+    public GddlElement<?> serializeVerbose(Object object, GddlSerializer serializer)
     {
         return wrapVerbose(object, serialize(object, serializer));
     }

@@ -7,5 +7,6 @@ module dev.gigaherz.util.gddl {
     exports dev.gigaherz.util.gddl2.parsing;
     exports dev.gigaherz.util.gddl2.queries;
     exports dev.gigaherz.util.gddl2.serialization;
+    exports dev.gigaherz.util.gddl2.serialization.mappers;
     exports dev.gigaherz.util.gddl2.structure;
 }

@@ -47,7 +47,7 @@ public class Query
 
     public Query absolute()
     {
-        if (pathComponents.size() > 0)
+        if (!pathComponents.isEmpty())
             throw new IllegalStateException("Cannot set Absolute after path components have been added.");
         absolute = true;
         return this;

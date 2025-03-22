@@ -30,6 +30,7 @@ public class Program
         }
         catch (IOException | ParserException e)
         {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }

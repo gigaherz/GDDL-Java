@@ -106,6 +106,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
 
         var previous = contents.put(key, value);
         onAdd(value);
+        //noinspection NumberEquality
         if (previous != null && previous != value)
             onRemove(previous);
         return previous;
@@ -267,6 +268,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
 
     public Stream<String> keysOf(GddlElement<?> value)
     {
+        //noinspection NumberEquality
         return contents.entrySet().stream().filter(kv -> kv.getValue() == value).map(Entry::getKey);
     }
     //endregion
@@ -390,6 +392,7 @@ public final class GddlMap extends GddlElement<GddlMap> implements Map<String, G
     @Override
     public boolean equals(GddlMap other)
     {
+        //noinspection NumberEquality
         if (this == other) return true;
         if (other == null) return false;
         return equalsImpl(other);

@@ -19,25 +19,25 @@ public class StringMapper extends Mapper
     }
 
     @Override
-    public GddlElement<?> serialize(Object object, GddlSerializer serializer) throws ReflectiveOperationException
+    public GddlElement<?> serialize(Object object, GddlSerializer serializer)
     {
         return GddlValue.of((String)object);
     }
 
     @Override
-    public GddlElement<?> serializeVerbose(Object object, GddlSerializer serializer) throws ReflectiveOperationException
+    public GddlElement<?> serializeVerbose(Object object, GddlSerializer serializer)
     {
         return wrapVerbose(object, serialize(object, serializer));
     }
 
     @Override
-    public Object deserialize(GddlElement<?> element, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
+    public Object deserialize(GddlElement<?> element, Class<?> clazz, GddlSerializer serializer)
     {
         return element.stringValue();
     }
 
     @Override
-    public Object deserializeVerbose(GddlMap map, Class<?> clazz, GddlSerializer serializer) throws ReflectiveOperationException
+    public Object deserializeVerbose(GddlMap map, Class<?> clazz, GddlSerializer serializer)
     {
         return deserialize(unwrapVerbose(map), clazz, serializer);
     }
