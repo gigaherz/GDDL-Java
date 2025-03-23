@@ -1,8 +1,8 @@
 package dev.gigaherz.util.gddl2.formatting;
 
-import dev.gigaherz.util.gddl2.structure.*;
 import dev.gigaherz.util.gddl2.internal.BasicIntStack;
 import dev.gigaherz.util.gddl2.internal.Utility;
+import dev.gigaherz.util.gddl2.structure.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +109,7 @@ public class Formatter
     {
         //noinspection StringRepeatCanBeUsed
         for (int i = 0; i < n; i++)
-        {builder.append(c);}
+            builder.append(c);
     }
 
     private void appendIndent()
@@ -144,7 +144,7 @@ public class Formatter
         if (count > 0 && options.trimCommentLines)
         {
             while (count > 0 && lines[count - 1].isEmpty())
-            {count--;}
+                count--;
         }
         for (int i = 0; i < count; i++)
         {
@@ -265,23 +265,23 @@ public class Formatter
         double integral = Math.floor(value);
         double fractional = value - integral;
 
-        int exp = integral > 0 ? (int) Math.floor(Math.log10(integral)+1) : 0;
+        int exp = integral > 0 ? (int) Math.floor(Math.log10(integral) + 1) : 0;
 
-        List<Integer> temp1 = new ArrayList<>();
-        double leftovers = getDigitsForRounding(temp1, (options.floatSignificantFigures-exp), fractional);
+        List<Integer> digits = new ArrayList<>();
+        double leftovers = getDigitsForRounding(digits, (options.floatSignificantFigures - exp), fractional);
 
-        int nonTrailingDigits = roundDigits(temp1, leftovers);
+        int nonTrailingDigits = roundDigits(digits, leftovers);
         if (nonTrailingDigits < 0)
         {
             nonTrailingDigits = ~nonTrailingDigits;
-            integral+=1;
+            integral += 1;
         }
 
         formatIntegral(integral, exp);
 
         builder.append('.');
 
-        formatFractional(temp1, nonTrailingDigits);
+        formatFractional(digits, nonTrailingDigits);
     }
 
     private void formatIntegral(double integral, int exp)
@@ -552,6 +552,7 @@ public class Formatter
         {
             appendMultiple(' ', options.spacesAfterOpeningBrace);
         }
+
         pushIndent();
         incIndent();
 
@@ -609,6 +610,7 @@ public class Formatter
         {
             appendMultiple(' ', options.spacesBeforeClosingBrace);
         }
+
         builder.append(']');
         if (!hasNext0 || options.omitCommaAfterClosingBrace)
         {

@@ -109,10 +109,10 @@ public class GddlSerializer
         Mapper mapper = findTopCompoundMapperForClass(clazz);
         if (mapper != null)
         {
-            return (T)mapper.deserialize(element, clazz, this);
+            return (T) mapper.deserialize(element, clazz, this);
         }
 
-        return (T)generic.deserialize(element, clazz, this);
+        return (T) generic.deserialize(element, clazz, this);
     }
 
     public <T> T deserializeVerbose(GddlElement<?> element) throws ReflectiveOperationException
@@ -128,9 +128,9 @@ public class GddlSerializer
         Mapper mapper = findTopCompoundMapperForClass(clazz);
         if (mapper != null)
         {
-            return (T)mapper.deserializeVerbose(map, clazz, this);
+            return (T) mapper.deserializeVerbose(map, clazz, this);
         }
 
-        return (T)generic.deserializeVerbose(map, clazz, this);
+        return (T) generic.deserializeVerbose(map, clazz, this);
     }
 }

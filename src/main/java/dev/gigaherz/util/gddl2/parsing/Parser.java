@@ -2,12 +2,12 @@ package dev.gigaherz.util.gddl2.parsing;
 
 import dev.gigaherz.util.gddl2.exceptions.LexerException;
 import dev.gigaherz.util.gddl2.exceptions.ParserException;
-import dev.gigaherz.util.gddl2.queries.Query;
-import dev.gigaherz.util.gddl2.structure.*;
 import dev.gigaherz.util.gddl2.internal.BasicIntStack;
-import dev.gigaherz.util.gddl2.queries.Index;
-import dev.gigaherz.util.gddl2.queries.Range;
 import dev.gigaherz.util.gddl2.internal.Utility;
+import dev.gigaherz.util.gddl2.queries.Index;
+import dev.gigaherz.util.gddl2.queries.Query;
+import dev.gigaherz.util.gddl2.queries.Range;
+import dev.gigaherz.util.gddl2.structure.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -21,26 +21,6 @@ public class Parser implements ContextProvider, AutoCloseable
     public Parser(TokenProvider lexer)
     {
         this.lexer = lexer;
-    }
-
-    /**
-     * Gets the currently set whitespace processing mode.
-     *
-     * @return The current mode
-     */
-    public WhitespaceMode getWhitespaceMode()
-    {
-        return lexer.getWhitespaceMode();
-    }
-
-    /**
-     * Changes the whitespace processing mode.
-     *
-     * @param whitespaceMode The new mode
-     */
-    public void setWhitespaceMode(WhitespaceMode whitespaceMode)
-    {
-        lexer.setWhitespaceMode(whitespaceMode);
     }
 
     /**
@@ -450,12 +430,12 @@ public class Parser implements ContextProvider, AutoCloseable
     private static GddlValue floatValue(Token token)
     {
         double value = switch (token.text)
-                {
-                    case ".NaN" -> Double.NaN;
-                    case ".Inf", "+.Inf" -> Double.POSITIVE_INFINITY;
-                    case "-.Inf" -> Double.NEGATIVE_INFINITY;
-                    default -> Double.parseDouble(token.text);
-                };
+        {
+            case ".NaN" -> Double.NaN;
+            case ".Inf", "+.Inf" -> Double.POSITIVE_INFINITY;
+            case "-.Inf" -> Double.NEGATIVE_INFINITY;
+            default -> Double.parseDouble(token.text);
+        };
         var e = GddlValue.of(value);
         e.setComment(token.comment);
         return e;

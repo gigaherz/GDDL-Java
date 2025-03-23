@@ -80,5 +80,4 @@ public class SetMapper extends Mapper
 
         return s;
     }
-
 }

@@ -90,19 +90,19 @@ public final class GddlValue extends GddlElement<GddlValue>
     @Override
     public byte byteValue()
     {
-        return (byte)longValue();
+        return (byte) longValue();
     }
 
     @Override
     public short shortValue()
     {
-        return (short)longValue();
+        return (short) longValue();
     }
 
     @Override
     public int intValue()
     {
-        return (int)longValue();
+        return (int) longValue();
     }
 
     @Override
@@ -114,7 +114,7 @@ public final class GddlValue extends GddlElement<GddlValue>
     @Override
     public float floatValue()
     {
-        return (float)doubleValue();
+        return (float) doubleValue();
     }
 
     @Override

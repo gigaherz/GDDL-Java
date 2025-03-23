@@ -21,7 +21,7 @@ public class StringMapper extends Mapper
     @Override
     public GddlElement<?> serialize(Object object, GddlSerializer serializer)
     {
-        return GddlValue.of((String)object);
+        return GddlValue.of((String) object);
     }
 
     @Override

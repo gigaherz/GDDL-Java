@@ -1,11 +1,11 @@
 package dev.gigaherz.util.gddl2.queries;
 
 import dev.gigaherz.util.gddl2.exceptions.ParserException;
+import dev.gigaherz.util.gddl2.internal.Utility;
 import dev.gigaherz.util.gddl2.parsing.Lexer;
 import dev.gigaherz.util.gddl2.parsing.Parser;
 import dev.gigaherz.util.gddl2.parsing.Reader;
 import dev.gigaherz.util.gddl2.structure.GddlElement;
-import dev.gigaherz.util.gddl2.internal.Utility;
 
 import java.io.IOException;
 import java.io.StringReader;

@@ -22,7 +22,7 @@ public class EnumMapper extends Mapper
     @Override
     public GddlElement<?> serialize(Object object, GddlSerializer serializer)
     {
-        return GddlValue.of(((Enum<?>)object).name());
+        return GddlValue.of(((Enum<?>) object).name());
     }
 
     @Override
@@ -35,7 +35,7 @@ public class EnumMapper extends Mapper
     @Override
     public Object deserialize(GddlElement<?> element, Class<?> clazz, GddlSerializer serializer)
     {
-        return Enum.valueOf((Class)clazz, element.stringValue());
+        return Enum.valueOf((Class) clazz, element.stringValue());
     }
 
     @Override

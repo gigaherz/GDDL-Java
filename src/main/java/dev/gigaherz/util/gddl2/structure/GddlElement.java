@@ -1,7 +1,7 @@
 package dev.gigaherz.util.gddl2.structure;
 
-import dev.gigaherz.util.gddl2.queries.Query;
 import dev.gigaherz.util.gddl2.formatting.Formatter;
+import dev.gigaherz.util.gddl2.queries.Query;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,7 +10,8 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
-public sealed abstract class GddlElement<T extends GddlElement<T>> extends Number permits GddlValue, GddlList, GddlMap, GddlReference
+public sealed abstract class GddlElement<T extends GddlElement<T>> extends Number
+        permits GddlValue, GddlList, GddlMap, GddlReference
 {
     //region API
 

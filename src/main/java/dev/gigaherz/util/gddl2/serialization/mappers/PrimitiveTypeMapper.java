@@ -14,7 +14,8 @@ public class PrimitiveTypeMapper extends Mapper
         super(priority);
     }
 
-    private static boolean isBoxType(Type type) {
+    private static boolean isBoxType(Type type)
+    {
         return type == Integer.class
                 || type == Float.class
                 || type == Byte.class
@@ -109,7 +110,7 @@ public class PrimitiveTypeMapper extends Mapper
         }
         else if (clazz == Character.class || clazz == char.class)
         {
-            return (char)element.intValue();
+            return (char) element.intValue();
         }
         return null;
     }

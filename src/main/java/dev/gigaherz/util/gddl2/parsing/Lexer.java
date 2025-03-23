@@ -174,7 +174,8 @@ public class Lexer implements TokenProvider, AutoCloseable
                 switch (ich)
                 {
                     case '\\' -> number = countEscapeSeq(number);
-                    case '\r' -> {
+                    case '\r' ->
+                    {
                         number++;
                         ich = reader.peek(number);
                         if (ich == '\n')
